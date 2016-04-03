@@ -1,0 +1,132 @@
+import groovy.json.*
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath("io.spring.gradle:dependency-management-plugin:$springPlatformVersion")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootGradleVersion")
+	}
+}
+
+apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+	imports {
+		mavenBom "io.spring.platform:platform-bom:$springBootVersion"
+	}
+}
+
+repositories {
+	jcenter()
+	mavenLocal()
+}
+
+apply plugin: "java"
+apply plugin: "war"
+apply plugin: "spring-boot"
+apply plugin: "maven"
+apply plugin: "eclipse"
+apply plugin: "eclipse-wtp"
+
+group = "karma"
+version = "1.0"
+
+task wrapper(type: Wrapper) {
+	gradleVersion = "2.11"
+}
+
+/*
+ * Dependencies
+ */
+dependencies {
+	compile("karma:accelerate:1.0")
+	
+	// webjars
+	runtime("org.webjars:modernizr:2.8.3")
+	runtime("org.webjars:jquery:2.2.1")
+	runtime("org.webjars:bootstrap:3.3.6")
+	runtime("org.webjars:angularjs:1.5.0")
+	
+	runtime("org.springframework.boot:spring-boot-starter")
+	runtime("org.springframework.boot:spring-boot-starter-actuator")
+	runtime("org.springframework.boot:spring-boot-devtools")
+	runtime("org.jolokia:jolokia-core")
+	
+	testRuntime("org.springframework.boot:spring-boot-starter-tomcat")	
+}
+
+/*
+ * Build Settings
+ */
+compileJava {
+	sourceCompatibility = javaVersion
+	targetCompatibility = javaVersion
+}
+
+
+bootRepackage {
+	mainClass = "test.apollo.ApolloTest"
+	excludeDevtools = false
+	// comment out the following line if you want to create an executable war file
+	enabled = false
+}
+
+
+/*
+ * Eclipse settings
+ */
+eclipse {
+	classpath {
+		defaultOutputDir = file("build/classes")
+		
+		file {
+			whenMerged { classpath ->
+				classpath.entries.removeAll { entry -> entry.kind == "con" && entry.path == "org.eclipse.jst.j2ee.internal.web.container" }
+				classpath.entries.collect { entry ->
+					if (entry.kind == "con" && entry.path == "org.eclipse.jdt.launching.JRE_CONTAINER") {
+						entry.path = "org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-" + javaVersion
+					}
+					
+					entry
+				}
+			}
+		}
+	}
+	jdt {
+		sourceCompatibility = javaVersion
+		targetCompatibility = javaVersion
+		
+		file {
+			withProperties { properties ->
+				properties.put("org.eclipse.jdt.core.compiler.processAnnotations", "disabled")
+				properties.put("org.eclipse.jdt.core.compiler.codegen.targetPlatform", javaVersion)
+			}
+		}
+	}
+	wtp {
+		component {
+			contextPath = "apollo"
+			deployName = "apollo"
+			property name: "java-output-path", value: "/apollo/build/classes"
+		}
+		facet {
+			facet name: "jst.java", version: javaVersion
+			facet name: "jst.web", version: servletVersion
+			facet name: "wst.jsdt.web", version: "1.0"
+			
+			file {
+				whenMerged { wtpFacet -> 
+					wtpFacet.facets.removeAll { facetEntry -> facetEntry.name == "jst.java" && facetEntry.version != javaVersion }
+					wtpFacet.facets.removeAll { facetEntry -> facetEntry.name == "jst.web" && facetEntry.version != servletVersion }
+				}
+			}
+		}
+	}
+}
+
+
+task testTask << {
+	println "hello";
+}

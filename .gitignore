@@ -1,0 +1,14 @@
+.apt_generated/
+.gradle/
+.settings/
+bin/
+build/
+gradle/
+logs/
+target/
+gradlew
+gradlew.bat
+.classpath
+.factorypath
+src/main/resources/git.properties
+.DS_Store
