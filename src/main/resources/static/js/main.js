@@ -1,12 +1,3 @@
-function okok() {
-	$("div.apollo-submenu").each(
-			function() {
-				var position = $(this).offset();
-				alert(this.id + "#" + JSON.stringify(position) + "#"
-						+ $(this).width());
-			});
-}
-
 /**
  * Function to remove class by wildcard
  */

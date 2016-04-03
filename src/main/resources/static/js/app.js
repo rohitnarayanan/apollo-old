@@ -45,6 +45,19 @@ function apolloController($scope, $rootScope, $route, $location, $http, $window)
 		window.location.href = $window.location.origin
 				+ global_scope.context_path + "/login?logout";
 	}
+
+	// position links
+	var allowedWidth = $("#apolloLinksDiv").width();
+	$("div.apollo-submenu").each(function() {
+		var _width = $(this).width();
+		var _left = $(this).parent().position().left;
+		if ((_left + _width) >= allowedWidth) {
+			_left -= (_left + _width - allowedWidth);
+
+		}
+
+		$(this).css("left", _left);
+	});
 }
 
 /**

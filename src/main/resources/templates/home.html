@@ -36,7 +36,7 @@
 	<!--[if lt IE 11]>
 		<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 	<![endif]-->
-	<div class="wrapper container-fluid">
+	<div id="apollo_wrapper" class="container-fluid">
 		<header class="apollo-header">
 			<nav class="navbar apollo-navbar">
 				<div class="row">
@@ -45,7 +45,8 @@
 							th:src="@{/img/apollo.png}" />
 						<h1 class="apollo-brand">Apollo</h1>
 					</div>
-					<div class="col-xs-7" style="padding-right: 0px;">
+					<div id="apolloLinksDiv" class="col-xs-7"
+						style="padding-right: 0px;">
 						<ul class="apollo-menu">
 							<li class="apollo-menu-item"><a href=""
 								class="apollo-menu-item-label"><span
@@ -78,23 +79,23 @@
 				</div>
 			</nav>
 		</header>
-		<button value="tttt" onclick="okok()" />
 
-		<section class="apollo-breadcrumbs">
+		<!-- breadcrumbs -->
+		<!-- <section class="apollo-breadcrumbs">
 			<div>
 				<ol class="breadcrumb" style="padding-right: 0px;">
 					<li>User</li>
 					<li class="active">Home</li>
 				</ol>
 			</div>
-		</section>
+		</section> -->
 
 		<!-- container -->
 		<section class="apollo-content" id="mainContainer"
 			data-ng-cloak="true">
-			<h2 class="alert lse-page-header">{{pageHeader}}</h2>
+			<h2 class="apollo-content-header">{{pageHeader}}</h2>
 
-			<div id="_alertMessage" class="alert" style="display: none;" />
+			<div id="_alertMessage" class="apollo-alert" style="display: none;" />
 
 			<div data-ng-view=""></div>
 
