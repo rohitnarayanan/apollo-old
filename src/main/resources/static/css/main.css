@@ -2,24 +2,42 @@ html, body {
 	max-width: 100% !important;
 	overflow-x: hidden !important;
 	-ms-overflow-style: scrollbar;
+	height: 100%;
+	min-height: 100%;
 }
 
-/* header section styles:start */
+/* layout styles:start */
 header.apollo-header {
-	background: none;
+	position: relative;
 	padding-top: 5px;
-	margin-bottom: 0px;
 	border-bottom: solid 1px #ccc;
 	border-radius: 0px;
+	margin-bottom: 0px;
 }
 
-header.apollo-header nav.apollo-navbar {
+section.apollo-content {
+	position: relative;
+}
+
+footer.apollo-footer {
+	position: relative;
+	margin-top: 10px;
+	border-top: solid 1px #ccc;
+	border-radius: 0px;
+	padding-top: 5px;
+}
+/* content:end */
+
+/* layout styles:end */
+
+/* header components styles:start */
+nav.apollo-header-nav {
 	margin-bottom: 5px;
 }
 
 img.apollo-brand {
-	height: 40px;
-	width: 40px;
+	height: 48px;
+	width: 60px;
 	float: left;
 	border-right: solid 4px #96c346;
 	margin-right: 10px;
@@ -30,7 +48,9 @@ h1.apollo-brand {
 	color: gray;
 	font-weight: bold;
 }
+/* header components styles:end */
 
+/* menu styles:start */
 ul.apollo-menu {
 	right: 0px;
 	list-style-type: none;
@@ -91,7 +111,7 @@ a.apollo-submenu-item:hover {
 	border-left: 6px solid #96c346;
 	background: #ddd;
 }
-/* header section styles:end */
+/* menu styles:end */
 
 /* breadcrumbs:start */
 section.apollo-breadcrumbs {
@@ -106,14 +126,16 @@ ol.breadcrumb {
 }
 /* breadcrumbs:end */
 
-/* content:start */
-section.apollo-content {
-	
+/* footer components:start */
+nav.apollo-footer-nav {
+	margin-bottom: 5px;
 }
-/* content:end */
 
-/* footer section start */
-ul.lse-footer-links>li>a:hover, ul.lse-footer-links>li>a:focus {
+ul.apollo-footer-links li a {
+	padding: 10px;
+}
+
+ul.apollo-footer-links li a:hover, ul.apollo-footer-links li a:focus {
 	background: none !important;
 }
-/* footer section styles:end */
+/* footer components:end */
