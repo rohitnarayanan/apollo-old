@@ -60,10 +60,13 @@ public class ApolloConfig extends SpringBootServletInitializer {
 		 */
 		@Override
 		public void addViewControllers(ViewControllerRegistry aRegistry) {
-			aRegistry.addViewController("/").setViewName("home");
+			aRegistry.addViewController("/").setViewName("index");
+			aRegistry.addViewController("/login").setViewName("login");
 			aRegistry.addViewController("/home").setViewName("home");
-			aRegistry.addViewController("/errorview").setViewName("error");
-			aRegistry.addViewController("/test").setViewName("test");
+			aRegistry.addViewController("/error/view").setViewName("error");
+			aRegistry.addViewController("/main").setViewName("main");
+			aRegistry.addViewController("/playlist/list").setViewName("playlist/list");
+			aRegistry.addViewController("/playlist/manage").setViewName("playlist/manage");
 		}
 	}
 

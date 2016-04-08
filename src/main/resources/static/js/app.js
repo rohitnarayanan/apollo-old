@@ -59,13 +59,13 @@ apollo.config = {
 
 	"configureRouteProvider" : function(aRouteProvider) {
 		aRouteProvider.when('/error/:statusCode', {
-			templateUrl : "/apollo/errorview",
+			templateUrl : "/apollo/error/view",
 			controller : 'errorController'
-		}).when('/test', {
-			templateUrl : "/apollo/test",
+		}).when('/main', {
+			templateUrl : "/apollo/main",
 			controller : 'mainController'
 		}).otherwise({
-			redirectTo : '/test'
+			redirectTo : '/main'
 		});
 	}
 }

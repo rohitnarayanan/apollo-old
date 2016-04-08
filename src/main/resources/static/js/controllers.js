@@ -10,27 +10,14 @@ apollo.controllers = {};
  */
 apollo.controllers.mainController = function($scope, $rootScope, $route,
 		$location, $http, $window) {
-	$rootScope.pageHeader = "Hello";
-	$rootScope.pageContentText = "Okie Dokie";
+	$rootScope.pageHeader = "This is Apollo";
+	$rootScope.pageContentText = "This application provides a set of utilities to manage your music library";
 
 	$scope.logout = function() {
 		$http.post(global_scope.context_path + "/logout");
 		window.location.href = $window.location.origin
 				+ global_scope.context_path + "/login?logout";
 	}
-
-	// position links
-	var allowedWidth = $("#apolloLinksDiv").width();
-	$("div.apollo-submenu").each(function() {
-		var _width = $(this).width();
-		var _left = $(this).parent().position().left;
-		if ((_left + _width) >= allowedWidth) {
-			_left -= (_left + _width - allowedWidth);
-
-		}
-
-		$(this).css("left", _left);
-	});
 }
 
 /**

@@ -1,0 +1,36 @@
+html, body {
+	background-color: #ccc;
+}
+
+nav#apolloHeaderNavbar {
+	background-image: linear-gradient(to bottom, #3c3c3c 0%, #222 100%);
+}
+
+ul#apolloHeaderNavbarNav li.menu-li  a {
+	color: #9d9d9d;
+}
+
+ul#apolloHeaderNavbarNav li.divider {
+	background-color: #ccc;
+}
+
+@media ( min-width : 768px) {
+	ul#apolloHeaderNavbarNav {
+		border-left: solid 1px #ccc;
+		margin-right: 30px;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li {
+		border-top: solid 4px #3c3c3c;
+		border-right: solid 1px #ccc;
+		border-bottom: none;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul {
+		background-color: #ccc;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li ul.dropdown-menu li.submenu-li {
+		border-left: 6px solid #ccc;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li ul.dropdown-menu li.submenu-li a {
+		color: #3c3c3c;
+	}
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="lseweb" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="lseweb" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="lseweb" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html lang="en" class="no-js" xmlns:th="http://www.thymeleaf.org">
+<!--<![endif]-->
+<head>
+<object th:remove="tag" th:include="templates :: head" />
+</head>
+
+<body>
+	<!--[if lt IE 11]>
+		<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+	<![endif]-->
+	<div id="apollo_wrapper" class="container-fluid">
+		<header class="apollo-header">
+			<nav id="apolloHeaderNavbar"
+				class="navbar navbar-default apollo-header-nav">
+				<!-- Brand -->
+				<div class="navbar-header">
+					<a class="navbar-brand" th:href="@{/home}"> <img
+						class="img-responsive apollo-brand" th:src="@{/img/apollo.png}" />
+					</a>
+				</div>
+			</nav>
+		</header>
+
+		<!-- container -->
+		<section class="clearfix apollo-content">
+			<div
+				class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
+				<form method="post" th:action="@{/login}">
+					<h3 class="form-signin-heading">Please sign in</h3>
+					<div class="form-group">
+						<label for="inputEmail" class="sr-only">Email address</label> <input
+							type="email" id="inputEmail" class="form-control"
+							placeholder="Email address" required="required"
+							autofocus="autofocus" />
+					</div>
+					<div class="form-group">
+						<label for="inputPassword" class="sr-only">Password</label> <input
+							type="password" id="inputPassword" class="form-control"
+							placeholder="Password" required="required" />
+					</div>
+					<div class="form-group">
+						<div class="checkbox">
+							<label> <input type="checkbox" value="remember-me" />
+								Remember me
+							</label>
+						</div>
+					</div>
+					<button class="btn btn-md btn-block btn-primary" type="submit">Sign
+						in</button>
+				</form>
+			</div>
+		</section>
+		<!-- ./container -->
+
+		<!-- bottom bar -->
+		<object th:remove="tag" th:include="templates :: footer" />
+	</div>
+
+	<!-- modal to show help message -->
+	<object th:remove="tag" th:include="templates :: help-msg" />
+
+	<!-- include java scripts -->
+	<object th:remove="tag" th:include="templates :: scripts-basic" />
+	<object th:remove="tag" th:include="templates :: scripts-custom" />
+</body>
+</html>
