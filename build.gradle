@@ -42,6 +42,12 @@ task wrapper(type: Wrapper) {
  */
 dependencies {
 	compile("karma:accelerate:1.0")
+	compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+	compile("org.springframework.social:spring-social-security")
+	compile("org.springframework.boot:spring-boot-starter-social-facebook")
+	compile("org.springframework.social:spring-social-facebook-web")
+	compile("org.springframework.boot:spring-boot-starter-social-linkedin")
+	compile("org.springframework.boot:spring-boot-starter-social-twitter")
 	
 	// webjars
 	runtime("org.webjars:modernizr:2.8.3")
