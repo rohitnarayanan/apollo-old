@@ -1,9 +1,10 @@
-package apollo.data.domain;
+package apollo.model;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+
+import apollo.data.domain.AbstractDomain;
 
 /**
  * PUT DESCRIPTION HERE
@@ -12,7 +13,7 @@ import org.springframework.data.annotation.Id;
  * @author Rohit Narayanan
  * @since Apr 9, 2016
  */
-public class User implements Serializable {
+public class User extends AbstractDomain {
 	/**
 	 * 
 	 */

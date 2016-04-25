@@ -2,13 +2,16 @@ package apollo.config;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.SpringBootWebSecurityConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.embedded.ErrorPage;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -22,7 +25,10 @@ import accelerate.cache.PropertyCache;
  * @since Jul 20, 2014
  */
 @SpringBootApplication(scanBasePackages = { "accelerate", "apollo" }, exclude = { DataSourceAutoConfiguration.class,
-		SecurityAutoConfiguration.class })
+		SpringBootWebSecurityConfiguration.class })
+@EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnableMongoRepositories(basePackages = { "apollo.data" })
+@EnableSpringDataWebSupport
 public class ApolloConfig extends SpringBootServletInitializer {
 	/*
 	 * (non-Javadoc)
@@ -62,11 +68,13 @@ public class ApolloConfig extends SpringBootServletInitializer {
 		public void addViewControllers(ViewControllerRegistry aRegistry) {
 			aRegistry.addViewController("/").setViewName("index");
 			aRegistry.addViewController("/login").setViewName("login");
-			aRegistry.addViewController("/home").setViewName("home");
-			aRegistry.addViewController("/error/view").setViewName("error");
+			// aRegistry.addViewController("/home").setViewName("home");
+			aRegistry.addViewController("/errorPage/view").setViewName("error");
 			aRegistry.addViewController("/main").setViewName("main");
 			aRegistry.addViewController("/playlist/list").setViewName("playlist/list");
 			aRegistry.addViewController("/playlist/manage").setViewName("playlist/manage");
+
+			aRegistry.addViewController("/util/editTags").setViewName("util/editTags");
 		}
 	}
 

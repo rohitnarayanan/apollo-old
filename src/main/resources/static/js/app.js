@@ -15,10 +15,18 @@ apollo.module.config([ '$routeProvider', '$httpProvider',
 		} ]);
 
 /*
- * Attach Controllers
+ * Register Controllers
  */
-apollo.module.controller('mainController', apollo.controllers.mainController);
-apollo.module.controller('errorController', apollo.controllers.errorController);
+$.each(apollo.controllers, function(aKey, aFunction) {
+	apollo.module.controller(aKey, aFunction);
+});
+
+/*
+ * Register Services
+ */
+$.each(apollo.services, function(aKey, aFunction) {
+	apollo.module.service(aKey, aFunction);
+});
 
 /*
  * Apollo Configuration
@@ -58,12 +66,17 @@ apollo.config = {
 	},
 
 	"configureRouteProvider" : function(aRouteProvider) {
+		var context_path = apollo.context.path;
+
 		aRouteProvider.when('/error/:statusCode', {
-			templateUrl : "/apollo/error/view",
+			templateUrl : context_path + "/errorPage/view",
 			controller : 'errorController'
 		}).when('/main', {
-			templateUrl : "/apollo/main",
+			templateUrl : context_path + "/main",
 			controller : 'mainController'
+		}).when('/editTags', {
+			templateUrl : context_path + "/util/editTags",
+			controller : 'editTagsController'
 		}).otherwise({
 			redirectTo : '/main'
 		});

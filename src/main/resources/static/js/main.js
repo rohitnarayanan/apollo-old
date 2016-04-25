@@ -3,6 +3,10 @@
  */
 var apollo = {};
 
+if (window.context_info) {
+	apollo.context = context_info;
+}
+
 apollo.utils = {
 	"showPageAlert" : function(aMessage, aMessageClass) {
 		$('#_alertMessage').empty().text(aMessage).removeClassRegex(/^alert-/)

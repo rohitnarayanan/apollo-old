@@ -7,19 +7,24 @@
 	<appender name="SysoutAppender" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- encoders are by default assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
 		<encoder>
-			<pattern>
-				%d;%logger;%thread;%level;%X{executionInfo.executionId};%msg |~|
-				%throwable%n
-			</pattern>
+			<pattern>%d;%logger;%level;%msg|~|%throwable%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>testFile.log</file>
+		<append>true</append>
+		<encoder>
+			<pattern>%d;%logger;%level;%msg|~|%throwable%n</pattern>
 		</encoder>
 	</appender>
 
 	<logger name="org.springframework.boot.autoconfigure.security"
-		level="info" additivity="false">
-		<appender-ref ref="SysoutAppender" />
+		level="debug" additivity="false">
+		<appender-ref ref="FILE" />
 	</logger>
 
-	<root level="info">
-		<appender-ref ref="SysoutAppender" />
+	<root level="debug">
+		<appender-ref ref="FILE" />
 	</root>
 </configuration>

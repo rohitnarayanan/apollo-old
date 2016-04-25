@@ -117,23 +117,27 @@ ul#apolloHeaderNavbarNav li.menu-li ul.dropdown-menu {
 		/*show submenu on menu hover*/
 		display: block;
 	}
-	ul#apolloHeaderNavbarNav li.menu-li ul.dropdown-menu li.submenu-li {
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li {
 		/*style submenu items*/
 		padding: 5px 10px 5px 0px;
 		border-left: 6px solid #fff;
 	}
-	ul#apolloHeaderNavbarNav li.menu-li ul.dropdown-menu li.divider {
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.divider {
 		/*style submenu item divider*/
 		padding: 0px;
 		margin: 2px 0px 2px 0px;
 	}
-	ul#apolloHeaderNavbarNav li.menu-li ul.dropdown-menu li.submenu-li:hover
-		{
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li:hover {
 		/*set left border and hightlight on hover*/
 		border-left: 6px solid #96c346;
 		background-color: #f2f2f2;
 	}
-	ul#apolloHeaderNavbarNav li.menu-li ul.dropdown-menu li.submenu-li:hover a
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li a:focus
+		{
+		/*default to li background on hover*/
+		background: none !important;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li:hover a
 		{
 		/*default to li background on hover*/
 		background: none !important;
@@ -165,6 +169,16 @@ ol.breadcrumb {
 	background: none !important;
 }
 /* breadcrumbs:end */
+
+/* page style:start */
+h2.apollo-page-header {
+	padding: 10px;
+	margin: 0px 0px 5px 0px;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, .2);
+	background-image: linear-gradient(to bottom, #96c346 0%, #96c146 100%);
+	color: #fff;
+}
+/* page style:end */
 
 /* footer components:start */
 nav#apolloFooterNavbar {

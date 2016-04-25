@@ -1,7 +1,5 @@
 package apollo.data.repository;
 
-import java.util.List;
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import apollo.data.domain.User;
@@ -19,17 +17,4 @@ public interface UserRepository extends MongoRepository<User, String> {
 	 * @return
 	 */
 	public User findByUsername(String aUsername);
-
-	/**
-	 * @param firstName
-	 * @return
-	 */
-	public User findByFirstName(String firstName);
-
-	/**
-	 * @param lastName
-	 * @return
-	 */
-	public List<User> findByLastName(String lastName);
-
 }

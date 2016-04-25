@@ -21,6 +21,9 @@ dependencyManagement {
 repositories {
 	jcenter()
 	mavenLocal()
+	maven {
+        url "https://dl.bintray.com/ijabz/maven"
+    }
 }
 
 apply plugin: "java"
@@ -43,17 +46,20 @@ task wrapper(type: Wrapper) {
 dependencies {
 	compile("karma:accelerate:1.0")
 	compile("org.springframework.boot:spring-boot-starter-data-mongodb")
-	compile("org.springframework.social:spring-social-security")
-	compile("org.springframework.boot:spring-boot-starter-social-facebook")
-	compile("org.springframework.social:spring-social-facebook-web")
-	compile("org.springframework.boot:spring-boot-starter-social-linkedin")
-	compile("org.springframework.boot:spring-boot-starter-social-twitter")
+	
+	compile("net.jthink:jaudiotagger:2.2.5")
+	//compile("org.springframework.social:spring-social-security")
+	//compile("org.springframework.boot:spring-boot-starter-social-facebook")
+	//compile("org.springframework.social:spring-social-facebook-web")
+	//compile("org.springframework.boot:spring-boot-starter-social-linkedin")
+	//compile("org.springframework.boot:spring-boot-starter-social-twitter")
 	
 	// webjars
 	runtime("org.webjars:modernizr:2.8.3")
 	runtime("org.webjars:jquery:2.2.1")
 	runtime("org.webjars:bootstrap:3.3.6")
 	runtime("org.webjars:angularjs:1.5.0")
+	runtime("org.webjars:datatables:1.10.11")
 	
 	runtime("org.springframework.boot:spring-boot-starter")
 	runtime("org.springframework.boot:spring-boot-starter-actuator")

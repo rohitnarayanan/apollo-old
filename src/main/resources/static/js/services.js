@@ -34,3 +34,39 @@ apollo.services.playlistService = function playlistService($http, $q) {
 
 	}
 };
+
+/**
+ * 
+ */
+apollo.services.utilService = function utilService($http, $q) {
+	return ({
+		"listFolders" : listFolders,
+		"listTracks" : listTracks
+	});
+
+	function listFolders(aDirPath, aDirName) {
+		var request = $http({
+			method : "get",
+			url : apollo.context.path + "/util/listFolders",
+			params : {
+				"dirPath" : aDirPath,
+				"dirName" : aDirName
+			}
+		});
+
+		return (request.then(apollo.plugins.angularUtils.httpSuccess,
+				_handleError));
+
+	}
+
+	function listTracks() {
+
+	}
+
+	/**
+	 * internal error handler
+	 */
+	function _handleError(aResponse) {
+		return apollo.plugins.angularUtils.httpError(aResponse, $q);
+	}
+};

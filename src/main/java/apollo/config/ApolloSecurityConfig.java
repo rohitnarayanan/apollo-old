@@ -1,15 +1,17 @@
 package apollo.config;
 
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.MongoCollectionUtils;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.social.connect.web.SignInAdapter;
+import org.springframework.security.web.csrf.CsrfFilter;
 
-import apollo.security.SimpleSignInAdapter;
+import accelerate.util.AngularUtil;
+import apollo.security.ApolloUserDetailsService;
 
 /**
  * Main {@link Configuration} class for accelerate
@@ -18,8 +20,16 @@ import apollo.security.SimpleSignInAdapter;
  * @version 1.0 Initial Version
  * @since Jul 20, 2014
  */
-@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	/**
+	 * 
+	 */
+	@Autowired
+	private ApolloUserDetailsService userDetailsService = null;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -28,12 +38,13 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * config.annotation.web.builders.WebSecurity)
 	 */
 	/**
-	 * @param web
+	 * @param aWebSecurity
 	 * @throws Exception
 	 */
 	@Override
-	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/css/**", "/js/**", "/img/**", "/", "/index");
+	public void configure(WebSecurity aWebSecurity) throws Exception {
+		aWebSecurity.ignoring().antMatchers("/webjars/**", "/css/**", "/js/**", "/img/**", "/", "/index",
+				"/errorPage/**");
 	}
 
 	/*
@@ -44,27 +55,35 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * config.annotation.web.builders.HttpSecurity)
 	 */
 	/**
-	 * @param http
+	 * @param aHttp
 	 * @throws Exception
 	 */
 	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.formLogin().loginProcessingUrl("/signin/authenticate").and().logout().logoutUrl("/signout")
-				.deleteCookies("JSESSIONID").and().authorizeRequests().antMatchers("/**").authenticated().and()
-				.rememberMe();
+	protected void configure(HttpSecurity aHttp) throws Exception {
+		// configure login / logout
+		aHttp.formLogin().loginPage("/login").defaultSuccessUrl("/home", true).permitAll().and().logout().permitAll()
+				.invalidateHttpSession(true).clearAuthentication(true).deleteCookies("JSESSIONID").and()
+				.authorizeRequests().anyRequest().fullyAuthenticated();
+
+		// csrf protection with angular compatibility
+		aHttp.csrf().csrfTokenRepository(AngularUtil.csrfTokenRepository()).and()
+				.addFilterAfter(AngularUtil.csrfHeaderFilter(), CsrfFilter.class);
 	}
 
-	/**
-	 * @return
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.security.config.annotation.web.configuration.
+	 * WebSecurityConfigurerAdapter#configure(org.springframework.security.
+	 * config.annotation.authentication.builders.AuthenticationManagerBuilder)
 	 */
-	@Bean
-	@SuppressWarnings("static-method")
-	public SignInAdapter signInAdapter() {
-		return new SimpleSignInAdapter(new HttpSessionRequestCache());
+	/**
+	 * @param aAuth
+	 * @throws Exception
+	 */
+	@Override
+	protected void configure(AuthenticationManagerBuilder aAuth) throws Exception {
+		aAuth.userDetailsService(this.userDetailsService);
 	}
-	
-	@Bean
-    public MongoCollection users() {
-        return jongo().getCollection("users");
-    }
+
 }
