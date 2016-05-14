@@ -12,7 +12,7 @@
 	</appender>
 
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>testFile.log</file>
+		<file>apollo.log</file>
 		<append>true</append>
 		<encoder>
 			<pattern>%d;%logger;%level;%msg|~|%throwable%n</pattern>

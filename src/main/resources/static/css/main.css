@@ -79,13 +79,21 @@ ul#apolloHeaderNavbarNav li.menu-li a.dropdown-toggle {
 
 ul#apolloHeaderNavbarNav li.menu-li.open a.dropdown-toggle {
 	/*highlight expanded menu*/
-	background-color: #f1f1f1 !important;
+	color: #777;
+	background: none !important;
 	border-left: 6px solid #96c346;
 }
 
-ul#apolloHeaderNavbarNav li.menu-li ul.dropdown-menu {
+ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul {
 	/*remove padding from submenu container*/
 	padding: 0px 0px 0px 0px;
+}
+
+@media ( max-width : 768px) {
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li a:before
+		{
+		content: ' - ';
+	}
 }
 
 /*styles to apply when full menu is visible*/

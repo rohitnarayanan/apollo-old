@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import accelerate.databean.AccelerateDataBean;
-import accelerate.databean.AccelerateModel;
+import accelerate.databean.AccelerateWebResponse;
 import accelerate.util.AppUtil;
 import accelerate.util.FileUtil;
 import apollo.util.ApolloConstants;
@@ -40,8 +40,8 @@ public class UtilController {
 		File targetDir = new File(path, name);
 
 		AccelerateDataBean model = new AccelerateDataBean();
-		model.addAttribute("dirPath", targetDir.getPath());
-		model.addAttribute("folders", Arrays.stream(targetDir.listFiles(new FileFilter() {
+		model.put("dirPath", targetDir.getPath());
+		model.put("folders", Arrays.stream(targetDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File aFile) {
 				return !aFile.getName().startsWith(".") && aFile.isDirectory();
@@ -55,8 +55,8 @@ public class UtilController {
 			});
 
 			AccelerateDataBean dataBean = new AccelerateDataBean();
-			dataBean.addAttribute("name", aFile.getName());
-			dataBean.addAttribute("childFolders", !AppUtil.isEmpty(childFolders));
+			dataBean.put("name", aFile.getName());
+			dataBean.put("childFolders", !AppUtil.isEmpty(childFolders));
 			return dataBean;
 		}).collect(Collectors.toList()));
 
@@ -69,14 +69,14 @@ public class UtilController {
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, path = "/listTracks")
-	public static AccelerateModel listTracks(@RequestParam(name = "dirPath", defaultValue = "") String aDirPath,
+	public static AccelerateWebResponse listTracks(@RequestParam(name = "dirPath", defaultValue = "") String aDirPath,
 			@RequestParam(name = "dirName", defaultValue = "") String aDirName) {
 		String path = AppUtil.isEmpty(aDirPath) ? "~" : aDirPath;
 		String name = AppUtil.isEmpty(aDirName) ? "" : aDirName;
 		File targetDir = new File(path, name);
 
-		AccelerateModel model = new AccelerateModel();
-		model.put("tracks", Arrays.stream(targetDir.listFiles(new FileFilter() {
+		AccelerateWebResponse response = new AccelerateWebResponse();
+		response.put("tracks", Arrays.stream(targetDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File aFile) {
 				return AppUtil.compare(FileUtil.getFileExtn(aFile), ApolloConstants.MP3);
@@ -90,6 +90,6 @@ public class UtilController {
 			}
 		}).collect(Collectors.toList()));
 
-		return model;
+		return response;
 	}
 }

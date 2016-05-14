@@ -2,7 +2,7 @@ package apollo.util;
 
 import accelerate.databean.AccelerateMessage;
 import accelerate.databean.AccelerateMessage.MessageType;
-import accelerate.databean.AccelerateModel;
+import accelerate.databean.AccelerateWebResponse;
 import accelerate.util.AppUtil;
 
 /**
@@ -24,18 +24,18 @@ public class ApolloUtil {
 	 * @param aError
 	 * @return
 	 */
-	public static final AccelerateModel prepareResponse(int aReturnCode, Exception aError) {
-		AccelerateModel model = new AccelerateModel();
-		model.setReturnCode(aReturnCode);
+	public static final AccelerateWebResponse prepareResponse(int aReturnCode, Exception aError) {
+		AccelerateWebResponse response = new AccelerateWebResponse();
+		response.setReturnCode(aReturnCode);
 
 		if (aError != null) {
-			model.setMessage(new AccelerateMessage(MessageType.ERROR, "serverError",
+			response.setMessage(new AccelerateMessage(MessageType.ERROR, "serverError",
 					"Server encountered an error while completing the operation."));
-			model.addAttribute("errorMessage", aError.getMessage());
-			model.addAttribute("errorDetails", AppUtil.getErrorLog(aError));
-			model.addAttribute("serverError", true);
+			response.put("errorMessage", aError.getMessage());
+			response.put("errorDetails", AppUtil.getErrorLog(aError));
+			response.put("serverError", true);
 		}
 
-		return model;
+		return response;
 	}
 }

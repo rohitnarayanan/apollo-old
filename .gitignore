@@ -12,3 +12,4 @@ gradlew.bat
 .factorypath
 src/main/resources/git.properties
 .DS_Store
+*.log
