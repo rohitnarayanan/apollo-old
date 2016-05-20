@@ -24,7 +24,7 @@ public class ApolloUtil {
 	 * @param aError
 	 * @return
 	 */
-	public static final AccelerateWebResponse prepareResponse(int aReturnCode, Exception aError) {
+	public static final AccelerateWebResponse prepareResponse(int aReturnCode, Throwable aError) {
 		AccelerateWebResponse response = new AccelerateWebResponse();
 		response.setReturnCode(aReturnCode);
 

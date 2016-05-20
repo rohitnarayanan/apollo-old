@@ -29,7 +29,7 @@ import accelerate.util.JSONUtil;
  */
 @Aspect
 @Order(Ordered.LOWEST_PRECEDENCE)
-@Component("ApolloAspect")
+@Component
 public class ApolloAspect {
 	/**
 	 * {@link Logger} instance
