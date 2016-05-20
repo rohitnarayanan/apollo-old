@@ -24,16 +24,18 @@ apollo.controllers.errorController = function($scope, $routeParams) {
 /**
  * mainController
  */
-apollo.controllers.mainController = function($scope, $rootScope, $route,
-		$location, $http, $window) {
+apollo.controllers.mainController = function($rootScope, $scope, $http, $q,
+		$window) {
 	$rootScope.pageHeader = "This is Apollo";
 	$rootScope.pageContentText = "This application provides a set of utilities to manage your music library";
 
+	apollo.angularSvc = {};
+	apollo.angularSvc.http = $http;
+	apollo.angularSvc.q = $q;
+	apollo.angularSvc.window = $window;
+
 	$scope.logout = function() {
 		$("#_logoutForm").submit();
-		// $http.post(global_scope.context_path + "/logout");
-		// window.location.href = $window.location.origin
-		// + global_scope.context_path + "/login?logout";
 	}
 }
 
@@ -62,11 +64,6 @@ apollo.controllers.editTagsController = function($rootScope, $scope,
 				.listFolders(dirPath, dirName)
 				.then(
 						function(aResponse) {
-							// if (aResponse.returnCode != 0) {
-							// apollo.plugins.angularUtils
-							// .serverError(aResponse);
-							// return;
-							// }
 
 							$scope.dirPath = aResponse.dirPath;
 

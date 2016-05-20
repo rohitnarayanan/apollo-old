@@ -47,19 +47,12 @@ apollo.config = {
 				"requestError" : function(rejection) {
 					return rejection;
 				},
-				"response" : function(response) {
-					return response;
+				"response" : function(aResponse) {
+					return aResponse;
 				},
-				"responseError" : function(rejection) {
-					if (rejection.status == 401) {
-						var landingUrl = $window.location.origin
-								+ global_scope.context_path
-								+ "/login?sessionExpired";
-						window.location.href = landingUrl;
-					} else {
-						$location.path("/error/" + rejection.status);
-					}
-					return $q.reject(rejection);
+				"responseError" : function(aResponse) {
+					$location.path("/error/" + aResponse.status);
+					return $q.reject(aResponse);
 				}
 			}
 		});
