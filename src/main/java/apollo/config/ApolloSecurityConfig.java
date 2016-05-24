@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import accelerate.util.AngularUtil;
+import accelerate.util.AngularJSUtil;
 import apollo.security.ApolloUserDetailsService;
 
 /**
@@ -66,8 +66,8 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 				.authorizeRequests().anyRequest().fullyAuthenticated();
 
 		// csrf protection with angular compatibility
-		aHttp.csrf().csrfTokenRepository(AngularUtil.csrfTokenRepository()).and()
-				.addFilterAfter(AngularUtil.csrfHeaderFilter(), CsrfFilter.class);
+		aHttp.csrf().csrfTokenRepository(AngularJSUtil.csrfTokenRepository()).and()
+				.addFilterAfter(AngularJSUtil.csrfHeaderFilter(), CsrfFilter.class);
 	}
 
 	/*
