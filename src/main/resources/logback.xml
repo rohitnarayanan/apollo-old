@@ -20,11 +20,11 @@
 	</appender>
 
 	<logger name="org.springframework.boot.autoconfigure.security"
-		level="debug" additivity="false">
+		level="info" additivity="false">
 		<appender-ref ref="FILE" />
 	</logger>
 
-	<root level="debug">
+	<root level="info">
 		<appender-ref ref="FILE" />
 	</root>
 </configuration>

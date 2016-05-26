@@ -45,7 +45,7 @@ public class ApolloAspect {
 	 * @param aJoinPoint
 	 * @return
 	 */
-	@Around("execution(* apollo.controller.*.*(..))")
+	@Around("execution(* apollo.controller.*.*(..)) and @annotation(apollo.util.HandleError)")
 	public static Object handleError(ProceedingJoinPoint aJoinPoint) {
 		AccelerateDataBean response = null;
 

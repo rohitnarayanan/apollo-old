@@ -81,7 +81,7 @@ bootRepackage {
 	mainClass = "test.apollo.ApolloTest"
 	excludeDevtools = false
 	// comment out the following line if you want to create an executable war file
-	enabled = false
+	enabled = true
 }
 
 /*

@@ -3,9 +3,9 @@ package apollo.util;
 import static accelerate.util.AccelerateConstants.EMPTY_STRING;
 import static accelerate.util.AppUtil.compare;
 import static accelerate.util.AppUtil.compareAny;
-import static accelerate.util.AppUtil.isEmpty;
 import static accelerate.util.FileUtil.getFileExtn;
 import static accelerate.util.FileUtil.getParentName;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
 import java.io.IOException;
@@ -365,6 +365,33 @@ public class ID3Util {
 	}
 
 	/**
+	 * @param aTrack
+	 * @return
+	 */
+	public static Mp3Tag getDefaultTag(File aTrack) {
+		Mp3Tag mp3Tag = new Mp3Tag();
+		mp3Tag.language = FieldKey.LANGUAGE.name();
+		mp3Tag.genre = FieldKey.GENRE.name();
+		mp3Tag.album = aTrack.getParent();
+		mp3Tag.year = FieldKey.YEAR.name();
+		mp3Tag.composer = FieldKey.COMPOSER.name();
+		mp3Tag.albumArtist = FieldKey.ALBUM_ARTIST.name();
+		mp3Tag.artist = FieldKey.ARTIST.name();
+		mp3Tag.title = aTrack.getName();
+		mp3Tag.trackNbr = String.valueOf(aTrack.length());
+
+		Mp3Tag.Header header = mp3Tag.header;
+		header.size = 0;
+		header.length = 0;
+		header.mode = "mode";
+		header.bitrateType = "VBR";
+		header.bitrate = "0";
+		header.frequency = "frequency";
+
+		return mp3Tag;
+	}
+
+	/**
 	 * @param aMp3Tag
 	 * @throws AccelerateException
 	 */
@@ -406,7 +433,7 @@ public class ID3Util {
 		List<String> tokens = new ArrayList<>();
 
 		for (String token : array) {
-			if (AppUtil.isEmpty(token)) {
+			if (isEmpty(token)) {
 				continue;
 			}
 
