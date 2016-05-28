@@ -37,7 +37,7 @@ group = "karma"
 version = "1.0"
 
 task wrapper(type: Wrapper) {
-	gradleVersion = "2.12"
+	gradleVersion = "2.13"
 }
 
 /*
@@ -61,12 +61,14 @@ dependencies {
 	runtime("org.webjars:angularjs:1.5.0")
 	runtime("org.webjars:datatables:1.10.11")
 	
-	runtime("org.springframework.boot:spring-boot-starter")
+	// runtime dependencies
 	runtime("org.springframework.boot:spring-boot-starter-actuator")
+	runtime("org.springframework.boot:spring-boot-starter-tomcat")
 	runtime("org.springframework.boot:spring-boot-devtools")
 	runtime("org.jolokia:jolokia-core")
 	
-	testRuntime("org.springframework.boot:spring-boot-starter-tomcat")	
+	// test dependencies
+	testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
 /*
