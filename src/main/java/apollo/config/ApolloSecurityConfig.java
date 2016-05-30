@@ -1,6 +1,7 @@
 package apollo.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -8,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.csrf.CsrfFilter;
 
 import accelerate.util.AngularJSUtil;
@@ -29,6 +31,14 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Autowired
 	private ApolloUserDetailsService userDetailsService = null;
+
+	/**
+	 * @return
+	 */
+	@Bean
+	public static SessionRegistry sessionRegistry() {
+		return sessionRegistry;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -60,14 +70,21 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Override
 	protected void configure(HttpSecurity aHttp) throws Exception {
-		// configure login / logout
-		aHttp.formLogin().loginPage("/login").defaultSuccessUrl("/home", true).permitAll().and().logout().permitAll()
-				.invalidateHttpSession(true).clearAuthentication(true).deleteCookies("JSESSIONID").and()
-				.authorizeRequests().anyRequest().fullyAuthenticated();
+		// configure login logout
+		aHttp.formLogin().loginPage("/login").defaultSuccessUrl("/home", true).permitAll().and().authorizeRequests()
+				.anyRequest().fullyAuthenticated();
+
+		// configure logout
+		aHttp.logout().clearAuthentication(true).deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
+
+		aHttp.sessionManagement().maximumSessions(10).expiredUrl("/login?sessionExpired=Y")
+				.sessionRegistry(sessionRegistry);
 
 		// csrf protection with angular compatibility
 		aHttp.csrf().csrfTokenRepository(AngularJSUtil.csrfTokenRepository()).and()
 				.addFilterAfter(AngularJSUtil.csrfHeaderFilter(), CsrfFilter.class);
+
+		aHttp.exceptionHandling().authenticationEntryPoint().accessDeniedHandler();
 	}
 
 	/*

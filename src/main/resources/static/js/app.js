@@ -41,7 +41,7 @@ apollo.config = {
 		aHttpProvider.interceptors.push(function($q, $location, $window) {
 			return {
 				"request" : function(config) {
-					config.headers["ajaxRequest"] = "true";
+					config.headers["AJAX-REQUEST"] = "true";
 					return config;
 				},
 				"requestError" : function(rejection) {

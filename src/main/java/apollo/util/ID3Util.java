@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
@@ -34,6 +36,7 @@ import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.images.StandardArtwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import accelerate.exception.AccelerateException;
 import accelerate.exception.FlowControlException;
@@ -429,24 +432,14 @@ public class ID3Util {
 	 * @return parsed tokens
 	 */
 	public static List<String> parseTagExpression(String aPattern) {
-		String[] array = StringUtil.split(aPattern, "<");
-		List<String> tokens = new ArrayList<>();
-
-		for (String token : array) {
-			if (isEmpty(token)) {
-				continue;
-			}
-
+		return StringUtil.split(aPattern, "<").stream().filter(token -> StringUtils.hasText(token)).flatMap(token -> {
 			int index = token.indexOf(">");
 			if (index < 0) {
-				tokens.add(token);
-			} else {
-				tokens.add(token.substring(0, index + 1));
-				tokens.add(token.substring(index + 1));
+				return Stream.of(token);
 			}
-		}
 
-		return tokens;
+			return Stream.of(token.substring(0, index + 1), token.substring(index + 1));
+		}).collect(Collectors.toList());
 	}
 
 	/**
