@@ -13,6 +13,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.csrf.CsrfFilter;
 
 import accelerate.util.AngularJSUtil;
+import accelerate.util.SecurityUtil;
 import apollo.security.ApolloUserDetailsService;
 
 /**
@@ -37,7 +38,7 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Bean
 	public static SessionRegistry sessionRegistry() {
-		return sessionRegistry;
+		return SecurityUtil.SESSION_REGISTRY;
 	}
 
 	/*
@@ -78,13 +79,14 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 		aHttp.logout().clearAuthentication(true).deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
 
 		aHttp.sessionManagement().maximumSessions(10).expiredUrl("/login?sessionExpired=Y")
-				.sessionRegistry(sessionRegistry);
+				.sessionRegistry(SecurityUtil.SESSION_REGISTRY);
 
 		// csrf protection with angular compatibility
 		aHttp.csrf().csrfTokenRepository(AngularJSUtil.csrfTokenRepository()).and()
 				.addFilterAfter(AngularJSUtil.csrfHeaderFilter(), CsrfFilter.class);
 
-		aHttp.exceptionHandling().authenticationEntryPoint().accessDeniedHandler();
+		aHttp.exceptionHandling().authenticationEntryPoint(SecurityUtil.configureAuthenticationEntryPoint(true))
+				.accessDeniedHandler(SecurityUtil.configureAccessDeniedHandler("/login", "/logout", true));
 	}
 
 	/*
