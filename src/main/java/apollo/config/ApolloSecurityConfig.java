@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.csrf.CsrfFilter;
 
 import accelerate.util.AngularJSUtil;
@@ -72,20 +73,27 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity aHttp) throws Exception {
 		// configure login logout
-		aHttp.formLogin().loginPage("/login").defaultSuccessUrl("/home", true).permitAll().and().authorizeRequests()
-				.anyRequest().fullyAuthenticated();
+		aHttp.formLogin().defaultSuccessUrl("/home", true)
+				.failureHandler(SecurityUtil.authenticationFailureHandler("/login")).permitAll();
 
 		// configure logout
-		aHttp.logout().clearAuthentication(true).deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
+		aHttp.logout().clearAuthentication(true).deleteCookies("JSESSIONID").invalidateHttpSession(true)
+				.logoutSuccessUrl("/login?logout=Y").permitAll();
 
-		aHttp.sessionManagement().maximumSessions(10).expiredUrl("/login?sessionExpired=Y")
+		// session management
+		aHttp.sessionManagement().maximumSessions(2).expiredUrl("/login?sessionExpired=Y")
 				.sessionRegistry(SecurityUtil.SESSION_REGISTRY);
 
 		// csrf protection with angular compatibility
 		aHttp.csrf().csrfTokenRepository(AngularJSUtil.csrfTokenRepository()).and()
 				.addFilterAfter(AngularJSUtil.csrfHeaderFilter(), CsrfFilter.class);
 
-		aHttp.exceptionHandling().authenticationEntryPoint(SecurityUtil.configureAuthenticationEntryPoint(true))
+		// URL security
+		aHttp.authorizeRequests().antMatchers("/login/**", "/logout/**").permitAll().anyRequest().fullyAuthenticated();
+
+		// exception handling on authentication or authorization errors
+		aHttp.exceptionHandling()
+				.authenticationEntryPoint(SecurityUtil.configureAuthenticationEntryPoint("/login", true))
 				.accessDeniedHandler(SecurityUtil.configureAccessDeniedHandler("/login", "/logout", true));
 	}
 
@@ -102,7 +110,7 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Override
 	protected void configure(AuthenticationManagerBuilder aAuth) throws Exception {
-		aAuth.userDetailsService(this.userDetailsService);
+		aAuth.eraseCredentials(true).userDetailsService(this.userDetailsService)
+				.passwordEncoder(NoOpPasswordEncoder.getInstance());
 	}
-
 }

@@ -91,6 +91,6 @@ public class ApolloConfig extends SpringBootServletInitializer {
 	 */
 	@Bean
 	public static EmbeddedServletContainerCustomizer customizeEmbeddedContainer() {
-		return aContainer -> aContainer.addErrorPages(new ErrorPage("/aclUtil/error"));
+		return aContainer -> aContainer.addErrorPages(new ErrorPage("/acl/util/error"));
 	}
 }
