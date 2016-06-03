@@ -68,7 +68,7 @@ apollo.config = {
 			templateUrl : context_path + "/main",
 			controller : 'mainController'
 		}).when('/editTags', {
-			templateUrl : context_path + "/util/editTags",
+			templateUrl : context_path + "/tracks/edit",
 			controller : 'editTagsController'
 		}).otherwise({
 			redirectTo : '/main'

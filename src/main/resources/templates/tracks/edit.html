@@ -1,5 +1,5 @@
 <div class="alert alert-info">{{pageContentText}}</div>
-<div id="_foldersDiv">
+<div id="_foldersDiv" ng-show="folderMode">
 	<div class="table-responsive">
 		<table id="folderListDT" class="table table-striped table-hover"></table>
 	</div>
@@ -9,7 +9,7 @@
 	<button type="button" class="btn btn-warning" ng-click="getTracks()">Get
 		Tracks</button>
 </div>
-<div id="_tagsDiv" class="hidden">
+<div id="_tagsDiv" ng-show="!folderMode">
 	<div class="table-responsive">
 		<table id="trackListDT" class="table table-striped table-hover"></table>
 	</div>

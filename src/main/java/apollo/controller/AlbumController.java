@@ -7,14 +7,12 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import accelerate.cache.PropertyCache;
 import accelerate.databean.AccelerateDataBean;
 import accelerate.databean.AccelerateWebResponse;
 import accelerate.util.AppUtil;
@@ -30,18 +28,12 @@ import apollo.util.ID3Util;
  * @since Apr 15, 2016
  */
 @RestController
-@RequestMapping("/util")
-public class UtilController {
+@RequestMapping("/album")
+public class AlbumController {
 	/**
 	 * 
 	 */
-	private static Logger LOGGER = LoggerFactory.getLogger(UtilController.class);
-
-	/**
-	 * 
-	 */
-	@Autowired
-	private PropertyCache apolloProps = null;
+	private static Logger _logger = LoggerFactory.getLogger(AlbumController.class);
 
 	/**
 	 * @param aDirPath
@@ -50,17 +42,15 @@ public class UtilController {
 	 */
 	@RequestMapping(method = RequestMethod.GET, path = "/listFolders")
 	@HandleError
-	public AccelerateWebResponse listFolders(@RequestParam(name = "dirPath", defaultValue = "") String aDirPath,
+	public static AccelerateDataBean listFolders(@RequestParam(name = "dirPath", defaultValue = "") String aDirPath,
 			@RequestParam(name = "dirName", defaultValue = "") String aDirName) {
-		String path = ObjectUtils.isEmpty(aDirPath) ? this.apolloProps.get("apollo.library.root") : aDirPath;
-		String name = ObjectUtils.isEmpty(aDirName) ? this.apolloProps.get("apollo.library.name") : aDirName;
+		String path = ObjectUtils.isEmpty(aDirPath) ? "/Users" : aDirPath;
+		String name = ObjectUtils.isEmpty(aDirName) ? "rohitnarayanan" : aDirName;
 		File targetDir = new File(path, name);
 
-		LOGGER.debug("Fetching sub folders for [{}]", targetDir);
-
-		AccelerateWebResponse response = new AccelerateWebResponse();
-		response.put("dirPath", targetDir.getPath());
-		response.put("folders", Arrays.stream(targetDir.listFiles(new FileFilter() {
+		AccelerateDataBean model = new AccelerateDataBean();
+		model.put("dirPath", targetDir.getPath());
+		model.put("folders", Arrays.stream(targetDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File aFile) {
 				return !aFile.getName().startsWith(".") && aFile.isDirectory();
@@ -79,7 +69,7 @@ public class UtilController {
 			return dataBean;
 		}).collect(Collectors.toList()));
 
-		return response;
+		return model;
 	}
 
 	/**
@@ -95,17 +85,20 @@ public class UtilController {
 		String name = ObjectUtils.isEmpty(aDirName) ? "" : aDirName;
 		File targetDir = new File(path, name);
 
-		LOGGER.debug("Fetching tracks for [{}]", targetDir);
-
 		AccelerateWebResponse response = new AccelerateWebResponse();
-		response.put("dirPath", targetDir.getPath());
 		response.put("tracks", Arrays.stream(targetDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File aFile) {
-				return AppUtil.compare(FileUtil.getFileExtn(aFile), "zzz");
+				return AppUtil.compare(FileUtil.getFileExtn(aFile), "txt");
 			}
 		})).map(aFile -> {
-			return ID3Util.tempTag(aFile);
+			try {
+				return ID3Util.tempTag(aFile);
+			} catch (Exception error) {
+				_logger.error("Error [{}] in reading tags", error.getMessage(), error);
+			}
+
+			return null;
 		}).collect(Collectors.toList()));
 
 		return response;

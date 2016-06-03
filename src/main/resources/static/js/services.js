@@ -56,11 +56,20 @@ apollo.services.utilService = function utilService($http, $q) {
 
 		return (request.then(apollo.plugins.angularUtils.httpSuccess,
 				_handleError));
-
 	}
 
-	function listTracks() {
+	function listTracks(aDirPath, aDirName) {
+		var request = $http({
+			method : "get",
+			url : apollo.context.path + "/util/listTracks",
+			params : {
+				"dirPath" : aDirPath,
+				"dirName" : aDirName
+			}
+		});
 
+		return (request.then(apollo.plugins.angularUtils.httpSuccess,
+				_handleError));
 	}
 
 	/**

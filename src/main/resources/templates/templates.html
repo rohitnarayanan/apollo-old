@@ -18,9 +18,7 @@
 		<link type="text/css" rel="stylesheet"
 			th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap-theme.css}" />
 		<link type="text/css" rel="stylesheet"
-			th:href="@{/webjars/datatables/1.10.11/css/jquery.dataTables.css}" />
-		<link type="text/css" rel="stylesheet"
-			th:href="@{/webjars/datatables/1.10.11/css/dataTables.bootstrap.css}" />
+			th:href="@{/css/external/datatables.css}" />
 		<link type="text/css" rel="stylesheet" th:href="@{/css/app.css}" />
 		<link type="text/css" rel="stylesheet" th:href="@{/css/main.css}" />
 		<!-- <link type="text/css" rel="stylesheet" th:href="@{/css/skins/black.css}" /> -->
@@ -74,14 +72,11 @@
 
 	<div th:fragment="scripts-basic">
 		<script th:src="@{/webjars/modernizr/2.8.3/modernizr.js}"></script>
-		<script th:src="@{/webjars/jquery/2.2.1/jquery.js}"></script>
+		<script th:src="@{/webjars/jquery/2.2.4/jquery.js}"></script>
 		<script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.js}"></script>
-		<script th:src="@{/webjars/angularjs/1.5.0/angular.js}"></script>
-		<script th:src="@{/webjars/angularjs/1.5.0/angular-route.js}"></script>
-		<script
-			th:src="@{/webjars/datatables/1.10.11/js/jquery.dataTables.js}"></script>
-		<script
-			th:src="@{/webjars/datatables/1.10.11/js/dataTables.bootstrap.js}"></script>
+		<script th:src="@{/webjars/angularjs/1.5.5/angular.js}"></script>
+		<script th:src="@{/webjars/angularjs/1.5.5/angular-route.js}"></script>
+		<script th:src="@{/js/external/datatables.js}"></script>
 	</div>
 
 	<div th:fragment="scripts-custom">

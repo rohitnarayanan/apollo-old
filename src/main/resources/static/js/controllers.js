@@ -28,7 +28,7 @@ apollo.controllers.mainController = function($rootScope, $scope, $http, $q,
 		$window) {
 	$rootScope.pageHeader = "This is Apollo";
 	$rootScope.pageContentText = "This application provides a set of utilities to manage your music library";
-
+	$rootScope.context = apollo.context;
 	apollo.angularSvc = {};
 	apollo.angularSvc.http = $http;
 	apollo.angularSvc.q = $q;
@@ -37,6 +37,153 @@ apollo.controllers.mainController = function($rootScope, $scope, $http, $q,
 	$scope.logout = function() {
 		$("#_logoutForm").submit();
 	}
+}
+
+/**
+ * addTracksController
+ */
+apollo.controllers.addTracksController = function($rootScope, $scope,
+		utilService) {
+	$rootScope.pageHeader = "Add Tracks";
+	$rootScope.pageContentText = "Choose the directory from which you want to add tracks";
+	$scope.firstCall = true;
+
+	$scope.getFolders = function() {
+		var selectedFolder = $("input[name='folderSelect']:checked");
+		var dirPath = $scope.firstCall ? "" : $scope.dirPath;
+		var dirName = $scope.firstCall ? "" : selectedFolder.val();
+
+		var childFolders = selectedFolder.data("childFolders");
+		if (!$scope.firstCall && !childFolders) {
+			alert("No child folders available !");
+			return;
+		}
+
+		$scope.firstCall = false;
+		utilService
+				.listFolders(dirPath, dirName)
+				.then(
+						function(aResponse) {
+							$scope.dirPath = aResponse.model.dirPath;
+
+							if (!$.fn.DataTable.isDataTable('#folderListDT')) {
+								var dataTableOptions = {
+									"order" : [ [ 1, "asc" ] ],
+									"pageLength" : 15,
+									dom : '<"top"f>rt<"bottom"ip>',
+									rowId : 'id',
+									buttons : [ {
+										text : 'Reload',
+										action : function(e, dt, node, config) {
+											dt.ajax.reload();
+										}
+									} ],
+									columns : [
+											{
+												"title" : "Select",
+												"orderable" : false,
+												"mRender" : function(data,
+														type, full, meta) {
+													return "<input type='radio' name='folderSelect' value='"
+															+ full.model.name
+															+ "' data-child-folders='"
+															+ full.model.childFolders
+															+ "'/>";
+												}
+											}, {
+												"title" : "Name",
+												"data" : "model.name",
+												"defaultContent" : ""
+											} ]
+								};
+
+								$scope.folderListDT = $('#folderListDT')
+										.DataTable(dataTableOptions);
+							}
+
+							$scope.folderListDT.clear();
+							$scope.folderListDT.rows
+									.add(aResponse.model.folders);
+							$scope.folderListDT.columns.adjust().draw();
+
+							$scope.folderMode = true;
+							$("#folderListDT").css("width", "100%");
+						}, apollo.plugins.angularUtils.serverError);
+	};
+
+	$scope.getTracks = function() {
+		var selectedFolder = $("input[name='folderSelect']:checked");
+		var dirPath = $scope.firstCall ? "" : $scope.dirPath;
+		var dirName = $scope.firstCall ? "" : selectedFolder.val();
+
+		$scope.firstCall = false;
+		utilService
+				.listTracks(dirPath, dirName)
+				.then(
+						function(aResponse) {
+							$scope.dirPath = aResponse.dirPath;
+
+							if (!$.fn.DataTable.isDataTable('#trackListDT')) {
+								var dataTableOptions = {
+									"order" : [ [ 6, "asc" ] ],
+									"pageLength" : 15,
+									dom : '<"top"f>rt<"bottom"ip>',
+									rowId : 'id',
+									columns : [
+											{
+												"title" : "Select",
+												"orderable" : false,
+												"mRender" : function(data,
+														type, full, meta) {
+													return "<input type='radio' value='"
+															+ full.sourceFile
+															+ "'/>";
+												}
+											}, {
+												"title" : "Language",
+												"data" : "language",
+												"defaultContent" : ""
+											}, {
+												"title" : "Genre",
+												"data" : "genre",
+												"defaultContent" : ""
+											}, {
+												"title" : "Album",
+												"data" : "album",
+												"defaultContent" : ""
+											}, {
+												"title" : "Year",
+												"data" : "year",
+												"defaultContent" : ""
+											}, {
+												"title" : "Artist",
+												"data" : "artist",
+												"defaultContent" : ""
+											}, {
+												"title" : "Title",
+												"data" : "title",
+												"defaultContent" : ""
+											}, {
+												"title" : "Track Nbr",
+												"data" : "trackNbr",
+												"defaultContent" : ""
+											} ]
+								};
+
+								$scope.trackListDT = $('#trackListDT')
+										.DataTable(dataTableOptions);
+							}
+
+							$scope.trackListDT.clear();
+							$scope.trackListDT.rows.add(aResponse.model.tracks);
+							$scope.trackListDT.columns.adjust().draw();
+
+							$scope.folderMode = false;
+							$("#trackListDT").css("width", "100%");
+						}, apollo.plugins.angularUtils.serverError);
+	};
+
+	$scope.getFolders();
 }
 
 /**
@@ -64,15 +211,20 @@ apollo.controllers.editTagsController = function($rootScope, $scope,
 				.listFolders(dirPath, dirName)
 				.then(
 						function(aResponse) {
-
-							$scope.dirPath = aResponse.dirPath;
+							$scope.dirPath = aResponse.model.dirPath;
 
 							if (!$.fn.DataTable.isDataTable('#folderListDT')) {
 								var dataTableOptions = {
-									"order" : [ [ 0, "asc" ] ],
+									"order" : [ [ 1, "asc" ] ],
 									"pageLength" : 15,
-									dom : '<"top"f>rt<"bottom"ip>',
+									dom : '<"top"Bf>rt<"bottom"ip>',
 									rowId : 'id',
+									buttons : [ {
+										text : 'Reload',
+										action : function(e, dt, node, config) {
+											alert("Hi");
+										}
+									} ],
 									columns : [
 											{
 												"title" : "Select",
@@ -80,26 +232,29 @@ apollo.controllers.editTagsController = function($rootScope, $scope,
 												"mRender" : function(data,
 														type, full, meta) {
 													return "<input type='radio' name='folderSelect' value='"
-															+ full.name
+															+ full.model.name
 															+ "' data-child-folders='"
-															+ full.childFolders
+															+ full.model.childFolders
 															+ "'/>";
 												}
 											}, {
 												"title" : "Name",
-												"data" : "name",
+												"data" : "model.name",
 												"defaultContent" : ""
 											} ]
 								};
 
-								$scope.dataTable = $('#folderListDT')
+								$scope.folderListDT = $('#folderListDT')
 										.DataTable(dataTableOptions);
 							}
 
-							$scope.dataTable.clear();
-							$scope.dataTable.rows.add(aResponse.folders);
-							$scope.dataTable.columns.adjust().draw();
+							$scope.folderListDT.clear();
+							$scope.folderListDT.rows
+									.add(aResponse.model.folders);
+							$scope.folderListDT.columns.adjust().draw();
 
+							$scope.folderMode = true;
+							$("#folderListDT").css("width", "100%");
 						}, apollo.plugins.angularUtils.serverError);
 	};
 
@@ -108,28 +263,16 @@ apollo.controllers.editTagsController = function($rootScope, $scope,
 		var dirPath = $scope.firstCall ? "" : $scope.dirPath;
 		var dirName = $scope.firstCall ? "" : selectedFolder.val();
 
-		var childFolders = selectedFolder.data("childFolders");
-		if (!$scope.firstCall && !childFolders) {
-			alert("No child folders available !");
-			return;
-		}
-
 		$scope.firstCall = false;
 		utilService
-				.listFolders(dirPath, dirName)
+				.listTracks(dirPath, dirName)
 				.then(
 						function(aResponse) {
-							// if (aResponse.returnCode != 0) {
-							// apollo.plugins.angularUtils
-							// .serverError(aResponse);
-							// return;
-							// }
-
 							$scope.dirPath = aResponse.dirPath;
 
-							if (!$.fn.DataTable.isDataTable('#folderListDT')) {
+							if (!$.fn.DataTable.isDataTable('#trackListDT')) {
 								var dataTableOptions = {
-									"order" : [ [ 0, "asc" ] ],
+									"order" : [ [ 6, "asc" ] ],
 									"pageLength" : 15,
 									dom : '<"top"f>rt<"bottom"ip>',
 									rowId : 'id',
@@ -140,28 +283,50 @@ apollo.controllers.editTagsController = function($rootScope, $scope,
 												"mRender" : function(data,
 														type, full, meta) {
 													return "<input type='radio' value='"
-															+ full.name
-															+ "' data-child-folders='"
-															+ full.childFolders
+															+ full.sourceFile
 															+ "'/>";
 												}
 											}, {
-												"title" : "Name",
-												"data" : "name",
+												"title" : "Language",
+												"data" : "language",
+												"defaultContent" : ""
+											}, {
+												"title" : "Genre",
+												"data" : "genre",
+												"defaultContent" : ""
+											}, {
+												"title" : "Album",
+												"data" : "album",
+												"defaultContent" : ""
+											}, {
+												"title" : "Year",
+												"data" : "year",
+												"defaultContent" : ""
+											}, {
+												"title" : "Artist",
+												"data" : "artist",
+												"defaultContent" : ""
+											}, {
+												"title" : "Title",
+												"data" : "title",
+												"defaultContent" : ""
+											}, {
+												"title" : "Track Nbr",
+												"data" : "trackNbr",
 												"defaultContent" : ""
 											} ]
 								};
 
-								$scope.dataTable = $('#trackListDT').DataTable(
-										dataTableOptions);
+								$scope.trackListDT = $('#trackListDT')
+										.DataTable(dataTableOptions);
 							}
 
-							$scope.dataTable.clear();
-							$scope.dataTable.rows.add(aResponse.folders);
-							$scope.dataTable.columns.adjust().draw();
+							$scope.trackListDT.clear();
+							$scope.trackListDT.rows.add(aResponse.model.tracks);
+							$scope.trackListDT.columns.adjust().draw();
 
-							$("#_foldersDiv").hide();
-							$("#_tagsDiv").show();
+							$scope.folderMode = false;
+							$("#trackListDT").css("width", "100%");
 						}, apollo.plugins.angularUtils.serverError);
 	};
 

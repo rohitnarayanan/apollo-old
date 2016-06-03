@@ -1,0 +1,13 @@
+<em>{{pageContentText}}</em>
+<div id="_foldersDiv" ng-show="folderMode">
+	<div class="table-responsive">
+		<table id="folderListDT" class="table table-striped table-hover"></table>
+	</div>
+</div>
+<div id="_tagsDiv" ng-show="!folderMode">
+	<div class="table-responsive">
+		<table id="trackListDT" class="table table-striped table-hover"></table>
+	</div>
+	<button type="button" class="btn btn-warning" ng-click="getTracks()">Edit
+		Tag</button>
+</div>

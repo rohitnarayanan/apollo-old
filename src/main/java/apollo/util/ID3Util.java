@@ -20,6 +20,7 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
@@ -36,7 +37,6 @@ import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.images.StandardArtwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 import accelerate.exception.AccelerateException;
 import accelerate.exception.FlowControlException;
@@ -371,17 +371,14 @@ public class ID3Util {
 	 * @param aTrack
 	 * @return
 	 */
-	public static Mp3Tag getDefaultTag(File aTrack) {
-		Mp3Tag mp3Tag = new Mp3Tag();
-		mp3Tag.language = FieldKey.LANGUAGE.name();
-		mp3Tag.genre = FieldKey.GENRE.name();
-		mp3Tag.album = aTrack.getParent();
-		mp3Tag.year = FieldKey.YEAR.name();
-		mp3Tag.composer = FieldKey.COMPOSER.name();
-		mp3Tag.albumArtist = FieldKey.ALBUM_ARTIST.name();
-		mp3Tag.artist = FieldKey.ARTIST.name();
-		mp3Tag.title = aTrack.getName();
-		mp3Tag.trackNbr = String.valueOf(aTrack.length());
+	public static Mp3Tag tempTag(File aTrack) {
+		List<String> tokens = parseTagExpression("<language>-<genre>-<album>-<year>-<artist>-<title>");
+
+		Mp3Tag mp3Tag = parseTag(aTrack, tokens);
+		mp3Tag.sourceFile = aTrack;
+
+		mp3Tag.composer = mp3Tag.artist;
+		mp3Tag.albumArtist = mp3Tag.artist;
 
 		Mp3Tag.Header header = mp3Tag.header;
 		header.size = 0;
@@ -432,14 +429,15 @@ public class ID3Util {
 	 * @return parsed tokens
 	 */
 	public static List<String> parseTagExpression(String aPattern) {
-		return StringUtil.split(aPattern, "<").stream().filter(token -> StringUtils.hasText(token)).flatMap(token -> {
-			int index = token.indexOf(">");
-			if (index < 0) {
-				return Stream.of(token);
-			}
+		return StringUtil.split(aPattern, "<").stream().filter(token -> StringUtils.isNotBlank(token))
+				.flatMap(token -> {
+					int index = token.indexOf(">");
+					if (index < 0) {
+						return Stream.of(token);
+					}
 
-			return Stream.of(token.substring(0, index + 1), token.substring(index + 1));
-		}).collect(Collectors.toList());
+					return Stream.of(token.substring(0, index + 1), token.substring(index + 1));
+				}).collect(Collectors.toList());
 	}
 
 	/**
@@ -455,7 +453,7 @@ public class ID3Util {
 
 		for (String token : aTokens) {
 			if (token.endsWith(">")) {
-				token = StringUtil.extractUpto(token, 0, 1);
+				token = StringUtils.substring(token, 0, -1);
 				fieldQueue.add(token);
 			} else {
 				int index = fileName.indexOf(token);

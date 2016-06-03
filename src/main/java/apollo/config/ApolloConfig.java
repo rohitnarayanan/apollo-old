@@ -10,12 +10,16 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import accelerate.cache.PropertyCache;
+import accelerate.util.JSONUtil;
 
 /**
  * Main {@link Configuration} class for accelerate
@@ -46,6 +50,31 @@ public class ApolloConfig extends SpringBootServletInitializer {
 	}
 
 	/**
+	 * @return
+	 */
+	@Bean
+	public static PropertyCache apolloProps() {
+		return new PropertyCache("ApolloConfig", "classpath:config/application.properties");
+	}
+
+	/**
+	 * @return
+	 */
+	@Bean
+	@Primary
+	public static ObjectMapper objectMapper() {
+		return JSONUtil.objectMapper();
+	}
+
+	/**
+	 * @return
+	 */
+	@Bean
+	public static EmbeddedServletContainerCustomizer customizeEmbeddedContainer() {
+		return aContainer -> aContainer.addErrorPages(new ErrorPage("/acl/util/error"));
+	}
+
+	/**
 	 * Configuration for Accelerate UI templates
 	 * 
 	 * @version 1.0 Initial Version
@@ -71,26 +100,7 @@ public class ApolloConfig extends SpringBootServletInitializer {
 			// aRegistry.addViewController("/home").setViewName("home");
 			aRegistry.addViewController("/errorPage/view").setViewName("error");
 			aRegistry.addViewController("/main").setViewName("main");
-			aRegistry.addViewController("/playlist/list").setViewName("playlist/list");
-			aRegistry.addViewController("/playlist/manage").setViewName("playlist/manage");
-
-			aRegistry.addViewController("/util/editTags").setViewName("util/editTags");
+			aRegistry.addViewController("/tracks/edit").setViewName("tracks/edit");
 		}
-	}
-
-	/**
-	 * @return
-	 */
-	@Bean
-	public static PropertyCache apolloConfig() {
-		return new PropertyCache("ApolloConfig", "classpath:config/application.properties");
-	}
-
-	/**
-	 * @return
-	 */
-	@Bean
-	public static EmbeddedServletContainerCustomizer customizeEmbeddedContainer() {
-		return aContainer -> aContainer.addErrorPages(new ErrorPage("/acl/util/error"));
 	}
 }

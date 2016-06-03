@@ -27,7 +27,6 @@ import apollo.security.ApolloUserDetailsService;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
-
 	/**
 	 * 
 	 */

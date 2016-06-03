@@ -17,7 +17,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import accelerate.databean.AccelerateDataBean;
+import accelerate.databean.AccelerateWebResponse;
 import accelerate.util.JSONUtil;
 
 /**
@@ -47,7 +47,7 @@ public class ApolloAspect {
 	 */
 	@Around("execution(* apollo.controller.*.*(..)) and @annotation(apollo.util.HandleError)")
 	public static Object handleError(ProceedingJoinPoint aJoinPoint) {
-		AccelerateDataBean response = null;
+		AccelerateWebResponse response = null;
 
 		List<Object> requestArgs = new ArrayList<>();
 		for (Object arg : aJoinPoint.getArgs()) {
@@ -60,7 +60,7 @@ public class ApolloAspect {
 		requestLogger.debug("Request:{}", JSONUtil.serialize(requestArgs));
 
 		try {
-			response = (AccelerateDataBean) aJoinPoint.proceed();
+			response = (AccelerateWebResponse) aJoinPoint.proceed();
 		} catch (Throwable error) {
 			_logger.error("Unhandled error [{}] in Apollo.", error.getMessage(), error);
 			response = ApolloUtil.prepareResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, error);
