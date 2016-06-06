@@ -4,10 +4,11 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Base64;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import accelerate.databean.AccelerateDataBean;
-import accelerate.util.StringUtil;
 
 /**
  * Model class holding Mp3 tag information
@@ -170,15 +171,15 @@ public class Mp3Tag extends AccelerateDataBean {
 	 * @param aMp3Tag
 	 */
 	public void copyFrom(Mp3Tag aMp3Tag) {
-		this.language = StringUtil.toString(aMp3Tag.language, this.language);
-		this.genre = StringUtil.toString(aMp3Tag.genre, this.genre);
-		this.album = StringUtil.toString(aMp3Tag.album, this.album);
-		this.year = StringUtil.toString(aMp3Tag.year, this.year);
-		this.composer = StringUtil.toString(aMp3Tag.composer, this.composer);
-		this.albumArtist = StringUtil.toString(aMp3Tag.albumArtist, this.albumArtist);
-		this.artist = StringUtil.toString(aMp3Tag.artist, this.artist);
-		this.trackNbr = StringUtil.toString(aMp3Tag.trackNbr, this.trackNbr);
-		this.title = StringUtil.toString(aMp3Tag.title, this.title);
+		this.language = StringUtils.defaultString(aMp3Tag.language, this.language);
+		this.genre = StringUtils.defaultString(aMp3Tag.genre, this.genre);
+		this.album = StringUtils.defaultString(aMp3Tag.album, this.album);
+		this.year = StringUtils.defaultString(aMp3Tag.year, this.year);
+		this.composer = StringUtils.defaultString(aMp3Tag.composer, this.composer);
+		this.albumArtist = StringUtils.defaultString(aMp3Tag.albumArtist, this.albumArtist);
+		this.artist = StringUtils.defaultString(aMp3Tag.artist, this.artist);
+		this.trackNbr = StringUtils.defaultString(aMp3Tag.trackNbr, this.trackNbr);
+		this.title = StringUtils.defaultString(aMp3Tag.title, this.title);
 	}
 
 	/**

@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import accelerate.databean.AccelerateDataBean;
-import accelerate.databean.AccelerateWebResponse;
 import accelerate.util.AppUtil;
 import accelerate.util.FileUtil;
+import accelerate.web.AccelerateWebResponse;
 import apollo.util.HandleError;
 import apollo.util.ID3Util;
 

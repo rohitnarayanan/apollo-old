@@ -2,8 +2,8 @@ package apollo.util;
 
 import accelerate.databean.AccelerateMessage;
 import accelerate.databean.AccelerateMessage.MessageType;
-import accelerate.databean.AccelerateWebResponse;
 import accelerate.util.AppUtil;
+import accelerate.web.AccelerateWebResponse;
 
 /**
  * PUT DESCRIPTION HERE

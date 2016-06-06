@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import accelerate.databean.AccelerateWebSession;
+import accelerate.web.security.AccelerateUserSession;
 import apollo.data.domain.User;
 
 /**
@@ -14,7 +14,7 @@ import apollo.data.domain.User;
  * @author Rohit Narayanan
  * @since Apr 15, 2016
  */
-public class ApolloSession extends AccelerateWebSession {
+public class ApolloSession extends AccelerateUserSession {
 	/**
 	 * 
 	 */

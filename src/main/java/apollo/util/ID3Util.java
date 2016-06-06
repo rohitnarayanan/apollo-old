@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -43,7 +44,6 @@ import accelerate.exception.FlowControlException;
 import accelerate.util.AppUtil;
 import accelerate.util.FileUtil;
 import accelerate.util.ReflectionUtil;
-import accelerate.util.StringUtil;
 import apollo.model.Mp3Tag;
 import apollo.model.TagCheckResult;
 
@@ -429,7 +429,7 @@ public class ID3Util {
 	 * @return parsed tokens
 	 */
 	public static List<String> parseTagExpression(String aPattern) {
-		return StringUtil.split(aPattern, "<").stream().filter(token -> StringUtils.isNotBlank(token))
+		return Arrays.stream(StringUtils.split(aPattern, "<")).filter(token -> StringUtils.isNotBlank(token))
 				.flatMap(token -> {
 					int index = token.indexOf(">");
 					if (index < 0) {
@@ -466,8 +466,8 @@ public class ID3Util {
 				}
 
 				String field = fieldQueue.poll();
-				String fieldValue = StringUtil.extract(fileName, 0, index);
-				fileName = StringUtil.extract(fileName, index + token.length(), -1);
+				String fieldValue = StringUtils.substring(fileName, 0, index);
+				fileName = StringUtils.substring(fileName, index + token.length(), -1);
 
 				if (compare(field, "ignore")) {
 					continue;

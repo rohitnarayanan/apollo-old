@@ -11,7 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import accelerate.util.JSONUtil;
-import accelerate.util.SecurityUtil;
+import accelerate.web.security.SecurityUtil;
 
 /**
  * PUT DESCRIPTION HERE

@@ -17,8 +17,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import accelerate.databean.AccelerateWebResponse;
 import accelerate.util.JSONUtil;
+import accelerate.web.AccelerateWebResponse;
 
 /**
  * This class contains aop configuration for logging purpose
