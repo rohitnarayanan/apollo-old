@@ -8,22 +8,27 @@ if (window.context_info) {
 }
 
 apollo.utils = {
-	"showPageAlert" : function(aMessage, aMessageClass) {
-		$('#_alertMessage').empty().text(aMessage).removeClassRegex(/^alert-/)
-				.addClass(aMessageClass).show().get(0).scrollIntoView();
+	"toJSON" : function(aJSONString) {
+		return JSON.parse(aJSONString);
 	},
 
-	"hidePageAlert" : function() {
-		$('#_alertMessage').hide();
+	"createMessage" : function(aMessage, aArgs) {
+		var msg = aMessage + ":";
+		$.each(aArgs, function(aObj, aIdx) {
+			msg += JSON.stringify(aObj) + "|~|";
+		});
+
+		return msg;
 	},
 
-	"showModalAlert" : function(aMessage, aMessageClass) {
-		$('#_modalAlert').empty().text(aMessage).removeClassRegex(/^alert-/)
-				.addClass(aMessageClass).show().get(0).scrollIntoView();
+	"alert" : function(aMessage) {
+		alert(apollo.utils.createMessage(aMessage, Array.prototype.slice.call(
+				arguments, 1)));
 	},
 
-	"hideModalAlert" : function() {
-		$('#_modalAlert').hide();
+	"log" : function(aMessage) {
+		console.log(apollo.utils.createMessage(aMessage, Array.prototype.slice
+				.call(arguments, 1)));
 	},
 
 	"escapeHTML" : function(aText) {

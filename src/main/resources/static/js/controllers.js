@@ -24,15 +24,16 @@ apollo.controllers.errorController = function($scope, $routeParams) {
 /**
  * mainController
  */
-apollo.controllers.mainController = function($rootScope, $scope, $http, $q,
-		$window) {
+apollo.controllers.mainController = function($rootScope, $scope, $http,
+		$window, $q, $compile) {
 	$rootScope.pageHeader = "This is Apollo";
 	$rootScope.pageContentText = "This application provides a set of utilities to manage your music library";
 	$rootScope.context = apollo.context;
 	apollo.angularSvc = {};
 	apollo.angularSvc.http = $http;
-	apollo.angularSvc.q = $q;
 	apollo.angularSvc.window = $window;
+	apollo.angularSvc.q = $q;
+	apollo.angularSvc.compile = $compile;
 
 	$scope.logout = function() {
 		$("#_logoutForm").submit();
@@ -40,295 +41,76 @@ apollo.controllers.mainController = function($rootScope, $scope, $http, $q,
 }
 
 /**
- * addTracksController
+ * addAlbumController
  */
-apollo.controllers.addTracksController = function($rootScope, $scope,
-		utilService) {
-	$rootScope.pageHeader = "Add Tracks";
-	$rootScope.pageContentText = "Choose the directory from which you want to add tracks";
-	$scope.firstCall = true;
+apollo.controllers.addAlbumController = function($rootScope, $scope,
+		fileSystemService) {
+	$rootScope.pageHeader = "Add Album";
+	$rootScope.pageContentText = "Add a new album to the library";
 
-	$scope.getFolders = function() {
-		var selectedFolder = $("input[name='folderSelect']:checked");
-		var dirPath = $scope.firstCall ? "" : $scope.dirPath;
-		var dirName = $scope.firstCall ? "" : selectedFolder.val();
+	$scope.albumSelected = false;
+	$scope.tagTokens = [ "language", "genre", "album", "year", "composer",
+			"albumArtist", "artist", "trackNbr", "title" ]
 
-		var childFolders = selectedFolder.data("childFolders");
-		if (!$scope.firstCall && !childFolders) {
-			alert("No child folders available !");
-			return;
-		}
+	$scope.selectAlbum = function() {
+		$scope.albumSelected = false;
+		apollo.plugins.FileSystemUtil.showModal(fileSystemService, function(
+				aAlbumPath) {
+			$scope.loadTracks(aAlbumPath);
+		});
+	}
 
-		$scope.firstCall = false;
-		utilService
-				.listFolders(dirPath, dirName)
-				.then(
-						function(aResponse) {
-							$scope.dirPath = aResponse.model.dirPath;
+	$scope.loadTracks = function(aAlbumPath) {
+		fileSystemService.listTracks(aAlbumPath).then(
+				function(aResponse) {
+					$scope.albumPath = aResponse.dataMap.path;
 
-							if (!$.fn.DataTable.isDataTable('#folderListDT')) {
-								var dataTableOptions = {
-									"order" : [ [ 1, "asc" ] ],
-									"pageLength" : 15,
-									dom : '<"top"f>rt<"bottom"ip>',
-									rowId : 'id',
-									buttons : [ {
-										text : 'Reload',
-										action : function(e, dt, node, config) {
-											dt.ajax.reload();
-										}
-									} ],
-									columns : [
-											{
-												"title" : "Select",
-												"orderable" : false,
-												"mRender" : function(data,
-														type, full, meta) {
-													return "<input type='radio' name='folderSelect' value='"
-															+ full.model.name
-															+ "' data-child-folders='"
-															+ full.model.childFolders
-															+ "'/>";
-												}
-											}, {
-												"title" : "Name",
-												"data" : "model.name",
-												"defaultContent" : ""
-											} ]
-								};
+					if (!$.fn.DataTable.isDataTable("#albumTracksDT")) {
+						$scope.albumTracksDT = $("#albumTracksDT").DataTable(
+								apollo.dataTableConfig.albumTracksDT);
+					}
 
-								$scope.folderListDT = $('#folderListDT')
-										.DataTable(dataTableOptions);
-							}
+					$scope.albumTracksDT.clear();
+					$scope.albumTracksDT.rows.add(aResponse.dataMap.tracks);
 
-							$scope.folderListDT.clear();
-							$scope.folderListDT.rows
-									.add(aResponse.model.folders);
-							$scope.folderListDT.columns.adjust().draw();
+					$scope.albumSelected = true;
 
-							$scope.folderMode = true;
-							$("#folderListDT").css("width", "100%");
-						}, apollo.plugins.angularUtils.serverError);
+					$scope.albumTracksDT.columns.adjust().draw();
+					$scope.albumTracksDT.responsive.rebuild();
+					$scope.albumTracksDT.responsive.recalc();
+				}, apollo.plugins.AngularUtil.serverError);
 	};
 
-	$scope.getTracks = function() {
-		var selectedFolder = $("input[name='folderSelect']:checked");
-		var dirPath = $scope.firstCall ? "" : $scope.dirPath;
-		var dirName = $scope.firstCall ? "" : selectedFolder.val();
-
-		$scope.firstCall = false;
-		utilService
-				.listTracks(dirPath, dirName)
-				.then(
-						function(aResponse) {
-							$scope.dirPath = aResponse.dirPath;
-
-							if (!$.fn.DataTable.isDataTable('#trackListDT')) {
-								var dataTableOptions = {
-									"order" : [ [ 6, "asc" ] ],
-									"pageLength" : 15,
-									dom : '<"top"f>rt<"bottom"ip>',
-									rowId : 'id',
-									columns : [
-											{
-												"title" : "Select",
-												"orderable" : false,
-												"mRender" : function(data,
-														type, full, meta) {
-													return "<input type='radio' value='"
-															+ full.sourceFile
-															+ "'/>";
-												}
-											}, {
-												"title" : "Language",
-												"data" : "language",
-												"defaultContent" : ""
-											}, {
-												"title" : "Genre",
-												"data" : "genre",
-												"defaultContent" : ""
-											}, {
-												"title" : "Album",
-												"data" : "album",
-												"defaultContent" : ""
-											}, {
-												"title" : "Year",
-												"data" : "year",
-												"defaultContent" : ""
-											}, {
-												"title" : "Artist",
-												"data" : "artist",
-												"defaultContent" : ""
-											}, {
-												"title" : "Title",
-												"data" : "title",
-												"defaultContent" : ""
-											}, {
-												"title" : "Track Nbr",
-												"data" : "trackNbr",
-												"defaultContent" : ""
-											} ]
-								};
-
-								$scope.trackListDT = $('#trackListDT')
-										.DataTable(dataTableOptions);
-							}
-
-							$scope.trackListDT.clear();
-							$scope.trackListDT.rows.add(aResponse.model.tracks);
-							$scope.trackListDT.columns.adjust().draw();
-
-							$scope.folderMode = false;
-							$("#trackListDT").css("width", "100%");
-						}, apollo.plugins.angularUtils.serverError);
+	$scope.showParseTags = function() {
+		$("#_parseTagExprModal").modal("show");
 	};
 
-	$scope.getFolders();
-}
+	$scope.getTagTokens = function(aQuery) {
+		console.log("aQuery:" + aQuery);
+		return $.map($scope.tagTokens, function(aToken, aIdx) {
+			return (aToken.startsWith(aQuery)) ? aToken : null;
+		});
+	};
+
+	$scope.parseTags = function() {
+		alert("parseTags:" + $scope.tagExpressions);
+	};
+
+	$scope.saveTags = function() {
+		alert("saveTags");
+	};
+
+	setTimeout(function() {
+		$scope.selectAlbum();
+	}, 200);
+};
 
 /**
- * editTagsController
+ * addAlbumController
  */
-apollo.controllers.editTagsController = function($rootScope, $scope,
-		utilService) {
-	$rootScope.pageHeader = "Edit Tags";
-	$rootScope.pageContentText = "Choose the directory in which the files are to be edited";
-	$scope.firstCall = true;
+apollo.controllers.replaceTrackController = function($rootScope, $scope) {
+	$rootScope.pageHeader = "Replace Track";
+	$rootScope.pageContentText = "Replace a track file with one with better quality";
 
-	$scope.getFolders = function() {
-		var selectedFolder = $("input[name='folderSelect']:checked");
-		var dirPath = $scope.firstCall ? "" : $scope.dirPath;
-		var dirName = $scope.firstCall ? "" : selectedFolder.val();
-
-		var childFolders = selectedFolder.data("childFolders");
-		if (!$scope.firstCall && !childFolders) {
-			alert("No child folders available !");
-			return;
-		}
-
-		$scope.firstCall = false;
-		utilService
-				.listFolders(dirPath, dirName)
-				.then(
-						function(aResponse) {
-							$scope.dirPath = aResponse.model.dirPath;
-
-							if (!$.fn.DataTable.isDataTable('#folderListDT')) {
-								var dataTableOptions = {
-									"order" : [ [ 1, "asc" ] ],
-									"pageLength" : 15,
-									dom : '<"top"Bf>rt<"bottom"ip>',
-									rowId : 'id',
-									buttons : [ {
-										text : 'Reload',
-										action : function(e, dt, node, config) {
-											alert("Hi");
-										}
-									} ],
-									columns : [
-											{
-												"title" : "Select",
-												"orderable" : false,
-												"mRender" : function(data,
-														type, full, meta) {
-													return "<input type='radio' name='folderSelect' value='"
-															+ full.model.name
-															+ "' data-child-folders='"
-															+ full.model.childFolders
-															+ "'/>";
-												}
-											}, {
-												"title" : "Name",
-												"data" : "model.name",
-												"defaultContent" : ""
-											} ]
-								};
-
-								$scope.folderListDT = $('#folderListDT')
-										.DataTable(dataTableOptions);
-							}
-
-							$scope.folderListDT.clear();
-							$scope.folderListDT.rows
-									.add(aResponse.model.folders);
-							$scope.folderListDT.columns.adjust().draw();
-
-							$scope.folderMode = true;
-							$("#folderListDT").css("width", "100%");
-						}, apollo.plugins.angularUtils.serverError);
-	};
-
-	$scope.getTracks = function() {
-		var selectedFolder = $("input[name='folderSelect']:checked");
-		var dirPath = $scope.firstCall ? "" : $scope.dirPath;
-		var dirName = $scope.firstCall ? "" : selectedFolder.val();
-
-		$scope.firstCall = false;
-		utilService
-				.listTracks(dirPath, dirName)
-				.then(
-						function(aResponse) {
-							$scope.dirPath = aResponse.dirPath;
-
-							if (!$.fn.DataTable.isDataTable('#trackListDT')) {
-								var dataTableOptions = {
-									"order" : [ [ 6, "asc" ] ],
-									"pageLength" : 15,
-									dom : '<"top"f>rt<"bottom"ip>',
-									rowId : 'id',
-									columns : [
-											{
-												"title" : "Select",
-												"orderable" : false,
-												"mRender" : function(data,
-														type, full, meta) {
-													return "<input type='radio' value='"
-															+ full.sourceFile
-															+ "'/>";
-												}
-											}, {
-												"title" : "Language",
-												"data" : "language",
-												"defaultContent" : ""
-											}, {
-												"title" : "Genre",
-												"data" : "genre",
-												"defaultContent" : ""
-											}, {
-												"title" : "Album",
-												"data" : "album",
-												"defaultContent" : ""
-											}, {
-												"title" : "Year",
-												"data" : "year",
-												"defaultContent" : ""
-											}, {
-												"title" : "Artist",
-												"data" : "artist",
-												"defaultContent" : ""
-											}, {
-												"title" : "Title",
-												"data" : "title",
-												"defaultContent" : ""
-											}, {
-												"title" : "Track Nbr",
-												"data" : "trackNbr",
-												"defaultContent" : ""
-											} ]
-								};
-
-								$scope.trackListDT = $('#trackListDT')
-										.DataTable(dataTableOptions);
-							}
-
-							$scope.trackListDT.clear();
-							$scope.trackListDT.rows.add(aResponse.model.tracks);
-							$scope.trackListDT.columns.adjust().draw();
-
-							$scope.folderMode = false;
-							$("#trackListDT").css("width", "100%");
-						}, apollo.plugins.angularUtils.serverError);
-	};
-
-	$scope.getFolders();
-}
+	$('#example').DataTable();
+};

@@ -1,0 +1,28 @@
+div.apollo-msg {
+	margin-bottom: 10px;
+	padding: 10px;
+	border-radius: 4px;
+	font-weight: bold;
+	color: #f1f1f1;
+	border: 1px solid #f1f1f1;
+	background-color: #777;
+}
+
+div.apollo-msg.msg-info {
+	background-color: #336699;
+}
+
+div.apollo-msg.msg-success {
+	background-color: #93C896;
+	color: #333333;
+}
+
+div.apollo-msg.msg-warn {
+	background-color: #E9D37D;
+	color: #333333;
+}
+
+div.apollo-msg.msg-error {
+	background-color: #ED8696;
+	color: #333333;
+}

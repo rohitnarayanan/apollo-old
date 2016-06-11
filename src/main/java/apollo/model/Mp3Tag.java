@@ -1,12 +1,13 @@
 package apollo.model;
 
+import static accelerate.util.AppUtil.compare;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jaudiotagger.tag.images.StandardArtwork;
 
 import accelerate.databean.AccelerateDataBean;
 
@@ -17,11 +18,101 @@ import accelerate.databean.AccelerateDataBean;
  * @author Rohit Narayanan
  * @since December 13, 2010
  */
-public class Mp3Tag extends AccelerateDataBean {
+public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	/**
 	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * {@link Header} information
+	 */
+	public Header header = new Header();
+
+	/**
+	 * Id
+	 */
+	public String id = null;
+
+	/**
+	 * Language
+	 */
+	public String language = null;
+
+	/**
+	 * Genre
+	 */
+	public String genre = null;
+
+	/**
+	 * Mood
+	 */
+	public String mood = null;
+
+	/**
+	 * Album
+	 */
+	public String album = null;
+
+	/**
+	 * Album Year
+	 */
+	public String year = null;
+
+	/**
+	 * Album Artist
+	 */
+	public String albumArtist = null;
+
+	/**
+	 * Album Composer
+	 */
+	public String composer = null;
+
+	/**
+	 * Track Artist
+	 */
+	public String artist = null;
+
+	/**
+	 * Track Number
+	 */
+	public String trackNbr = null;
+
+	/**
+	 * Track Title
+	 */
+	public String title = null;
+
+	/**
+	 * Track Lyrics
+	 */
+	public String lyrics = null;
+
+	/**
+	 * Tags
+	 */
+	public String tags = null;
+
+	/**
+	 * Album Artwork
+	 */
+	public Artwork artwork = new Artwork();
+
+	/**
+	 * Name of the file
+	 */
+	public String fileName = null;
+
+	/**
+	 * {@link File} instance
+	 */
+	public File sourceFile = null;
+
+	/**
+	 * {@link TagCheckResult} instance
+	 */
+	public TagCheckResult tagCheckResult = null;
 
 	/**
 	 * class holding Mp3 header information
@@ -74,16 +165,11 @@ public class Mp3Tag extends AccelerateDataBean {
 	 * @author Rohit Narayanan
 	 * @since Jan 13, 2011
 	 */
-	public class Artwork extends AccelerateDataBean {
+	public class Artwork implements Serializable, Comparable<Artwork> {
 		/**
 		 * serialVersionUID
 		 */
 		private static final long serialVersionUID = 1L;
-
-		/**
-		 * Size of the file
-		 */
-		public org.jaudiotagger.tag.images.Artwork jatArtwork = null;
 
 		/**
 		 * Length of the trackNbr
@@ -91,310 +177,154 @@ public class Mp3Tag extends AccelerateDataBean {
 		public String base64Data = null;
 
 		/**
-		* 
-		*/
-		public void render() {
-			if (this.jatArtwork != null) {
+		 * Album Artwork File
+		 */
+		public File artworkFile = null;
+
+		/**
+		 * Method to encode the artwork image to Base64 string
+		 *
+		 * @param aJATArtwork
+		 *            instance of org.jaudiotagger.tag.images.Artwork
+		 */
+		public void encode(org.jaudiotagger.tag.images.Artwork aJATArtwork) {
+			if (aJATArtwork != null) {
 				Base64.Encoder encoder = Base64.getEncoder();
-				this.base64Data = encoder.encodeToString(this.jatArtwork.getBinaryData());
+				this.base64Data = encoder.encodeToString(aJATArtwork.getBinaryData());
 			}
+		}
+
+		/**
+		 * Method to decode the artwork image from Base64 string
+		 *
+		 * @return instance of org.jaudiotagger.tag.images.Artwork
+		 */
+		public org.jaudiotagger.tag.images.Artwork decode() {
+			org.jaudiotagger.tag.images.Artwork jatArtwork = null;
+
+			if (this.base64Data != null) {
+				Base64.Decoder decoder = Base64.getDecoder();
+				jatArtwork = new StandardArtwork();
+				jatArtwork.setBinaryData(decoder.decode(this.base64Data));
+			}
+
+			return jatArtwork;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Comparable#compareTo(java.lang.Object)
+		 */
+		/**
+		 * @param aArtwork
+		 * @return
+		 */
+		@Override
+		public int compareTo(Artwork aArtwork) {
+			if (!compare(this.base64Data, aArtwork.base64Data)) {
+				return -1;
+			}
+
+			return 0;
 		}
 	}
 
 	/**
-	 * {@link Header} information
+	 * default constructor
 	 */
-	public Header header = new Header();
-
-	/**
-	 * Language
-	 */
-	public String language = null;
-
-	/**
-	 * Genre
-	 */
-	public String genre = null;
-
-	/**
-	 * Album
-	 */
-	public String album = null;
-
-	/**
-	 * Album Year
-	 */
-	public String year = null;
-
-	/**
-	 * Album Composer
-	 */
-	public String composer = null;
-
-	/**
-	 * Album Artist
-	 */
-	public String albumArtist = null;
-
-	/**
-	 * PlaylistTrack Artist
-	 */
-	public String artist = null;
-
-	/**
-	 * PlaylistTrack Number
-	 */
-	public String trackNbr = null;
-
-	/**
-	 * PlaylistTrack Title
-	 */
-	public String title = null;
-
-	/**
-	 * Album Artwork
-	 */
-	public Artwork artwork = new Artwork();
-
-	/**
-	 * Album Artwork File
-	 */
-	@JsonIgnore
-	public File artworkFile = null;
-
-	/**
-	 * {@link File} instance
-	 */
-	public File sourceFile = null;
+	public Mp3Tag() {
+		addJsonIgnoreFields("header", "artwork", "tagCheckResult");
+	}
 
 	/**
 	 * @param aMp3Tag
 	 */
 	public void copyFrom(Mp3Tag aMp3Tag) {
+		this.id = StringUtils.defaultString(aMp3Tag.id, this.id);
 		this.language = StringUtils.defaultString(aMp3Tag.language, this.language);
 		this.genre = StringUtils.defaultString(aMp3Tag.genre, this.genre);
+		this.mood = StringUtils.defaultString(aMp3Tag.mood, this.mood);
 		this.album = StringUtils.defaultString(aMp3Tag.album, this.album);
 		this.year = StringUtils.defaultString(aMp3Tag.year, this.year);
-		this.composer = StringUtils.defaultString(aMp3Tag.composer, this.composer);
 		this.albumArtist = StringUtils.defaultString(aMp3Tag.albumArtist, this.albumArtist);
+		this.composer = StringUtils.defaultString(aMp3Tag.composer, this.composer);
 		this.artist = StringUtils.defaultString(aMp3Tag.artist, this.artist);
 		this.trackNbr = StringUtils.defaultString(aMp3Tag.trackNbr, this.trackNbr);
 		this.title = StringUtils.defaultString(aMp3Tag.title, this.title);
+		this.lyrics = StringUtils.defaultString(aMp3Tag.lyrics, this.lyrics);
+		this.tags = StringUtils.defaultString(aMp3Tag.tags, this.tags);
+		this.artwork = aMp3Tag.artwork;
 	}
 
-	/**
-	 * Getter method for "language" property
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return language
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public String getLanguage() {
-		return this.language;
+	/**
+	 * @param aMp3Tag
+	 * @return
+	 */
+	@Override
+	public int compareTo(Mp3Tag aMp3Tag) {
+		if (!compare(aMp3Tag.id, this.id)) {
+			return -1;
+		}
+
+		if (!compare(aMp3Tag.language, this.language)) {
+			return -2;
+		}
+
+		if (!compare(aMp3Tag.genre, this.genre)) {
+			return -3;
+		}
+
+		if (!compare(aMp3Tag.mood, this.mood)) {
+			return -4;
+		}
+
+		if (!compare(aMp3Tag.album, this.album)) {
+			return -5;
+		}
+
+		if (!compare(aMp3Tag.year, this.year)) {
+			return -6;
+		}
+
+		if (!compare(aMp3Tag.albumArtist, this.albumArtist)) {
+			return -7;
+		}
+
+		if (!compare(aMp3Tag.composer, this.composer)) {
+			return -8;
+		}
+
+		if (!compare(aMp3Tag.artist, this.artist)) {
+			return -9;
+		}
+
+		if (!compare(aMp3Tag.trackNbr, this.trackNbr)) {
+			return -10;
+		}
+
+		if (!compare(aMp3Tag.title, this.title)) {
+			return -11;
+		}
+
+		if (!compare(aMp3Tag.lyrics, this.lyrics)) {
+			return -12;
+		}
+
+		if (!compare(aMp3Tag.tags, this.tags)) {
+			return -13;
+		}
+
+		if (!compare(aMp3Tag.artwork, this.artwork)) {
+			return -14;
+		}
+
+		return 0;
 	}
 
-	/**
-	 * Setter method for "language" property
-	 * 
-	 * @param aLanguage
-	 */
-	public void setLanguage(String aLanguage) {
-		this.language = aLanguage;
-	}
-
-	/**
-	 * Getter method for "genre" property
-	 * 
-	 * @return genre
-	 */
-	public String getGenre() {
-		return this.genre;
-	}
-
-	/**
-	 * Setter method for "genre" property
-	 * 
-	 * @param aGenre
-	 */
-	public void setGenre(String aGenre) {
-		this.genre = aGenre;
-	}
-
-	/**
-	 * Getter method for "album" property
-	 * 
-	 * @return album
-	 */
-	public String getAlbum() {
-		return this.album;
-	}
-
-	/**
-	 * Setter method for "album" property
-	 * 
-	 * @param aAlbum
-	 */
-	public void setAlbum(String aAlbum) {
-		this.album = aAlbum;
-	}
-
-	/**
-	 * Getter method for "year" property
-	 * 
-	 * @return year
-	 */
-	public String getYear() {
-		return this.year;
-	}
-
-	/**
-	 * Setter method for "year" property
-	 * 
-	 * @param aYear
-	 */
-	public void setYear(String aYear) {
-		this.year = aYear;
-	}
-
-	/**
-	 * Getter method for "composer" property
-	 * 
-	 * @return composer
-	 */
-	public String getComposer() {
-		return this.composer;
-	}
-
-	/**
-	 * Setter method for "composer" property
-	 * 
-	 * @param aComposer
-	 */
-	public void setComposer(String aComposer) {
-		this.composer = aComposer;
-	}
-
-	/**
-	 * Getter method for "albumArtist" property
-	 * 
-	 * @return albumArtist
-	 */
-	public String getAlbumArtist() {
-		return this.albumArtist;
-	}
-
-	/**
-	 * Setter method for "albumArtist" property
-	 * 
-	 * @param aAlbumArtist
-	 */
-	public void setAlbumArtist(String aAlbumArtist) {
-		this.albumArtist = aAlbumArtist;
-	}
-
-	/**
-	 * Getter method for "artist" property
-	 * 
-	 * @return artist
-	 */
-	public String getArtist() {
-		return this.artist;
-	}
-
-	/**
-	 * Setter method for "artist" property
-	 * 
-	 * @param aArtist
-	 */
-	public void setArtist(String aArtist) {
-		this.artist = aArtist;
-	}
-
-	/**
-	 * Getter method for "trackNbr" property
-	 * 
-	 * @return trackNbr
-	 */
-	public String getTrackNbr() {
-		return this.trackNbr;
-	}
-
-	/**
-	 * Setter method for "trackNbr" property
-	 * 
-	 * @param aTrackNbr
-	 */
-	public void setTrackNbr(String aTrackNbr) {
-		this.trackNbr = aTrackNbr;
-	}
-
-	/**
-	 * Getter method for "title" property
-	 * 
-	 * @return title
-	 */
-	public String getTitle() {
-		return this.title;
-	}
-
-	/**
-	 * Setter method for "title" property
-	 * 
-	 * @param aTitle
-	 */
-	public void setTitle(String aTitle) {
-		this.title = aTitle;
-	}
-
-	/**
-	 * Getter method for "artworkFile" property
-	 * 
-	 * @return artworkFile
-	 */
-	public File getArtworkFile() {
-		return this.artworkFile;
-	}
-
-	/**
-	 * Setter method for "artworkFile" property
-	 * 
-	 * @param aArtworkFile
-	 */
-	public void setArtworkFile(File aArtworkFile) {
-		this.artworkFile = aArtworkFile;
-	}
-
-	/**
-	 * Getter method for "sourceFile" property
-	 * 
-	 * @return sourceFile
-	 */
-	public File getSourceFile() {
-		return this.sourceFile;
-	}
-
-	/**
-	 * Setter method for "sourceFile" property
-	 * 
-	 * @param aSourceFile
-	 */
-	public void setSourceFile(File aSourceFile) {
-		this.sourceFile = aSourceFile;
-	}
-
-	/**
-	 * Getter method for "header" property
-	 * 
-	 * @return header
-	 */
-	public Header getHeader() {
-		return this.header;
-	}
-
-	/**
-	 * Getter method for "artwork" property
-	 * 
-	 * @return artwork
-	 */
-	public Artwork getArtwork() {
-		return this.artwork;
-	}
 }

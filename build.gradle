@@ -59,6 +59,7 @@ dependencies {
 	runtime("org.webjars:jquery:2.2.4")
 	runtime("org.webjars:bootstrap:3.3.6")
 	runtime("org.webjars:angularjs:1.5.5")
+	runtime("org.webjars:ng-tags-input:2.3.0")
 	//runtime("org.webjars:datatables:1.10.11") -- including custom build from static folder
 	
 	// runtime dependencies

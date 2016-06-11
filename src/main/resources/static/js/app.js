@@ -3,7 +3,7 @@
 /*
  * Module Declaration
  */
-apollo.module = angular.module('apollo', [ 'ngRoute' ]);
+apollo.module = angular.module('apollo', [ 'ngRoute', 'ngTagsInput' ]);
 
 /*
  * Module Configuration
@@ -65,11 +65,14 @@ apollo.config = {
 			templateUrl : context_path + "/errorPage/view",
 			controller : 'errorController'
 		}).when('/main', {
-			templateUrl : context_path + "/main",
+			templateUrl : context_path + "/view/main",
 			controller : 'mainController'
-		}).when('/editTags', {
-			templateUrl : context_path + "/tracks/edit",
-			controller : 'editTagsController'
+		}).when('/addAlbum', {
+			templateUrl : context_path + "/view/addAlbum",
+			controller : 'addAlbumController'
+		}).when('/replaceTrack', {
+			templateUrl : context_path + "/view/replaceTrack",
+			controller : 'replaceTrackController'
 		}).otherwise({
 			redirectTo : '/main'
 		});

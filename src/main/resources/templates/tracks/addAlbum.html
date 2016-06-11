@@ -1,0 +1,69 @@
+<div class="panel panel-primary">
+	<div class="panel-body">
+		<!-- data table options -->
+		<div id="albumTracksDTControls">
+			<div class="form-group col-md-2" style="display: none">
+				<label class="col-md-8 control-label">Delete v1 Tag:</label>
+				<div class="col-md-4">
+					<input id="" type="checkbox" name="" ng-model="deleteV1Tag" />
+				</div>
+			</div>
+		</div>
+
+		<!-- data table -->
+		<div id="_filesDiv">
+			<table id="albumTracksDT" style="width: 100%;"
+				class="table table-striped table-hover nowrap">
+			</table>
+		</div>
+
+		<!-- data table controls -->
+		<div class="control-bar clearfix form-inline text-right">
+			<button id="_selectAlbumBtn" class="btn btn-warning btn-responsive"
+				ng-click="selectAlbum()">Select Album</button>
+			<button id="_parseTagsBtn" class="btn btn-warning btn-responsive"
+				data-ng-click="showParseTags()" ng-disabled="!albumSelected">Parse
+				Tags</button>
+			<button id="_saveTagsBtn" class="btn btn-warning btn-responsive"
+				data-ng-click="saveTags()" ng-disabled="!albumSelected">Save
+				Tags</button>
+			<button id="_addToLibraryBtn" class="btn btn-warning btn-responsive"
+				ng-disabled="!albumSelected">Add to Library</button>
+		</div>
+	</div>
+</div>
+
+
+<object th:remove="tag" th:include="templates :: file-system-modal" />
+
+<div id="_parseTagExprModal" class="modal fade" tabindex="-1"
+	aria-labelledby="_parseTagExprLabel" role="dialog"
+	data-backdrop="static">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 id="_parseTagExprLabel">
+					Tag Expression<span class="glyphicon glyphicon-remove"
+						style="float: right; cursor: pointer;" data-dismiss="modal"
+						aria-hidden="true"></span>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<tags-input class="ti-input-sm" ng-model="tagExpressions"
+						add-on-enter="true" add-on-space="false" add-on-comma="false"
+						add-on-blur="true" add-on-paste="true"
+						replace-spaces-with-dashes="false"
+						add-from-autocomplete-only="false"> <auto-complete
+						source="getTagTokens($query)" min-length="1"
+						load-on-down-arrow="true" load-on-focus="true"
+						select-first-match="false"></auto-complete> </tags-input>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-warning" data-dismiss="modal"
+					data-ng-click="parseTags()">Parse</button>
+			</div>
+		</div>
+	</div>
+</div>

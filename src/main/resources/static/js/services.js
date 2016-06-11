@@ -5,40 +5,10 @@
  */
 apollo.services = {};
 
-apollo.services.playlistService = function playlistService($http, $q) {
-	return ({
-		"find" : findPlaylist,
-		"create" : createPlaylist,
-		"update" : updatePlaylist,
-		"delete" : deletePlaylist,
-		"export" : exportPlaylist
-	});
-
-	function findPlaylist() {
-
-	}
-
-	function createPlaylist() {
-
-	}
-
-	function updatePlaylist() {
-
-	}
-
-	function deletePlaylist() {
-
-	}
-
-	function exportPlaylist() {
-
-	}
-};
-
 /**
  * 
  */
-apollo.services.utilService = function utilService($http, $q) {
+apollo.services.fileSystemService = function($http, $q) {
 	return ({
 		"listFolders" : listFolders,
 		"listTracks" : listTracks
@@ -47,35 +17,27 @@ apollo.services.utilService = function utilService($http, $q) {
 	function listFolders(aDirPath, aDirName) {
 		var request = $http({
 			method : "get",
-			url : apollo.context.path + "/util/listFolders",
+			url : apollo.context.path + "/fileSystem/folders",
 			params : {
 				"dirPath" : aDirPath,
 				"dirName" : aDirName
 			}
 		});
 
-		return (request.then(apollo.plugins.angularUtils.httpSuccess,
-				_handleError));
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
 	}
 
-	function listTracks(aDirPath, aDirName) {
+	function listTracks(aDirPath) {
 		var request = $http({
 			method : "get",
-			url : apollo.context.path + "/util/listTracks",
+			url : apollo.context.path + "/fileSystem/tracks",
 			params : {
-				"dirPath" : aDirPath,
-				"dirName" : aDirName
+				"dirPath" : aDirPath
 			}
 		});
 
-		return (request.then(apollo.plugins.angularUtils.httpSuccess,
-				_handleError));
-	}
-
-	/**
-	 * internal error handler
-	 */
-	function _handleError(aResponse) {
-		return apollo.plugins.angularUtils.httpError(aResponse, $q);
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
 	}
 };

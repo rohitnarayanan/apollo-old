@@ -53,9 +53,9 @@
 									class="glyphicon glyphicon-menu-down visible-xs-block"
 									style="float: right;" aria-hidden="true" /></a>
 								<ul class="dropdown-menu submenu-ul">
-									<li class="submenu-li"><a href="">Add</a></li>
-									<li class="submenu-li"><a href="#editTags">Edit</a></li>
-									<li class="submenu-li"><a href="">Replace</a></li>
+									<li class="submenu-li"><a href="#addAlbum">Add Album</a></li>
+									<li class="submenu-li"><a href="">Edit</a></li>
+									<li class="submenu-li"><a href="#replaceTrack">Replace</a></li>
 								</ul></li>
 							<li class="menu-li"><a href="" class="dropdown-toggle"
 								data-toggle="dropdown" aria-haspopup="true"
@@ -70,9 +70,6 @@
 									<li class="submenu-li"><a href="">Album Artists</a></li>
 									<li class="submenu-li"><a href="">Track Artists</a></li>
 									<li class="submenu-li"><a href="">Albums</a></li>
-									<li role="separator" class="divider"></li>
-									<li class="submenu-li"><a href="">Search Songs</a></li>
-									<li class="submenu-li"><a href="">Add Songs</a></li>
 								</ul></li>
 							<li class="menu-li"><a href="" class="dropdown-toggle"
 								data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -123,12 +120,16 @@
 		<section class="apollo-content" id="mainContainer"
 			data-ng-cloak="true">
 			<h2 class="apollo-page-header">{{pageHeader}}</h2>
+			<em>{{pageContentText}}</em>
 
-			<div id="_alertMessage" class="apollo-alert hidden" />
+			<div class="apollo-msg" style="display: none;">
+				<span id="_pageAlertIcon" class="glyphicon">&nbsp;</span> <span
+					id="_pageAlertMsg" />
+			</div>
 
-			<div data-ng-view=""></div>
+			<div style="margin-top: 10px;" data-ng-view=""></div>
 
-			<a id="routingLink" href="#" style="display: none;"></a>
+			<a id="routingLink" href="#" class="hidden"></a>
 		</section>
 		<!-- ./container -->
 

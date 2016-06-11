@@ -1,0 +1,236 @@
+html, body {
+	max-width: 100% !important;
+	overflow-x: hidden !important;
+	-ms-overflow-style: scrollbar;
+	height: 100%;
+	min-height: 100%;
+}
+
+/* layout styles:start */
+header.apollo-header {
+	position: relative;
+	padding-top: 5px;
+	border-radius: 0px;
+	margin-bottom: 0px;
+}
+
+section.apollo-content {
+	position: relative;
+}
+
+footer.apollo-footer {
+	position: relative;
+	margin-top: 10px;
+	border-top: solid 1px #ccc;
+	border-radius: 0px;
+	padding-top: 5px;
+}
+/* layout styles:end */
+
+@media (max-width: 767px) {
+  .navbar-nav .nav-item + .nav-item {
+    margin-left: 0;
+  }
+  #collapsenav {
+    clear: both;
+  }
+}
+/* menu styles: start */
+nav#apolloHeaderNavbar {
+	background: #fff;
+	border: none;
+	box-shadow: none;
+	border-radius: 0px;
+	border-bottom: 1px solid #ccc;
+	margin-bottom: 5px;
+}
+
+div#apolloHeaderNavbarCollapse {
+	padding: 0px;
+	border-radius: 0px 0px 4px 4px;
+}
+
+ul#apolloHeaderNavbarNav {
+	/*remove margins from menu container*/
+	margin: 0px;
+}
+
+ul#apolloHeaderNavbarNav li.menu-li {
+	/*set bottom border for collaped menu items*/
+	border-bottom: 1px solid #ccc;
+}
+
+ul#apolloHeaderNavbarNav li.menu-li.menu-li-last {
+	/*remove bottom border for last menu item*/
+	border-bottom: none;
+}
+
+ul#apolloHeaderNavbarNav li.menu-li span.glyphicon-menu-down {
+	/*hide expanded icon*/
+	display: none !important;
+}
+
+ul#apolloHeaderNavbarNav li.menu-li.open span.glyphicon-menu-right {
+	/*hide expandable icon on open*/
+	display: none !important;
+}
+
+ul#apolloHeaderNavbarNav li.menu-li.open span.glyphicon-menu-down {
+	/*show expanded icon on open*/
+	display: block !important;
+}
+
+ul#apolloHeaderNavbarNav li.menu-li a.dropdown-toggle {
+	/*remove menu link background for all states*/
+	background: none !important;
+}
+
+ul#apolloHeaderNavbarNav li.menu-li.open a.dropdown-toggle {
+	/*highlight expanded menu*/
+	color: #777;
+	background: none !important;
+	border-left: 6px solid #96c346;
+}
+
+ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul {
+	/*remove padding from submenu container*/
+	padding: 0px 0px 0px 0px;
+}
+
+@media ( max-width : 768px) {
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li a:before
+		{
+		content: ' - ';
+	}
+}
+
+/*styles to apply when full menu is visible*/
+@media ( min-width : 768px) {
+	ul#apolloHeaderNavbarNav li.menu-li {
+		/*set empty top border for menu headers*/
+		border-top: solid 4px #fff;
+		border-bottom: none;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li:hover {
+		/*set top border to green for pointed menu*/
+		border-top: solid 4px #96c346;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li.open span.glyphicon-menu-down {
+		/*hide expanded icon on menu click*/
+		display: none !important;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li.open a.dropdown-toggle {
+		/*remove highlight from selected menu*/
+		background: none !important;
+		box-shadow: none;
+		border-left: none;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li.open ul.dropdown-menu {
+		/*prevent submenu from staying open on menu click*/
+		display: none;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li:hover ul.dropdown-menu {
+		/*show submenu on menu hover*/
+		display: block;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li {
+		/*style submenu items*/
+		padding: 5px 10px 5px 0px;
+		border-left: 6px solid #fff;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.divider {
+		/*style submenu item divider*/
+		padding: 0px;
+		margin: 2px 0px 2px 0px;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li:hover {
+		/*set left border and hightlight on hover*/
+		border-left: 6px solid #96c346;
+		background-color: #f2f2f2;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li a:focus
+		{
+		/*default to li background on hover*/
+		background: none !important;
+	}
+	ul#apolloHeaderNavbarNav li.menu-li ul.submenu-ul li.submenu-li:hover a
+		{
+		/*default to li background on hover*/
+		background: none !important;
+	}
+}
+
+/* header components styles:start */
+header.apollo-header img.apollo-brand {
+	height: 36px;
+	margin-top: -6px
+}
+
+h1.apollo-brand {
+	margin-top: 5px;
+	color: gray;
+	font-weight: bold;
+}
+/* header components styles:end */
+
+/* breadcrumbs:start */
+section.apollo-breadcrumbs {
+	
+}
+
+ol.breadcrumb {
+	margin-bottom: 0px;
+	text-align: right;
+	font-weight: bold;
+	background: none !important;
+}
+/* breadcrumbs:end */
+
+/* page style:start */
+h2.apollo-page-header {
+	padding: 10px;
+	margin: 0px 0px 5px 0px;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, .2);
+	background-image: linear-gradient(to bottom, #96c346 0%, #96c146 100%);
+	color: #fff;
+}
+/* page style:end */
+
+/* footer components:start */
+nav#apolloFooterNavbar {
+	margin-bottom: 5px;
+}
+
+nav#apolloFooterNavbar a.apollo-footer-link {
+	font-size: 12px;
+}
+
+nav#apolloFooterNavbar a.apollo-footer-link:focus {
+	text-decoration: none;
+	color: #337ab7;
+}
+/* footer components:end */
+
+/* modal styles:start */
+div.modal.apollo-modal div.modal-header, div.modal.apollo-modal div.modal-body
+	{
+	padding: 5px;
+}
+
+div.modal.apollo-modal div.modal-header h4.modal-title {
+	background-color: #96c346;
+	padding: 5px;
+}
+
+div.modal.apollo-modal div.modal-header button {
+	margin: 5px 8px 0px 0px;
+}
+/* modal styles:end */
+
+/* form styles:start */
+.form-control:focus {
+	border-color: #96c346;
+	outline: 0;
+	box-shadow: inset 0 1px 1px #96c346, 0 0 8px #96c346;
+}
+/* form styles:end */

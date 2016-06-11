@@ -16,11 +16,20 @@
 		<link type="text/css" rel="stylesheet"
 			th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.css}" />
 		<link type="text/css" rel="stylesheet"
-			th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap-theme.css}" />
+			th:href="@{/css/external/jstree.style.min.css}" />
+		<link type="text/css" rel="stylesheet"
+			th:href="@{/webjars/ng-tags-input/2.3.0/ng-tags-input.css}" />
+		<link type="text/css" rel="stylesheet"
+			th:href="@{/webjars/ng-tags-input/2.3.0/ng-tags-input.bootstrap.css}" />
 		<link type="text/css" rel="stylesheet"
 			th:href="@{/css/external/datatables.css}" />
 		<link type="text/css" rel="stylesheet" th:href="@{/css/app.css}" />
 		<link type="text/css" rel="stylesheet" th:href="@{/css/main.css}" />
+		<link type="text/css" rel="stylesheet"
+			th:href="@{/css/menu-styles.css}" />
+		<link type="text/css" rel="stylesheet"
+			th:href="@{/css/message-styles.css}" />
+
 		<!-- <link type="text/css" rel="stylesheet" th:href="@{/css/skins/black.css}" /> -->
 	</div>
 
@@ -73,18 +82,54 @@
 	<div th:fragment="scripts-basic">
 		<script th:src="@{/webjars/modernizr/2.8.3/modernizr.js}"></script>
 		<script th:src="@{/webjars/jquery/2.2.4/jquery.js}"></script>
+		<script th:src="@{/js/external/jstree.min.js}"></script>
 		<script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.js}"></script>
 		<script th:src="@{/webjars/angularjs/1.5.5/angular.js}"></script>
 		<script th:src="@{/webjars/angularjs/1.5.5/angular-route.js}"></script>
+		<script th:src="@{/webjars/ng-tags-input/2.3.0/ng-tags-input.js}"></script>
 		<script th:src="@{/js/external/datatables.js}"></script>
 	</div>
 
 	<div th:fragment="scripts-custom">
 		<script th:src="@{/js/main.js}"></script>
+		<script th:src="@{/js/datatableConfig.js}"></script>
 		<script th:src="@{/js/plugins.js}"></script>
 		<script th:src="@{/js/controllers.js}"></script>
 		<script th:src="@{/js/services.js}"></script>
 		<script th:src="@{/js/app.js}"></script>
+	</div>
+
+	<!-- Modal -->
+	<div th:fragment="file-system-modal">
+		<div id="_fileSystemModal" class="modal fade" tabindex="-1"
+			aria-labelledby="_fileSystemLabel" role="dialog"
+			data-backdrop="static">
+			<div class="modal-dialog modal-md" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 id="_fileSystemLabel">
+							Select <span id="_fsMode">Folder</span> <span
+								class="glyphicon glyphicon-remove"
+								style="float: right; cursor: pointer;" data-dismiss="modal"
+								aria-hidden="true"></span>
+						</h4>
+					</div>
+					<div class="modal-body">
+						<div class="apollo-msg" style="display: none;">
+							<span class="_modalAlertIcon glyphicon">&nbsp;</span> <span
+								class="_modalAlertMsg" />
+						</div>
+
+						<div id="_fileTree"></div>
+					</div>
+
+					<div class="modal-footer">
+						<button class="btn btn-warning apollo-btn" id="_selectFolder"
+							onclick="apollo.plugins.FileSystemUtil.selectFolder()">Apply</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

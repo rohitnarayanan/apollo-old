@@ -2,27 +2,28 @@ package apollo.util;
 
 import static accelerate.util.AccelerateConstants.EMPTY_STRING;
 import static accelerate.util.AppUtil.compare;
-import static accelerate.util.AppUtil.compareAny;
 import static accelerate.util.FileUtil.getFileExtn;
 import static accelerate.util.FileUtil.getParentName;
-import static org.springframework.util.ObjectUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.audio.mp3.MP3File;
@@ -32,12 +33,12 @@ import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagField;
 import org.jaudiotagger.tag.id3.AbstractTag;
 import org.jaudiotagger.tag.id3.ID3v23Frames;
-import org.jaudiotagger.tag.id3.ID3v23Tag;
+import org.jaudiotagger.tag.id3.ID3v24Frames;
 import org.jaudiotagger.tag.id3.ID3v24Tag;
 import org.jaudiotagger.tag.images.Artwork;
-import org.jaudiotagger.tag.images.StandardArtwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ObjectUtils;
 
 import accelerate.exception.AccelerateException;
 import accelerate.exception.FlowControlException;
@@ -68,7 +69,7 @@ public class ID3Util {
 	/**
 	 * {@link Map} containing standard frame names
 	 */
-	public static List<FieldKey> standardFields = null;
+	private static List<FieldKey> standardFields = null;
 
 	/**
 	 * Static Initializer Block
@@ -85,51 +86,262 @@ public class ID3Util {
 	}
 
 	/**
-	 * @param aFileTrack
-	 * @param aDBTrack
-	 * @return {@link TagCheckResult} instance
+	 * @param aTrack
+	 * @return {@link MP3File} instance
 	 * @throws AccelerateException
 	 */
-	public static TagCheckResult compareTags(File aFileTrack, Mp3Tag aDBTrack) throws AccelerateException {
-		TagCheckResult result = new TagCheckResult();
-		Mp3Tag mp3Tag = readTag(aFileTrack);
-
+	public static MP3File getMP3File(File aTrack) throws AccelerateException {
 		try {
-			compareFields("Language", mp3Tag.language, aDBTrack.language);
-			compareFields("Genre", mp3Tag.genre, aDBTrack.genre);
-			compareFields("Album", mp3Tag.album, aDBTrack.album);
-			compareFields("Year", mp3Tag.year, aDBTrack.year);
-			compareFields("Composer", mp3Tag.composer, aDBTrack.composer);
-			compareFields("AlbumArtist", mp3Tag.albumArtist, aDBTrack.albumArtist);
-			compareFields("TrackNbr", mp3Tag.trackNbr, aDBTrack.trackNbr);
-			compareFields("Title", mp3Tag.title, aDBTrack.title);
-
-			if (AppUtil.xor((mp3Tag.artwork.jatArtwork == null), (aDBTrack.artwork.jatArtwork == null))) {
-				throw new FlowControlException("Mismatch Artwork:" + mp3Tag.artwork + "|" + aDBTrack.artwork);
-			}
-
-			result.setPassed(true);
-		} catch (FlowControlException error) {
-			result.setReason(error.getMessage() + "##" + aFileTrack.getPath() + "|" + aDBTrack.toJSON());
+			return new MP3File(aTrack);
+		} catch (IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException error) {
+			throw new AccelerateException(error);
 		}
-
-		return result;
 	}
 
 	/**
-	 * @param aType
-	 * @param aValue1
-	 * @param aValue2
-	 * @throws FlowControlException
+	 * @param aTrack
+	 * @return {@link Mp3Tag} instance
+	 * @throws AccelerateException
 	 */
-	private static void compareFields(String aType, Object aValue1, Object aValue2) throws FlowControlException {
-		if (compare(aValue1, aValue2)) {
-			return;
+	public static Mp3Tag readTag(File aTrack) throws AccelerateException {
+		if (!compare(StringUtils.upperCase(getFileExtn(aTrack)), "MP3")) {
+			throw new AccelerateException("Not a mp3: " + aTrack);
 		}
 
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("Mismatch ").append(aType).append(":").append(aValue1).append("|").append(aValue2);
-		throw new FlowControlException(buffer.toString());
+		MP3File mp3File = getMP3File(aTrack);
+		Tag tag = mp3File.getTag();
+
+		Mp3Tag mp3Tag = new Mp3Tag();
+		mp3Tag.sourceFile = aTrack;
+		mp3Tag.id = tag.getFirst(FieldKey.KEY);
+		mp3Tag.language = tag.getFirst(FieldKey.LANGUAGE);
+		mp3Tag.genre = tag.getFirst(FieldKey.GENRE);
+		mp3Tag.mood = tag.getFirst(FieldKey.MOOD);
+		mp3Tag.album = tag.getFirst(FieldKey.ALBUM);
+		mp3Tag.year = tag.getFirst(FieldKey.YEAR);
+		mp3Tag.albumArtist = tag.getFirst(FieldKey.ALBUM_ARTIST);
+		mp3Tag.composer = tag.getFirst(FieldKey.COMPOSER);
+		mp3Tag.artist = tag.getFirst(FieldKey.ARTIST);
+		mp3Tag.trackNbr = tag.getFirst(FieldKey.TRACK);
+		mp3Tag.title = tag.getFirst(FieldKey.TITLE);
+		mp3Tag.lyrics = tag.getFirst(FieldKey.LYRICS);
+		mp3Tag.tags = tag.getFirst(FieldKey.TAGS);
+
+		Artwork artwork = tag.getFirstArtwork();
+		if (artwork != null) {
+			mp3Tag.artwork.encode(artwork);
+		}
+
+		AudioHeader audioHeader = mp3File.getAudioHeader();
+		mp3Tag.header.size = mp3Tag.sourceFile.length();
+		mp3Tag.header.length = audioHeader.getTrackLength();
+		mp3Tag.header.mode = audioHeader.getChannels();
+		mp3Tag.header.bitrateType = audioHeader.isVariableBitRate() ? "VBR" : "CBR";
+		mp3Tag.header.bitrate = audioHeader.getBitRate();
+		mp3Tag.header.frequency = audioHeader.getSampleRate();
+
+		return mp3Tag;
+	}
+
+	/**
+	 * This is the default method to write the tag to the given file. It calls
+	 * the {@link #writeTag(File, Mp3Tag, int)} method with aWriteFlag argument
+	 * as 0
+	 *
+	 * @param aTrack
+	 *            Target file to which the ID3 tag is to be written
+	 * @param mp3Tag
+	 *            Tag information
+	 * @throws AccelerateException
+	 */
+	public static void writeTag(File aTrack, Mp3Tag mp3Tag) throws AccelerateException {
+		writeTag(aTrack, mp3Tag, 0);
+	}
+
+	/**
+	 * This method writes the tag to the given file
+	 *
+	 * @param aTrack
+	 *            Target file to which the ID3 tag is to be written
+	 * @param aMp3Tag
+	 *            Tag information
+	 * @param aWriteFlag
+	 *            <ul>
+	 *            <li>0: Write only if tag is available else ignore</li>
+	 *            <li>1: Write only if the tag is available else throw an
+	 *            error</li>
+	 *            <li>2: Write after creating a new tag, throw an error if tag
+	 *            already present</li>
+	 *            <li>3: Write after creating a new tag, if a tag is present
+	 *            then delete it</li>
+	 *            </ul>
+	 * @throws AccelerateException
+	 */
+	public static void writeTag(File aTrack, Mp3Tag aMp3Tag, int aWriteFlag) throws AccelerateException {
+		try {
+			MP3File mp3File = getMP3File(aTrack);
+			Tag tag = mp3File.getTag();
+
+			if (aWriteFlag == 2) {
+				if (tag != null) {
+					mp3File.delete((AbstractTag) tag);
+				}
+
+				tag = new ID3v24Tag();
+				mp3File.setTag(tag);
+			}
+
+			if (tag == null) {
+				if (aWriteFlag == 1) {
+					tag = new ID3v24Tag();
+					mp3File.setTag(tag);
+				} else {
+					throw new AccelerateException("No Tag: " + aTrack);
+				}
+			}
+
+			if (aMp3Tag.id != null) {
+				if (aMp3Tag.id.length() == 0) {
+					tag.deleteField(FieldKey.KEY);
+				} else {
+					tag.setField(FieldKey.KEY, aMp3Tag.id);
+				}
+			}
+
+			if (aMp3Tag.language != null) {
+				if (aMp3Tag.language.length() == 0) {
+					tag.deleteField(FieldKey.LANGUAGE);
+				} else {
+					tag.setField(FieldKey.LANGUAGE, aMp3Tag.language);
+				}
+			}
+
+			if (aMp3Tag.genre != null) {
+				if (aMp3Tag.genre.length() == 0) {
+					tag.deleteField(FieldKey.GENRE);
+				} else {
+					tag.setField(FieldKey.GENRE, aMp3Tag.genre);
+				}
+			}
+
+			if (aMp3Tag.mood != null) {
+				if (aMp3Tag.mood.length() == 0) {
+					tag.deleteField(FieldKey.MOOD);
+				} else {
+					tag.setField(FieldKey.MOOD, aMp3Tag.mood);
+				}
+			}
+
+			if (aMp3Tag.album != null) {
+				if (aMp3Tag.album.length() == 0) {
+					tag.deleteField(FieldKey.ALBUM);
+				} else {
+					tag.setField(FieldKey.ALBUM, aMp3Tag.album);
+				}
+			}
+
+			if (aMp3Tag.year != null) {
+				if (aMp3Tag.year.length() == 0) {
+					tag.deleteField(FieldKey.YEAR);
+				} else {
+					tag.setField(FieldKey.YEAR, aMp3Tag.year);
+				}
+			}
+
+			if (aMp3Tag.albumArtist != null) {
+				if (aMp3Tag.albumArtist.length() == 0) {
+					tag.deleteField(FieldKey.ALBUM_ARTIST);
+				} else {
+					tag.setField(FieldKey.ALBUM_ARTIST, aMp3Tag.albumArtist);
+				}
+			}
+
+			if (aMp3Tag.composer != null) {
+				if (aMp3Tag.composer.length() == 0) {
+					tag.deleteField(FieldKey.COMPOSER);
+				} else {
+					tag.setField(FieldKey.COMPOSER, aMp3Tag.composer);
+				}
+			}
+
+			if (aMp3Tag.artist != null) {
+				if (aMp3Tag.artist.length() == 0) {
+					tag.deleteField(FieldKey.ARTIST);
+				} else {
+					tag.setField(FieldKey.ARTIST, aMp3Tag.artist);
+				}
+			}
+
+			if (aMp3Tag.trackNbr != null) {
+				tag.deleteField(FieldKey.TRACK_TOTAL);
+				if (aMp3Tag.trackNbr.length() == 0) {
+					tag.deleteField(FieldKey.TRACK);
+				} else {
+					tag.setField(FieldKey.TRACK, aMp3Tag.trackNbr);
+				}
+			}
+
+			if (aMp3Tag.title != null) {
+				if (aMp3Tag.title.length() == 0) {
+					tag.deleteField(FieldKey.TITLE);
+				} else {
+					tag.setField(FieldKey.TITLE, aMp3Tag.title);
+				}
+			}
+
+			if (aMp3Tag.lyrics != null) {
+				if (aMp3Tag.lyrics.length() == 0) {
+					tag.deleteField(FieldKey.LYRICS);
+				} else {
+					tag.setField(FieldKey.LYRICS, aMp3Tag.lyrics);
+				}
+			}
+
+			if (aMp3Tag.tags != null) {
+				if (aMp3Tag.tags.length() == 0) {
+					tag.deleteField(FieldKey.TAGS);
+				} else {
+					tag.setField(FieldKey.TAGS, aMp3Tag.tags);
+				}
+			}
+
+			if (aMp3Tag.artwork.base64Data != null) {
+				tag.deleteArtworkField();
+
+				if (aMp3Tag.artwork.base64Data.length() > 0) {
+					tag.addField(aMp3Tag.artwork.decode());
+				}
+			}
+
+			mp3File.commit();
+			mp3File.save();
+		} catch (Exception error) {
+			throw new AccelerateException(error);
+		}
+	}
+
+	/**
+	 * This method deletes the given tag from the Mp3 file
+	 *
+	 * @param aTrack
+	 * @return Mp3Tag instance
+	 * @throws AccelerateException
+	 */
+	public static Mp3Tag deleteV1Tag(File aTrack) throws AccelerateException {
+		try {
+			MP3File mp3File = ID3Util.getMP3File(aTrack);
+			Tag tag = mp3File.getID3v1Tag();
+
+			if (tag != null) {
+				mp3File.delete(mp3File.getID3v1Tag());
+				mp3File.commit();
+				mp3File.save();
+			}
+		} catch (Exception error) {
+			throw new AccelerateException(error);
+		}
+
+		return readTag(aTrack);
 	}
 
 	/**
@@ -141,7 +353,7 @@ public class ID3Util {
 		result.setPassed(compare(getFileExtn(aTrack), "mp3"));
 
 		if (!result.isPassed()) {
-			if (!compareAny(getFileExtn(aTrack), "jpg", "db", "ini", "DS_Store")) {
+			if (!AppUtil.compareAny(getFileExtn(aTrack), "jpg", "db", "ini", "DS_Store")) {
 				result.setReason("Unknown File Type: " + aTrack.getPath());
 			}
 		}
@@ -151,25 +363,22 @@ public class ID3Util {
 
 	/**
 	 * @param aTrack
-	 * @param aRemoveInvalidFrames
 	 * @return {@link TagCheckResult} instance
 	 * @throws AccelerateException
 	 */
-	public static TagCheckResult validateTag(File aTrack, boolean aRemoveInvalidFrames) throws AccelerateException {
-		return validateTag(aTrack, standardFields, aRemoveInvalidFrames);
+	public static TagCheckResult validateTag(File aTrack) throws AccelerateException {
+		return validateTag(aTrack, standardFields);
 	}
 
 	/**
 	 * @param aTrack
 	 * @param aFieldKeys
-	 * @param aRemoveInvalidFrames
 	 * @return {@link TagCheckResult} instance
 	 * @throws AccelerateException
 	 */
-	public static TagCheckResult validateTag(File aTrack, List<FieldKey> aFieldKeys, boolean aRemoveInvalidFrames)
-			throws AccelerateException {
+	public static TagCheckResult validateTag(File aTrack, List<FieldKey> aFieldKeys) throws AccelerateException {
 		TagCheckResult result = new TagCheckResult();
-		result = checkTagFields(aTrack, aFieldKeys, aRemoveInvalidFrames);
+		result = checkTagFields(aTrack, aFieldKeys, false);
 
 		if (result.isPassed()) {
 			result = validateTagFields(aTrack);
@@ -189,22 +398,27 @@ public class ID3Util {
 			throws AccelerateException {
 		TagCheckResult checkResult = new TagCheckResult();
 
-		Tag audioTag = getMP3Tag(aTrack);
+		MP3File mp3File = getMP3File(aTrack);
+		Tag audioTag = mp3File.getTag();
+
 		if (audioTag == null) {
 			checkResult.setReason("No Tag");
-			checkResult.setPassed(false);
 			return checkResult;
 		}
 
 		for (FieldKey key : aFieldKeys) {
 			List<TagField> fieldList = audioTag.getFields(key);
-			if (isEmpty(fieldList) || fieldList.size() > 1) {
+			if (ObjectUtils.isEmpty(fieldList) || (fieldList.size() > 1)) {
 				checkResult.setReason("Check Tag:" + key + "##" + aTrack.getPath());
 				return checkResult;
 			}
 		}
 
 		Iterator<TagField> fieldIterator = audioTag.getFields();
+		Set<String> removeFrames = new HashSet<>();
+		StringBuilder checkResultReason = new StringBuilder();
+		checkResult.setPassed(true);
+
 		while (fieldIterator.hasNext()) {
 			TagField field = fieldIterator.next();
 			if (standardFrames.get(field.getId()) != null) {
@@ -212,23 +426,30 @@ public class ID3Util {
 			}
 
 			if (!aRemoveInvalidFrames) {
-				try {
-					checkResult.setReason("Check Tag. Invalid Frame:" + field.getId() + "@@"
-							+ new String(field.getRawContent()) + "##" + aTrack.getPath());
-				} catch (UnsupportedEncodingException error) {
-					logger.warn("error in getting frame content:{}. error:{}", field.getId(), error.getMessage());
-					checkResult.setReason("Check Tag. Invalid Frame:" + field.getId() + "@@N/A##" + aTrack.getPath());
-				}
-
-				return checkResult;
+				checkResultReason.append("Invalid Frame:" + field.getId() + ":" + field.toString() + "@@");
+				checkResult.setPassed(false);
+			} else {
+				removeFrames.add(field.getId());
 			}
-
-			Mp3Tag mp3Tag = readTag(aTrack);
-			writeTag(aTrack, mp3Tag, 2);
-			break;
 		}
 
-		checkResult.setPassed(true);
+		if (!checkResult.isPassed()) {
+			checkResult.setReason("Check Tag. " + checkResultReason.toString() + "##" + aTrack.getPath());
+		}
+
+		if (removeFrames.size() > 0) {
+			for (String frameId : removeFrames) {
+				audioTag.deleteField(frameId);
+			}
+
+			try {
+				mp3File.commit();
+				mp3File.save();
+			} catch (CannotWriteException | IOException | TagException error) {
+				throw new AccelerateException(error);
+			}
+		}
+
 		return checkResult;
 	}
 
@@ -290,138 +511,43 @@ public class ID3Util {
 	 * @return
 	 */
 	public static TagCheckResult compareTags(Mp3Tag aMainTag, Mp3Tag aThisTag) {
-		if (!compare(aThisTag.language, aMainTag.language) && !isEmpty(aMainTag.language)) {
-			return new TagCheckResult(false, aThisTag.language + "!=" + aMainTag.language);
+		if ((aMainTag == null) || (aThisTag == null)) {
+			return new TagCheckResult(false, aThisTag + "!=" + aMainTag);
 		}
 
-		if (!compare(aThisTag.genre, aMainTag.genre) && !isEmpty(aMainTag.genre)) {
-			return new TagCheckResult(false, aThisTag.genre + "!=" + aMainTag.genre);
-		}
-
-		if (!compare(aThisTag.album, aMainTag.album) && !isEmpty(aMainTag.album)) {
-			return new TagCheckResult(false, aThisTag.album + "!=" + aMainTag.album);
-		}
-
-		if (!compare(aThisTag.year, aMainTag.year) && !isEmpty(aMainTag.year)) {
-			return new TagCheckResult(false, aThisTag.year + "!=" + aMainTag.year);
-		}
-
-		if (!compare(aThisTag.composer, aMainTag.composer) && !isEmpty(aMainTag.composer)) {
-			return new TagCheckResult(false, aThisTag.composer + "!=" + aMainTag.composer);
-		}
-
-		if (!compare(aThisTag.albumArtist, aMainTag.albumArtist) && !isEmpty(aMainTag.albumArtist)) {
-			return new TagCheckResult(false, aThisTag.albumArtist + "!=" + aMainTag.albumArtist);
-		}
-
-		if (!compare(aThisTag.artist, aMainTag.artist) && !isEmpty(aMainTag.artist)) {
-			return new TagCheckResult(false, aThisTag.artist + "!=" + aMainTag.artist);
-		}
-
-		if (!compare(aThisTag.trackNbr, aMainTag.trackNbr) && !isEmpty(aMainTag.trackNbr)) {
-			return new TagCheckResult(false, aThisTag.trackNbr + "!=" + aMainTag.trackNbr);
-		}
-
-		if (!compare(aThisTag.title, aMainTag.title) && !isEmpty(aMainTag.title)) {
-			return new TagCheckResult(false, aThisTag.title + "!=" + aMainTag.title);
-		}
-
-		if (aMainTag.artwork.jatArtwork != null && aThisTag.artwork.jatArtwork == null) {
-			return new TagCheckResult(false, aThisTag.artwork + "!=" + aMainTag.artwork);
+		int compareValue = aMainTag.compareTo(aThisTag);
+		switch (compareValue) {
+		case -1:
+			return new TagCheckResult(false, "id: " + aThisTag.id + "!=" + aMainTag.id);
+		case -2:
+			return new TagCheckResult(false, "language: " + aThisTag.language + "!=" + aMainTag.language);
+		case -3:
+			return new TagCheckResult(false, "genre: " + aThisTag.genre + "!=" + aMainTag.genre);
+		case -4:
+			return new TagCheckResult(false, "mood: " + aThisTag.mood + "!=" + aMainTag.mood);
+		case -5:
+			return new TagCheckResult(false, "album: " + aThisTag.album + "!=" + aMainTag.album);
+		case -6:
+			return new TagCheckResult(false, "year: " + aThisTag.year + "!=" + aMainTag.year);
+		case -7:
+			return new TagCheckResult(false, "albumArtist: " + aThisTag.albumArtist + "!=" + aMainTag.albumArtist);
+		case -8:
+			return new TagCheckResult(false, "composer: " + aThisTag.composer + "!=" + aMainTag.composer);
+		case -9:
+			return new TagCheckResult(false, "artist: " + aThisTag.artist + "!=" + aMainTag.artist);
+		case -10:
+			return new TagCheckResult(false, "trackNbr: " + aThisTag.trackNbr + "!=" + aMainTag.trackNbr);
+		case -11:
+			return new TagCheckResult(false, "title: " + aThisTag.title + "!=" + aMainTag.title);
+		case -12:
+			return new TagCheckResult(false, "lyrics: " + aThisTag.lyrics + "!=" + aMainTag.lyrics);
+		case -13:
+			return new TagCheckResult(false, "tags: " + aThisTag.tags + "!=" + aMainTag.tags);
+		case -14:
+			return new TagCheckResult(false, "artwork");
 		}
 
 		return new TagCheckResult(true, EMPTY_STRING);
-	}
-
-	/**
-	 * @param aTrack
-	 * @return {@link MP3File} instance
-	 * @throws AccelerateException
-	 */
-	public static MP3File getMP3File(File aTrack) throws AccelerateException {
-		try {
-			return new MP3File(aTrack);
-		} catch (IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException error) {
-			throw new AccelerateException(error);
-		}
-	}
-
-	/**
-	 * @param aTrack
-	 * @return {@link Tag} instance
-	 * @throws AccelerateException
-	 */
-	public static Tag getMP3Tag(File aTrack) throws AccelerateException {
-		return getMP3File(aTrack).getTag();
-	}
-
-	/**
-	 * @param aTrack
-	 * @return {@link Mp3Tag} instance
-	 * @throws AccelerateException
-	 */
-	public static Mp3Tag readTag(File aTrack) throws AccelerateException {
-		Mp3Tag mp3Tag = new Mp3Tag();
-		mp3Tag.sourceFile = aTrack;
-		retrieveTag(mp3Tag);
-		return mp3Tag;
-	}
-
-	/**
-	 * @param aTrack
-	 * @return
-	 */
-	public static Mp3Tag tempTag(File aTrack) {
-		List<String> tokens = parseTagExpression("<language>-<genre>-<album>-<year>-<artist>-<title>");
-
-		Mp3Tag mp3Tag = parseTag(aTrack, tokens);
-		mp3Tag.sourceFile = aTrack;
-
-		mp3Tag.composer = mp3Tag.artist;
-		mp3Tag.albumArtist = mp3Tag.artist;
-
-		Mp3Tag.Header header = mp3Tag.header;
-		header.size = 0;
-		header.length = 0;
-		header.mode = "mode";
-		header.bitrateType = "VBR";
-		header.bitrate = "0";
-		header.frequency = "frequency";
-
-		return mp3Tag;
-	}
-
-	/**
-	 * @param aMp3Tag
-	 * @throws AccelerateException
-	 */
-	public static void retrieveTag(Mp3Tag aMp3Tag) throws AccelerateException {
-		MP3File mp3File = getMP3File(aMp3Tag.sourceFile);
-		Tag tag = mp3File.getTag();
-
-		aMp3Tag.language = tag.getFirst(FieldKey.LANGUAGE);
-		aMp3Tag.genre = tag.getFirst(FieldKey.GENRE);
-		aMp3Tag.album = tag.getFirst(FieldKey.ALBUM);
-		aMp3Tag.year = tag.getFirst(FieldKey.YEAR);
-		aMp3Tag.composer = tag.getFirst(FieldKey.COMPOSER);
-		aMp3Tag.albumArtist = tag.getFirst(FieldKey.ALBUM_ARTIST);
-		aMp3Tag.artist = tag.getFirst(FieldKey.ARTIST);
-		aMp3Tag.title = tag.getFirst(FieldKey.TITLE);
-		aMp3Tag.trackNbr = tag.getFirst(FieldKey.TRACK);
-
-		Artwork artwork = tag.getFirstArtwork();
-		if (artwork != null) {
-			aMp3Tag.artwork.jatArtwork = artwork;
-		}
-
-		AudioHeader audioHeader = mp3File.getAudioHeader();
-		Mp3Tag.Header header = aMp3Tag.header;
-		header.size = aMp3Tag.sourceFile.length();
-		header.length = audioHeader.getTrackLength();
-		header.mode = audioHeader.getChannels();
-		header.bitrateType = audioHeader.isVariableBitRate() ? "VBR" : "CBR";
-		header.bitrate = audioHeader.getBitRate();
-		header.frequency = audioHeader.getSampleRate();
 	}
 
 	/**
@@ -471,7 +597,7 @@ public class ID3Util {
 
 				if (compare(field, "ignore")) {
 					continue;
-				} else if (!isEmpty(fieldValue) && field == null) {
+				} else if (!isEmpty(fieldValue) && (field == null)) {
 					System.err.println("no field for token: " + fieldValue);
 				} else if (field != null) {
 					ReflectionUtil.setFieldValue(Mp3Tag.class, mp3Tag, field, fieldValue);
@@ -504,215 +630,23 @@ public class ID3Util {
 		aCommonTag.genre = (isEmpty(aCommonTag.genre) || compare(aCommonTag.genre, mp3Tag.genre)) ? mp3Tag.genre
 				: EMPTY_STRING;
 
+		aCommonTag.mood = (isEmpty(aCommonTag.mood) || compare(aCommonTag.mood, mp3Tag.mood)) ? mp3Tag.mood
+				: EMPTY_STRING;
+
 		aCommonTag.album = (isEmpty(aCommonTag.album) || compare(aCommonTag.album, mp3Tag.album)) ? mp3Tag.genre
 				: EMPTY_STRING;
 
 		aCommonTag.year = (isEmpty(aCommonTag.year) || compare(aCommonTag.year, mp3Tag.year)) ? mp3Tag.year
 				: EMPTY_STRING;
 
-		aCommonTag.composer = (isEmpty(aCommonTag.composer) || compare(aCommonTag.composer, mp3Tag.composer))
-				? mp3Tag.composer : EMPTY_STRING;
-
 		aCommonTag.albumArtist = (isEmpty(aCommonTag.albumArtist)
 				|| compare(aCommonTag.albumArtist, mp3Tag.albumArtist)) ? mp3Tag.albumArtist : EMPTY_STRING;
 
+		aCommonTag.composer = (isEmpty(aCommonTag.composer) || compare(aCommonTag.composer, mp3Tag.composer))
+				? mp3Tag.composer : EMPTY_STRING;
+
 		aCommonTag.artist = (isEmpty(aCommonTag.artist) || compare(aCommonTag.artist, mp3Tag.artist)) ? mp3Tag.artist
 				: EMPTY_STRING;
-
-		aCommonTag.trackNbr = (isEmpty(aCommonTag.trackNbr) || compare(aCommonTag.trackNbr, mp3Tag.trackNbr))
-				? mp3Tag.trackNbr : EMPTY_STRING;
-
-		aCommonTag.title = (isEmpty(aCommonTag.title) || compare(aCommonTag.title, mp3Tag.title)) ? mp3Tag.title
-				: EMPTY_STRING;
-
-		aCommonTag.artwork.jatArtwork = (isEmpty(aCommonTag.artwork.jatArtwork)
-				|| compare(aCommonTag.artwork.jatArtwork, mp3Tag.artwork.jatArtwork)) ? mp3Tag.artwork.jatArtwork
-						: null;
-	}
-
-	/**
-	 * @param aMainTag
-	 * @param aOverrideTag
-	 */
-	public static void mergeTags(Mp3Tag aMainTag, Mp3Tag aOverrideTag) {
-		if (!isEmpty(aOverrideTag.language)) {
-			aMainTag.language = aOverrideTag.language;
-		}
-
-		if (!isEmpty(aOverrideTag.genre)) {
-			aMainTag.genre = aOverrideTag.genre;
-		}
-
-		if (!isEmpty(aOverrideTag.album)) {
-			aMainTag.album = aOverrideTag.album;
-		}
-
-		if (!isEmpty(aOverrideTag.year)) {
-			aMainTag.year = aOverrideTag.year;
-		}
-
-		if (!isEmpty(aOverrideTag.composer)) {
-			aMainTag.composer = aOverrideTag.composer;
-		}
-
-		if (!isEmpty(aOverrideTag.albumArtist)) {
-			aMainTag.albumArtist = aOverrideTag.albumArtist;
-		}
-
-		if (!isEmpty(aOverrideTag.artist)) {
-			aMainTag.artist = aOverrideTag.artist;
-		}
-
-		if (!isEmpty(aOverrideTag.trackNbr)) {
-			aMainTag.trackNbr = aOverrideTag.trackNbr;
-		}
-
-		if (!isEmpty(aOverrideTag.title)) {
-			aMainTag.title = aOverrideTag.title;
-		}
-
-		if (!isEmpty(aOverrideTag.artworkFile)) {
-			aMainTag.artworkFile = aOverrideTag.artworkFile;
-		}
-
-		if (!isEmpty(aOverrideTag.artwork)) {
-			aMainTag.artwork = aOverrideTag.artwork;
-		}
-
-	}
-
-	/**
-	 * @param aTrack
-	 * @param mp3Tag
-	 * @throws AccelerateException
-	 */
-	public static void writeTag(File aTrack, Mp3Tag mp3Tag) throws AccelerateException {
-		writeTag(aTrack, mp3Tag, 0);
-	}
-
-	/**
-	 * @param aTrack
-	 * @param mp3Tag
-	 * @param aWriteFlag
-	 * @throws AccelerateException
-	 */
-	public static void writeTag(File aTrack, Mp3Tag mp3Tag, int aWriteFlag) throws AccelerateException {
-		try {
-			MP3File mp3File = getMP3File(aTrack);
-			Tag tag = mp3File.getTag();
-
-			if (aWriteFlag == 2) {
-				if (tag != null) {
-					mp3File.delete((AbstractTag) tag);
-				}
-
-				tag = new ID3v24Tag();
-				mp3File.setTag(tag);
-			}
-
-			if (tag == null) {
-				if (aWriteFlag == 0) {
-					tag = new ID3v23Tag();
-					mp3File.setTag(tag);
-				} else {
-					System.err.println("No Tag: " + aTrack.getPath());
-					return;
-				}
-			}
-
-			if (!isEmpty(mp3Tag.language)) {
-				tag.setField(FieldKey.LANGUAGE, mp3Tag.language);
-			}
-
-			if (!isEmpty(mp3Tag.genre)) {
-				tag.setField(FieldKey.GENRE, mp3Tag.genre);
-			}
-
-			if (!isEmpty(mp3Tag.album)) {
-				tag.setField(FieldKey.ALBUM, mp3Tag.album);
-			}
-
-			if (!isEmpty(mp3Tag.year)) {
-				tag.setField(FieldKey.YEAR, mp3Tag.year);
-			}
-
-			if (!isEmpty(mp3Tag.composer)) {
-				tag.setField(FieldKey.COMPOSER, mp3Tag.composer);
-			}
-
-			if (!isEmpty(mp3Tag.albumArtist)) {
-				tag.setField(FieldKey.ALBUM_ARTIST, mp3Tag.albumArtist);
-			}
-
-			if (!isEmpty(mp3Tag.artist)) {
-				tag.setField(FieldKey.ARTIST, mp3Tag.artist);
-			}
-
-			if (!isEmpty(mp3Tag.title)) {
-				tag.setField(FieldKey.TITLE, mp3Tag.title);
-			}
-
-			if (!isEmpty(mp3Tag.trackNbr)) {
-				tag.setField(FieldKey.TRACK, mp3Tag.trackNbr);
-			}
-
-			if (!isEmpty(mp3Tag.artworkFile)) {
-				tag.deleteArtworkField();
-				tag.addField(StandardArtwork.createArtworkFromFile(mp3Tag.artworkFile));
-			}
-
-			if (!isEmpty(mp3Tag.artwork.jatArtwork)) {
-				tag.deleteArtworkField();
-				tag.addField(mp3Tag.artwork.jatArtwork);
-			}
-
-			mp3File.commit();
-			mp3File.save();
-		} catch (Exception error) {
-			throw new AccelerateException(error);
-		}
-	}
-
-	/**
-	 * This method deletes the default tag from the Mp3 file
-	 * 
-	 * @param aTrack
-	 * @throws AccelerateException
-	 */
-	public static void deleteTag(File aTrack) throws AccelerateException {
-		Mp3Tag mp3Tag = readTag(aTrack);
-
-		try {
-			if (mp3Tag != null) {
-				MP3File mp3File = ID3Util.getMP3File(aTrack);
-				mp3File.delete((AbstractTag) mp3File.getTag());
-				mp3File.commit();
-				mp3File.save();
-			}
-		} catch (Exception error) {
-			throw new AccelerateException(error);
-		}
-	}
-
-	/**
-	 * This method deletes the given tag from the Mp3 file
-	 * 
-	 * @param aTrack
-	 * @throws AccelerateException
-	 */
-	public static void deleteV1Tag(File aTrack) throws AccelerateException {
-		Mp3Tag mp3Tag = readTag(aTrack);
-
-		try {
-			if (mp3Tag != null) {
-				MP3File mp3File = ID3Util.getMP3File(aTrack);
-				mp3File.delete(mp3File.getID3v1Tag());
-				mp3File.commit();
-				mp3File.save();
-			}
-		} catch (Exception error) {
-			throw new AccelerateException(error);
-		}
 	}
 
 	/**
@@ -720,16 +654,21 @@ public class ID3Util {
 	 */
 	private static void setupStandardFrames() {
 		standardFrames = new HashMap<>();
-		standardFrames.put(ID3v23Frames.FRAME_ID_V3_LANGUAGE, FieldKey.LANGUAGE);
-		standardFrames.put(ID3v23Frames.FRAME_ID_V3_GENRE, FieldKey.GENRE);
-		standardFrames.put(ID3v23Frames.FRAME_ID_V3_ALBUM, FieldKey.ALBUM);
+		standardFrames.put(ID3v24Frames.FRAME_ID_INITIAL_KEY, FieldKey.KEY);
+		standardFrames.put(ID3v24Frames.FRAME_ID_LANGUAGE, FieldKey.LANGUAGE);
+		standardFrames.put(ID3v24Frames.FRAME_ID_GENRE, FieldKey.GENRE);
+		standardFrames.put(ID3v24Frames.FRAME_ID_MOOD, FieldKey.MOOD);
+		standardFrames.put(ID3v24Frames.FRAME_ID_ALBUM, FieldKey.ALBUM);
+		standardFrames.put(ID3v24Frames.FRAME_ID_YEAR, FieldKey.YEAR);
 		standardFrames.put(ID3v23Frames.FRAME_ID_V3_TYER, FieldKey.YEAR);
-		standardFrames.put(ID3v23Frames.FRAME_ID_V3_COMPOSER, FieldKey.COMPOSER);
-		standardFrames.put(ID3v23Frames.FRAME_ID_V3_ALBUM_ARTIST_SORT_ORDER_ITUNES, FieldKey.ALBUM_ARTIST);
-		standardFrames.put(ID3v23Frames.FRAME_ID_V3_ARTIST, FieldKey.ARTIST);
-		standardFrames.put(ID3v23Frames.FRAME_ID_V3_TITLE, FieldKey.TITLE);
-		standardFrames.put(ID3v23Frames.FRAME_ID_V3_ATTACHED_PICTURE, FieldKey.COVER_ART);
-		standardFrames.put(ID3v23Frames.FRAME_ID_V3_TRACK, FieldKey.TRACK);
+		standardFrames.put(ID3v24Frames.FRAME_ID_COMPOSER, FieldKey.COMPOSER);
+		standardFrames.put(ID3v24Frames.FRAME_ID_ACCOMPANIMENT, FieldKey.ALBUM_ARTIST);
+		standardFrames.put(ID3v24Frames.FRAME_ID_ARTIST, FieldKey.ARTIST);
+		standardFrames.put(ID3v24Frames.FRAME_ID_TRACK, FieldKey.TRACK);
+		standardFrames.put(ID3v24Frames.FRAME_ID_TITLE, FieldKey.TITLE);
+		standardFrames.put(ID3v24Frames.FRAME_ID_UNSYNC_LYRICS, FieldKey.LYRICS);
+		standardFrames.put(ID3v24Frames.FRAME_ID_USER_DEFINED_INFO, FieldKey.TAGS);
+		standardFrames.put(ID3v24Frames.FRAME_ID_ATTACHED_PICTURE, FieldKey.COVER_ART);
 	}
 
 	/**
@@ -737,8 +676,10 @@ public class ID3Util {
 	 */
 	private static void setupStandardFields() {
 		standardFields = new ArrayList<>();
+		standardFields.add(FieldKey.KEY);
 		standardFields.add(FieldKey.LANGUAGE);
 		standardFields.add(FieldKey.GENRE);
+		standardFields.add(FieldKey.MOOD);
 		standardFields.add(FieldKey.ALBUM);
 		standardFields.add(FieldKey.YEAR);
 		standardFields.add(FieldKey.COMPOSER);
@@ -746,6 +687,109 @@ public class ID3Util {
 		standardFields.add(FieldKey.ARTIST);
 		standardFields.add(FieldKey.TRACK);
 		standardFields.add(FieldKey.TITLE);
+		standardFields.add(FieldKey.LYRICS);
+		standardFields.add(FieldKey.TAGS);
 		standardFields.add(FieldKey.COVER_ART);
+	}
+
+	/**
+	 * @param aFileTrack
+	 * @param aDBTrack
+	 * @return {@link TagCheckResult} instance
+	 * @throws AccelerateException
+	 */
+	public static TagCheckResult compareTags(File aFileTrack, Mp3Tag aDBTrack) throws AccelerateException {
+		TagCheckResult result = new TagCheckResult();
+		Mp3Tag mp3Tag = readTag(aFileTrack);
+
+		try {
+			compareFields("Language", mp3Tag.language, aDBTrack.language);
+			compareFields("Genre", mp3Tag.genre, aDBTrack.genre);
+			compareFields("Album", mp3Tag.album, aDBTrack.album);
+			compareFields("Year", mp3Tag.year, aDBTrack.year);
+			compareFields("Composer", mp3Tag.composer, aDBTrack.composer);
+			compareFields("AlbumArtist", mp3Tag.albumArtist, aDBTrack.albumArtist);
+			compareFields("TrackNbr", mp3Tag.trackNbr, aDBTrack.trackNbr);
+			compareFields("Title", mp3Tag.title, aDBTrack.title);
+
+			if (AppUtil.xor((mp3Tag.artwork.base64Data == null), (aDBTrack.artwork.base64Data == null))) {
+				throw new FlowControlException("Mismatch Artwork:" + mp3Tag.artwork + "|" + aDBTrack.artwork);
+			}
+
+			result.setPassed(true);
+		} catch (FlowControlException error) {
+			result.setReason(error.getMessage() + "##" + aFileTrack.getPath() + "|" + aDBTrack.toJSON());
+		}
+
+		return result;
+	}
+
+	/**
+	 * @param aType
+	 * @param aValue1
+	 * @param aValue2
+	 * @throws FlowControlException
+	 */
+	private static void compareFields(String aType, Object aValue1, Object aValue2) throws FlowControlException {
+		if (compare(aValue1, aValue2)) {
+			return;
+		}
+
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("Mismatch ").append(aType).append(":").append(aValue1).append("|").append(aValue2);
+		throw new FlowControlException(buffer.toString());
+	}
+
+	/**
+	 * @param aTrack
+	 * @param aRemoveInvalidFrames
+	 * @return {@link TagCheckResult} instance
+	 * @throws AccelerateException
+	 */
+	public static TagCheckResult validateTag(File aTrack, boolean aRemoveInvalidFrames) throws AccelerateException {
+		return validateTag(aTrack, standardFields, aRemoveInvalidFrames);
+	}
+
+	/**
+	 * @param aTrack
+	 * @param aFieldKeys
+	 * @param aRemoveInvalidFrames
+	 * @return {@link TagCheckResult} instance
+	 * @throws AccelerateException
+	 */
+	public static TagCheckResult validateTag(File aTrack, List<FieldKey> aFieldKeys, boolean aRemoveInvalidFrames)
+			throws AccelerateException {
+		TagCheckResult result = new TagCheckResult();
+		result = checkTagFields(aTrack, aFieldKeys, aRemoveInvalidFrames);
+
+		if (result.isPassed()) {
+			result = validateTagFields(aTrack);
+		}
+
+		return result;
+	}
+
+	/**
+	 * @param aTrack
+	 * @return
+	 */
+	public static Mp3Tag tempTag(File aTrack) {
+		List<String> tokens = parseTagExpression("<language>-<genre>-<album>-<year>-<artist>-<title>");
+
+		Mp3Tag mp3Tag = parseTag(aTrack, tokens);
+		mp3Tag.fileName = aTrack.getName();
+
+		mp3Tag.composer = mp3Tag.artist;
+		mp3Tag.albumArtist = mp3Tag.artist;
+
+		Mp3Tag.Header header = mp3Tag.header;
+		header.size = 0;
+		header.length = 0;
+		header.mode = "mode";
+		header.bitrateType = "VBR";
+		header.bitrate = "0";
+		header.frequency = "frequency";
+
+		return mp3Tag;
 	}
 }
