@@ -119,12 +119,24 @@
 							<span class="_modalAlertIcon glyphicon">&nbsp;</span> <span
 								class="_modalAlertMsg" />
 						</div>
+						<div class="clearfix">
+							<div class="col-lg-10 col-md-10 col-sm-8 col-xs-8">
+								<input id="_fileTreeRoot" type="text" class="form-control"
+									value="" placeholder="Tree Root" />
+							</div>
+							<button
+								class="btn btn-warning btn-responsive col-lg-2 col-md-2 col-sm-4 col-xs-4"
+								onclick="apollo.plugins.FileSystemUtil.loadTree()">Load</button>
+						</div>
+						<hr style="margin: 10px 0px 10px 0px;" />
 
-						<div id="_fileTree"></div>
+						<div id="_fileTreeScroller" style="overflow: auto; height: 170px;">
+							<div id="_fileTree"></div>
+						</div>
 					</div>
 
 					<div class="modal-footer">
-						<button class="btn btn-warning apollo-btn" id="_selectFolder"
+						<button class="btn btn-warning btn-responsive" id="_selectFolder"
 							onclick="apollo.plugins.FileSystemUtil.selectFolder()">Apply</button>
 					</div>
 				</div>

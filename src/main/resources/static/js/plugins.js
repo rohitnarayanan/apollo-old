@@ -20,7 +20,7 @@ apollo.plugins.AngularUtil = {
 		if (!_responseData || _responseData.returnCode != 0
 				|| aResponse.serverError) {
 			apollo.plugins.AngularUtil.serverError(aResponse);
-			return null;
+			return (apollo.angularSvc.q.reject(aResponse));
 		}
 
 		return (aResponse.data);
@@ -29,7 +29,7 @@ apollo.plugins.AngularUtil = {
 	"httpError" : function(aResponse) {
 		if (!angular.isObject(aResponse.serverError)) {
 			return (apollo.angularSvc.q.reject({
-				"accelerateMessage" : {
+				"message" : {
 					"messageText" : "An unknown error occurred."
 				}
 			}));
@@ -39,10 +39,12 @@ apollo.plugins.AngularUtil = {
 	},
 
 	"serverError" : function(aResponse) {
-		console.log("Error:" + aResponse.errorMessage);
-		console.log(aResponse.errorDetails);
+		var _responseData = aResponse.data;
+
+		console.log("Error:" + _responseData.dataMap.errorMessage);
+		console.log(_responseData.dataMap.errorDetails);
 		apollo.plugins.AlertUtil.showPageAlert(
-				aResponse.accelerateMessage.messageText, "error");
+				_responseData.message.messageText, "error");
 	},
 
 	"changeRoute" : function(aPath) {
@@ -100,33 +102,43 @@ apollo.plugins.AlertUtil = {
  */
 apollo.plugins.FileSystemUtil = {
 	"showModal" : function(aFileSystemService, aSelectCallback) {
-		$("#_fileTree").jstree(
-				{
-					"core" : {
-						"multiple" : false,
-						"data" : function(aNode, aCallback) {
-							var _core = this;
-							var dirPath = (aNode.id === "#") ? "" : _core.path;
-							var dirName = (aNode.id === "#") ? "" : aNode.text;
+		$("#_fileTree")
+				.jstree(
+						{
+							"core" : {
+								"multiple" : false,
+								"data" : function(aNode, aCallback) {
+									var customRoot = $("#_fileTreeRoot").val();
+									var dirPath = (aNode.id === "#") ? (customRoot ? customRoot
+											: "")
+											: aNode.data;
+									var dirName = (aNode.id === "#") ? ""
+											: aNode.text;
 
-							aFileSystemService.listFolders(dirPath, dirName)
-									.then(function(aResponse) {
-										_core.path = aResponse.dataMap.path;
+									aFileSystemService.listFolders(dirPath,
+											dirName).then(function(aResponse) {
 										aCallback(aResponse.dataMap.folders);
-									}, apollo.plugins.AngularUtil.serverError);
-						}
-					}
-				});
+									}, function(aResponse) {
+										$("#_fileSystemModal").modal("hide");
+									});
+								}
+							}
+						});
 
 		$('#_fileTree').jstree(true).selectCallback = aSelectCallback;
 		$("#_fileSystemModal").modal("show");
 	},
 
+	"loadTree" : function() {
+		$('#_fileTree').jstree(true).refresh();
+	},
+
 	"selectFolder" : function() {
 		var _jstree = $('#_fileTree').jstree(true);
 		if (_jstree.selectCallback) {
-			_jstree.selectCallback(_jstree.path + "/"
-					+ _jstree.get_selected(true)[0].text);
+			var _selectedNode = _jstree.get_selected(true)[0];
+			_jstree.selectCallback(_selectedNode.data + "/"
+					+ _selectedNode.text);
 			_jstree.selectCallback = null;
 		}
 

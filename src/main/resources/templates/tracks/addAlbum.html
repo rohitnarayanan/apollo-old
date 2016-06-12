@@ -51,8 +51,8 @@
 			<div class="modal-body">
 				<div class="form-group">
 					<tags-input class="ti-input-sm" ng-model="tagExpressions"
-						add-on-enter="true" add-on-space="false" add-on-comma="false"
-						add-on-blur="true" add-on-paste="true"
+						min-length="1" add-on-enter="true" add-on-space="false"
+						add-on-comma="false" add-on-blur="true" add-on-paste="true"
 						replace-spaces-with-dashes="false"
 						add-from-autocomplete-only="false"> <auto-complete
 						source="getTagTokens($query)" min-length="1"

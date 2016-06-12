@@ -86,14 +86,18 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	};
 
 	$scope.getTagTokens = function(aQuery) {
-		console.log("aQuery:" + aQuery);
 		return $.map($scope.tagTokens, function(aToken, aIdx) {
 			return (aToken.startsWith(aQuery)) ? aToken : null;
 		});
 	};
 
 	$scope.parseTags = function() {
-		alert("parseTags:" + $scope.tagExpressions);
+		var tagExprTokens = "";
+		$.each($scope.tagExpressions, function(aIdx, aExpr) {
+			tagExprTokens += aExpr.text + "|";
+		});
+
+		alert("parseTags:" + tagExprTokens);
 	};
 
 	$scope.saveTags = function() {

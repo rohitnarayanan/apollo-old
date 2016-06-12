@@ -113,6 +113,7 @@ public class ID3Util {
 
 		Mp3Tag mp3Tag = new Mp3Tag();
 		mp3Tag.sourceFile = aTrack;
+		mp3Tag.fileName = aTrack.getName();
 		mp3Tag.id = tag.getFirst(FieldKey.KEY);
 		mp3Tag.language = tag.getFirst(FieldKey.LANGUAGE);
 		mp3Tag.genre = tag.getFirst(FieldKey.GENRE);

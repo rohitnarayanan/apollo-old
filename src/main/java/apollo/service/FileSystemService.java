@@ -47,9 +47,8 @@ public class FileSystemService {
 	 */
 	@Auditable
 	public DataMap listFolders(String aDirPath, String aDirName) {
-		String path = StringUtils.isEmpty(aDirPath) ? this.apolloProps.get("apollo.library.root") : aDirPath;
-		String name = StringUtils.isEmpty(aDirName) ? this.apolloProps.get("apollo.library.name") : aDirName;
-		File targetDir = new File(path, name);
+		String dirPath = StringUtils.isEmpty(aDirPath) ? this.apolloProps.get("apollo.library.root") : aDirPath;
+		File targetDir = StringUtils.isEmpty(aDirName) ? new File(dirPath) : new File(dirPath, aDirName);
 
 		LOGGER.debug("Fetching sub folders for [{}]", targetDir);
 
@@ -68,7 +67,8 @@ public class FileSystemService {
 				}
 			});
 
-			return DataMap.buildMap("text", aFile.getName(), "children", !ObjectUtils.isEmpty(childFolders));
+			return DataMap.buildMap("text", aFile.getName(), "data", targetDir.getPath(), "children",
+					!ObjectUtils.isEmpty(childFolders));
 		}).collect(Collectors.toList()));
 
 		return dataMap;
@@ -89,9 +89,11 @@ public class FileSystemService {
 		dataMap.put("tracks", Arrays.stream(targetDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File aFile) {
-				return AppUtil.compare(FileUtil.getFileExtn(aFile), "zzz");
+				return AppUtil.compare(FileUtil.getFileExtn(aFile), "mp3");
 			}
-		})).map(aFile -> ID3Util.tempTag(aFile)).collect(Collectors.toList()));
+		})).map(aFile ->
+		// ID3Util.tempTag(aFile)
+		ID3Util.readTag(aFile)).collect(Collectors.toList()));
 
 		return dataMap;
 	}

@@ -24,16 +24,17 @@ public class ApolloUtil {
 	 * @param aError
 	 * @return
 	 */
-	public static final AccelerateWebResponse prepareResponse(int aReturnCode, Throwable aError) {
+	public static final AccelerateWebResponse prepareResponse(int aReturnCode, Exception aError) {
 		AccelerateWebResponse response = new AccelerateWebResponse();
 		response.setReturnCode(aReturnCode);
+		response.setServerError(true);
+		// response.setError(aError);
 
 		if (aError != null) {
 			response.setMessage(new AccelerateMessage(MessageType.ERROR, "serverError",
 					"Server encountered an error while completing the operation."));
 			response.put("errorMessage", aError.getMessage());
 			response.put("errorDetails", AppUtil.getErrorLog(aError));
-			response.put("serverError", true);
 		}
 
 		return response;
