@@ -55,6 +55,46 @@
 		</footer>
 	</div>
 
+	<div th:fragment="section_auth_error_msg" style="margin-top: 20px;">
+		<div th:if="${param.notLoggedIn}" class="apollo-msg msg-success">
+			<span class="glyphicon glyphicon-ok">&nbsp;</span>Please login to
+			proceed
+		</div>
+
+		<div th:if="${param.logout}" class="apollo-msg msg-success">
+			<span class="glyphicon glyphicon-ok">&nbsp;</span>You have been
+			logged out.
+		</div>
+
+		<div th:if="${param.sessionExpired}" class="apollo-msg msg-warn">
+			<span class="glyphicon glyphicon-alert">&nbsp;</span>Session Expired.
+			Please Login Again
+		</div>
+
+		<div th:if="${param.sessionInvalid}" class="apollo-msg msg-warn">
+			<span class="glyphicon glyphicon-alert">&nbsp;</span>Invalid Session.
+			Please Login Again
+		</div>
+
+		<div th:if="${param.errorType}" th:switch="${param.errorType[0]}"
+			th:attr="data-dd=${param.errorType[0]}" class="apollo-msg msg-error">
+			<span class="glyphicon glyphicon-remove">&nbsp;</span> <span
+				th:case="'incorrectLogin'">Invalid username or password</span> <span
+				th:case="'userDisabled'">The user account is disabled or
+				inactive. Please contact the Administrator</span> <span
+				th:case="'userCredentialsAccount'">The password has expired.
+				Please reset your password and try again</span> <span
+				th:case="'userAccountExpired'">The user account has expired.
+				Please contact the Administrator</span> <span th:case="'userAccountLocked'">The
+				user account is locked . Please contact the Administrator</span> <span
+				th:case="*">Error in login. Please contact the Administrator</span>
+		</div>
+		<div th:if="${param.error}" class="apollo-msg msg-error">
+			<span class="glyphicon glyphicon-remove">&nbsp;</span>The was an
+			error during login. Please contact the Administrator
+		</div>
+	</div>
+
 	<div th:fragment="help-msg">
 		<div class="modal" id="helpMsg" tabindex="-1" role="dialog"
 			aria-labelledby="helpMsgLabel">
