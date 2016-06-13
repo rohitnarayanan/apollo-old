@@ -10,8 +10,7 @@ apollo.services = {};
  */
 apollo.services.fileSystemService = function($http, $q) {
 	return ({
-		"listFolders" : listFolders,
-		"listTracks" : listTracks
+		"listFolders" : listFolders
 	});
 
 	function listFolders(aDirPath, aDirName) {
@@ -27,13 +26,22 @@ apollo.services.fileSystemService = function($http, $q) {
 		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
 				apollo.plugins.AngularUtil.httpError));
 	}
+};
 
-	function listTracks(aDirPath) {
+/**
+ * 
+ */
+apollo.services.albumService = function($http, $q) {
+	return ({
+		"fetchTracks" : fetchTracks
+	});
+
+	function fetchTracks(aAlbumPath) {
 		var request = $http({
 			method : "get",
-			url : apollo.context.path + "/fileSystem/tracks",
+			url : apollo.context.path + "/album/tracks",
 			params : {
-				"dirPath" : aDirPath
+				"albumPath" : aAlbumPath
 			}
 		});
 

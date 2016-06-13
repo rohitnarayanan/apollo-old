@@ -10,15 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import accelerate.cache.PropertyCache;
 import accelerate.databean.DataMap;
 import accelerate.logging.Auditable;
-import accelerate.util.AppUtil;
-import accelerate.util.FileUtil;
-import apollo.util.ID3Util;
 
 /**
  * PUT DESCRIPTION HERE
@@ -70,30 +66,6 @@ public class FileSystemService {
 			return DataMap.buildMap("text", aFile.getName(), "data", targetDir.getPath(), "children",
 					!ObjectUtils.isEmpty(childFolders));
 		}).collect(Collectors.toList()));
-
-		return dataMap;
-	}
-
-	/**
-	 * @param aDirPath
-	 * @return
-	 */
-	public static DataMap listTracks(String aDirPath) {
-		File targetDir = new File(aDirPath);
-		Assert.isTrue(targetDir.isDirectory(), "Directory path should be a valid folder");
-
-		LOGGER.debug("Fetching tracks for [{}]", targetDir);
-
-		DataMap dataMap = new DataMap();
-		dataMap.put("path", targetDir.getPath());
-		dataMap.put("tracks", Arrays.stream(targetDir.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File aFile) {
-				return AppUtil.compare(FileUtil.getFileExtn(aFile), "mp3");
-			}
-		})).map(aFile ->
-		// ID3Util.tempTag(aFile)
-		ID3Util.readTag(aFile)).collect(Collectors.toList()));
 
 		return dataMap;
 	}

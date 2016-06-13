@@ -57,10 +57,11 @@ dependencies {
 	// webjars
 	runtime("org.webjars:modernizr:2.8.3")
 	runtime("org.webjars:jquery:2.2.4")
+	runtime("org.webjars:jstree:3.2.1")
 	runtime("org.webjars:bootstrap:3.3.6")
 	runtime("org.webjars:angularjs:1.5.5")
 	runtime("org.webjars:ng-tags-input:2.3.0")
-	//runtime("org.webjars:datatables:1.10.11") -- including custom build from static folder
+	// runtime("org.webjars:datatables:1.10.11") -- including custom build from static folder
 	
 	// runtime dependencies
 	runtime("org.springframework.boot:spring-boot-starter-actuator")

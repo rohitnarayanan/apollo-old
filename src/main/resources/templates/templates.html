@@ -16,7 +16,7 @@
 		<link type="text/css" rel="stylesheet"
 			th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.css}" />
 		<link type="text/css" rel="stylesheet"
-			th:href="@{/css/external/jstree.style.min.css}" />
+			th:href="@{/webjars/jstree/3.2.1/themes/default-dark/style.css}" />
 		<link type="text/css" rel="stylesheet"
 			th:href="@{/webjars/ng-tags-input/2.3.0/ng-tags-input.css}" />
 		<link type="text/css" rel="stylesheet"
@@ -29,6 +29,8 @@
 			th:href="@{/css/menu-styles.css}" />
 		<link type="text/css" rel="stylesheet"
 			th:href="@{/css/message-styles.css}" />
+		<link type="text/css" rel="stylesheet"
+			th:href="@{/css/datatable-styles.css}" />
 
 		<!-- <link type="text/css" rel="stylesheet" th:href="@{/css/skins/black.css}" /> -->
 	</div>
@@ -119,10 +121,10 @@
 	</div>
 
 
-	<div th:fragment="scripts-basic">
+	<div th:fragment="scripts-external">
 		<script th:src="@{/webjars/modernizr/2.8.3/modernizr.js}"></script>
 		<script th:src="@{/webjars/jquery/2.2.4/jquery.js}"></script>
-		<script th:src="@{/js/external/jstree.min.js}"></script>
+		<script th:src="@{/webjars/jstree/3.2.1/jstree.js}"></script>
 		<script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.js}"></script>
 		<script th:src="@{/webjars/angularjs/1.5.5/angular.js}"></script>
 		<script th:src="@{/webjars/angularjs/1.5.5/angular-route.js}"></script>
@@ -132,10 +134,10 @@
 
 	<div th:fragment="scripts-custom">
 		<script th:src="@{/js/main.js}"></script>
-		<script th:src="@{/js/datatableConfig.js}"></script>
 		<script th:src="@{/js/plugins.js}"></script>
-		<script th:src="@{/js/controllers.js}"></script>
+		<script th:src="@{/js/datatables.js}"></script>
 		<script th:src="@{/js/services.js}"></script>
+		<script th:src="@{/js/controllers.js}"></script>
 		<script th:src="@{/js/app.js}"></script>
 	</div>
 

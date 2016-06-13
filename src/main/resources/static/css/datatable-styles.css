@@ -1,0 +1,19 @@
+div.dataTables_wrapper div.dataTables_info {
+	float: left;
+}
+
+div.dataTables_wrapper div.dataTables_paginate {
+	float: right;
+}
+
+div.datatable-controls-bar {
+	margin-top: 10px;
+}
+
+table.dataTable.apollo-table {
+	border-bottom: 2px solid #96c246;
+}
+
+table.dataTable.apollo-table tbody tr:hover {
+	cursor: pointer;
+}

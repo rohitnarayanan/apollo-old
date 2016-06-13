@@ -39,16 +39,4 @@ public class FileSystemController {
 		model.putAll(this.fileSystemService.listFolders(aDirPath, aDirName));
 		return model;
 	}
-
-	/**
-	 * @param aDirPath
-	 * @return
-	 */
-	@RequestMapping(method = RequestMethod.GET, path = "/tracks")
-	@HandleError
-	public static AccelerateWebResponse listTracks(@RequestParam(name = "dirPath") String aDirPath) {
-		AccelerateWebResponse model = new AccelerateWebResponse();
-		model.putAll(FileSystemService.listTracks(aDirPath));
-		return model;
-	}
 }

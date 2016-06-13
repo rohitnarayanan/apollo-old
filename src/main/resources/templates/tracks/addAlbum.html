@@ -13,17 +13,23 @@
 		<!-- data table -->
 		<div id="_filesDiv">
 			<table id="albumTracksDT" style="width: 100%;"
-				class="table table-striped table-hover nowrap">
+				class="table table-stripped table-hover table-condensed nowrap apollo-table">
 			</table>
 		</div>
 
 		<!-- data table controls -->
-		<div class="control-bar clearfix form-inline text-right">
+		<div class="datatable-controls-bar clearfix form-inline text-right">
 			<button id="_selectAlbumBtn" class="btn btn-warning btn-responsive"
 				ng-click="selectAlbum()">Select Album</button>
 			<button id="_parseTagsBtn" class="btn btn-warning btn-responsive"
 				data-ng-click="showParseTags()" ng-disabled="!albumSelected">Parse
 				Tags</button>
+			<button id="_editTrackTagBtn" class="btn btn-warning btn-responsive"
+				data-ng-click="editTrackTag()" ng-disabled="!albumSelected">Edit
+				Track Tags</button>
+			<button id="_editAlbumTagBtn" class="btn btn-warning btn-responsive"
+				data-ng-click="editAlbumTag()" ng-disabled="!albumSelected">Edit
+				Album Tags</button>
 			<button id="_saveTagsBtn" class="btn btn-warning btn-responsive"
 				data-ng-click="saveTags()" ng-disabled="!albumSelected">Save
 				Tags</button>
@@ -33,8 +39,221 @@
 	</div>
 </div>
 
-
+<!-- Include modal for file system operations -->
 <object th:remove="tag" th:include="templates :: file-system-modal" />
+
+<!-- Model for editing tags for selected track(s) -->
+<form id="_editTrackTagForm" name="editTagForm" class="form-horizontal">
+	<div id="_editTrackTagModal" class="modal fade" tabindex="-1"
+		aria-labelledby="_editTrackTagLabel" role="dialog"
+		data-backdrop="static">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 id="_editTrackTagLabel">
+						Edit Track Tag<span class="glyphicon glyphicon-remove"
+							style="float: right; cursor: pointer;" data-dismiss="modal"
+							aria-hidden="true"></span>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Title:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_title"
+											data-ng-model="trackTag.title" placeholder="Title" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Artist:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_artist"
+											data-ng-model="trackTag.artist" placeholder="Artist" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs visible-sm" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Composer:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_composer"
+											data-ng-model="trackTag.composer" placeholder="Composer" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs visible-md visible-lg" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Track
+										Nbr:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_trackNbr"
+											data-ng-model="trackTag.trackNbr" placeholder="Track Nbr" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs visible-sm" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Lyrics:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_lyrics"
+											data-ng-model="trackTag.lyrics" placeholder="Lyrics" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Tags:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_tags"
+											data-ng-model="trackTag.tags" placeholder="Tags" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-warning" data-dismiss="modal"
+						data-ng-click="saveTags()">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+
+<!-- Model for editing tags for selected album -->
+<form id="_editAlbumTagForm" name="editTagForm" class="form-horizontal">
+	<div id="_editAlbumTagModal" class="modal fade" tabindex="-1"
+		aria-labelledby="_editAlbumTagLabel" role="dialog"
+		data-backdrop="static">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 id="_editAlbumTagLabel">
+						Edit Album Tag<span class="glyphicon glyphicon-remove"
+							style="float: right; cursor: pointer;" data-dismiss="modal"
+							aria-hidden="true"></span>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Album:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_album"
+											data-ng-model="albumTag.album" placeholder="Album" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Album
+										Artist:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_albumArtist"
+											data-ng-model="albumTag.albumArtist"
+											placeholder="Album Artist" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs visible-sm" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Year:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_year"
+											data-ng-model="albumTag.year" placeholder="Year" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs visible-md visible-lg" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Language:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_language"
+											data-ng-model="albumTag.language" placeholder="Language" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs visible-sm" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Genre:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_genre"
+											data-ng-model="albumTag.genre" placeholder="Genre" />
+									</div>
+								</div>
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Mood:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<input type="text" class="form-control" id="_mood"
+											data-ng-model="albumTag.mood" placeholder="Mood" />
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-xs visible-sm visible-md visible-lg" />
+
+							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+								<div class="form-group">
+									<label
+										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Artwork:</label>
+									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+										<img id="_artwork" class="img-responsive"
+											data-ng-src="{{albumTag.artwork.base64Data}}" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-warning" data-dismiss="modal"
+						data-ng-click="saveAlbumTags()">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
 
 <div id="_parseTagExprModal" class="modal fade" tabindex="-1"
 	aria-labelledby="_parseTagExprLabel" role="dialog"

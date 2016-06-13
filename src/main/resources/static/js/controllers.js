@@ -44,7 +44,7 @@ apollo.controllers.mainController = function($rootScope, $scope, $http,
  * addAlbumController
  */
 apollo.controllers.addAlbumController = function($rootScope, $scope,
-		fileSystemService) {
+		fileSystemService, albumService) {
 	$rootScope.pageHeader = "Add Album";
 	$rootScope.pageContentText = "Add a new album to the library";
 
@@ -61,17 +61,24 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	}
 
 	$scope.loadTracks = function(aAlbumPath) {
-		fileSystemService.listTracks(aAlbumPath).then(
+		albumService.fetchTracks(aAlbumPath).then(
 				function(aResponse) {
-					$scope.albumPath = aResponse.dataMap.path;
+					var responseData = aResponse.dataMap;
+
+					$scope.response = aResponse;
+					$scope.albumPath = responseData.albumPath;
+					$scope.albumTag = responseData.commonTag;
+					$scope.trackTagMap = {};
 
 					if (!$.fn.DataTable.isDataTable("#albumTracksDT")) {
-						$scope.albumTracksDT = $("#albumTracksDT").DataTable(
-								apollo.dataTableConfig.albumTracksDT);
+						$scope.albumTracksDT = apollo.datatables.albumTracksDT(
+								$scope.trackTagMap, function(aRow) {
+									$scope.editTrackTag(aRow.id());
+								});
 					}
 
 					$scope.albumTracksDT.clear();
-					$scope.albumTracksDT.rows.add(aResponse.dataMap.tracks);
+					$scope.albumTracksDT.rows.add(responseData.tags);
 
 					$scope.albumSelected = true;
 
@@ -100,13 +107,30 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		alert("parseTags:" + tagExprTokens);
 	};
 
-	$scope.saveTags = function() {
-		alert("saveTags");
+	$scope.editTrackTag = function(aTrackId) {
+		$scope.trackTag = $scope.trackTagMap[aTrackId];
+		$scope.$apply();
+		$("#_editTrackTagModal").modal("show");
 	};
 
-	setTimeout(function() {
-		$scope.selectAlbum();
-	}, 200);
+	$scope.editAlbumTag = function() {
+		$("#_editAlbumTagModal").modal("show");
+	};
+
+	$scope.saveTags = function() {
+		apollo.utils.alert("saveTags", $scope.trackTag);
+	};
+
+	$scope.saveAlbumTags = function() {
+		apollo.utils.alert("saveAlbumTags", $scope.albumTag);
+	};
+
+	setTimeout(
+			function() {
+				// $scope.selectAlbum();
+				$scope
+						.loadTracks("C:/Temp/M/Library/Hindi/TempGenre/TempArtist/TempAlbum");
+			}, 200);
 };
 
 /**

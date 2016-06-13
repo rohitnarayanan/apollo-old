@@ -21,7 +21,7 @@ public class QuickApolloTest {
 		try {
 			File file = new File(
 					"C:\\Temp\\M\\Library\\Hindi\\TempGenre\\TempArtist\\TempAlbum\\Hindi-TempGenre-TempAlbum-2016-TempArtist-TempTitle_1.zzz");
-			System.out.println(ID3Util.tempTag(file));
+			System.out.println(ID3Util.readTag(file, true));
 		} catch (Exception error) {
 			error.printStackTrace();
 		}

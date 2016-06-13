@@ -32,7 +32,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	/**
 	 * Id
 	 */
-	public String id = null;
+	public String id;
 
 	/**
 	 * Language
@@ -42,72 +42,72 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	/**
 	 * Genre
 	 */
-	public String genre = null;
+	public String genre;
 
 	/**
 	 * Mood
 	 */
-	public String mood = null;
+	public String mood;
 
 	/**
 	 * Album
 	 */
-	public String album = null;
+	public String album;
 
 	/**
 	 * Album Year
 	 */
-	public String year = null;
+	public String year;
 
 	/**
 	 * Album Artist
 	 */
-	public String albumArtist = null;
+	public String albumArtist;
 
 	/**
 	 * Album Composer
 	 */
-	public String composer = null;
+	public String composer;
 
 	/**
 	 * Track Artist
 	 */
-	public String artist = null;
+	public String artist;
 
 	/**
 	 * Track Number
 	 */
-	public String trackNbr = null;
+	public String trackNbr;
 
 	/**
 	 * Track Title
 	 */
-	public String title = null;
+	public String title;
 
 	/**
 	 * Track Lyrics
 	 */
-	public String lyrics = null;
+	public String lyrics;
 
 	/**
 	 * Tags
 	 */
-	public String tags = null;
+	public String tags;
 
 	/**
 	 * Album Artwork
 	 */
-	public Artwork artwork = new Artwork();
+	public Artwork artwork;
 
 	/**
 	 * Name of the file
 	 */
-	public String fileName = null;
+	public String fileName;
 
 	/**
 	 * {@link File} instance
 	 */
-	public File sourceFile = null;
+	public transient File sourceFile = null;
 
 	/**
 	 * {@link TagCheckResult} instance
@@ -130,32 +130,32 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		/**
 		 * Size of the file
 		 */
-		public long size = 0;
+		public long size;
 
 		/**
 		 * Length of the trackNbr
 		 */
-		public int length = 0;
+		public int length;
 
 		/**
 		 * Encoding Mode
 		 */
-		public String mode = null;
+		public String mode;
 
 		/**
 		 * Encoding Bitrate Type
 		 */
-		public String bitrateType = null;
+		public String bitrateType;
 
 		/**
 		 * Encoding Bitrate
 		 */
-		public String bitrate = null;
+		public String bitrate;
 
 		/**
 		 * Encoding Refquency
 		 */
-		public String frequency = null;
+		public String frequency;
 	}
 
 	/**

@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
 
 import accelerate.exception.AccelerateException;
-import accelerate.exception.FlowControlException;
 import accelerate.util.AppUtil;
 import accelerate.util.FileUtil;
 import accelerate.util.ReflectionUtil;
@@ -78,8 +77,6 @@ public class ID3Util {
 		try {
 			setupStandardFrames();
 			setupStandardFields();
-			// LogManager.getLogManager()
-			// .readConfiguration(ID3Util.class.getResourceAsStream("/mp3Logger.properties"));
 		} catch (Exception error) {
 			logger.error(error.getMessage(), error);
 		}
@@ -90,7 +87,7 @@ public class ID3Util {
 	 * @return {@link MP3File} instance
 	 * @throws AccelerateException
 	 */
-	public static MP3File getMP3File(File aTrack) throws AccelerateException {
+	private static MP3File getMP3File(File aTrack) throws AccelerateException {
 		try {
 			return new MP3File(aTrack);
 		} catch (IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException error) {
@@ -100,12 +97,34 @@ public class ID3Util {
 
 	/**
 	 * @param aTrack
+	 * @param aTestMode
 	 * @return {@link Mp3Tag} instance
 	 * @throws AccelerateException
 	 */
-	public static Mp3Tag readTag(File aTrack) throws AccelerateException {
-		if (!compare(StringUtils.upperCase(getFileExtn(aTrack)), "MP3")) {
-			throw new AccelerateException("Not a mp3: " + aTrack);
+	public static Mp3Tag readTag(File aTrack, boolean aTestMode) throws AccelerateException {
+		/*
+		 * TODO: temporary check for testing.
+		 */
+		if (aTestMode) {
+			List<String> tokens = parseTagExpression("<language>-<genre>-<album>-<year>-<artist>-<title>");
+
+			Mp3Tag mp3Tag = parseTag(aTrack, tokens);
+			mp3Tag.sourceFile = aTrack;
+			mp3Tag.fileName = aTrack.getName();
+
+			mp3Tag.id = String.valueOf(mp3Tag.fileName.hashCode());
+			mp3Tag.composer = mp3Tag.artist;
+			mp3Tag.albumArtist = mp3Tag.artist;
+
+			Mp3Tag.Header header = mp3Tag.header;
+			header.size = 0;
+			header.length = 0;
+			header.mode = "mode";
+			header.bitrateType = "VBR";
+			header.bitrate = "0";
+			header.frequency = "frequency";
+
+			return mp3Tag;
 		}
 
 		MP3File mp3File = getMP3File(aTrack);
@@ -130,6 +149,7 @@ public class ID3Util {
 
 		Artwork artwork = tag.getFirstArtwork();
 		if (artwork != null) {
+			mp3Tag.artwork = mp3Tag.new Artwork();
 			mp3Tag.artwork.encode(artwork);
 		}
 
@@ -141,7 +161,58 @@ public class ID3Util {
 		mp3Tag.header.bitrate = audioHeader.getBitRate();
 		mp3Tag.header.frequency = audioHeader.getSampleRate();
 
+		if (StringUtils.isEmpty(mp3Tag.id)) {
+			mp3Tag.id = String.valueOf(aTrack.getPath().hashCode());
+		}
+
 		return mp3Tag;
+	}
+
+	/**
+	 * @param aTracks
+	 * @param aTestMode
+	 * @return
+	 * @throws AccelerateException
+	 */
+	public static Mp3Tag readCommonTag(List<File> aTracks, boolean aTestMode) throws AccelerateException {
+		Mp3Tag commonTag = new Mp3Tag();
+		aTracks.stream().parallel().forEach(aTrack -> {
+			Mp3Tag mp3Tag = ID3Util.readTag(aTrack, aTestMode);
+			extractCommonTag(commonTag, mp3Tag);
+		});
+
+		return commonTag;
+	}
+
+	/**
+	 * @param aCommonTag
+	 * @param aMp3Tag
+	 * @throws AccelerateException
+	 */
+	public static void extractCommonTag(Mp3Tag aCommonTag, Mp3Tag aMp3Tag) throws AccelerateException {
+		if (!AppUtil.compare(aCommonTag.get("initialized"), "true")) {
+			aCommonTag.language = aMp3Tag.language;
+			aCommonTag.genre = aMp3Tag.genre;
+			aCommonTag.mood = aMp3Tag.mood;
+			aCommonTag.album = aMp3Tag.album;
+			aCommonTag.year = aMp3Tag.year;
+			aCommonTag.albumArtist = aMp3Tag.albumArtist;
+			aCommonTag.composer = aMp3Tag.composer;
+			aCommonTag.artist = aMp3Tag.artist;
+			aCommonTag.tags = aMp3Tag.tags;
+			aCommonTag.put("initialized", "true");
+			return;
+		}
+
+		aCommonTag.language = compare(aCommonTag.language, aMp3Tag.language) ? aMp3Tag.language : EMPTY_STRING;
+		aCommonTag.genre = compare(aCommonTag.genre, aMp3Tag.genre) ? aMp3Tag.genre : EMPTY_STRING;
+		aCommonTag.mood = compare(aCommonTag.mood, aMp3Tag.mood) ? aMp3Tag.mood : EMPTY_STRING;
+		aCommonTag.album = compare(aCommonTag.album, aMp3Tag.album) ? aMp3Tag.album : EMPTY_STRING;
+		aCommonTag.year = compare(aCommonTag.year, aMp3Tag.year) ? aMp3Tag.year : EMPTY_STRING;
+		aCommonTag.albumArtist = compare(aCommonTag.albumArtist, aMp3Tag.albumArtist) ? aMp3Tag.albumArtist
+				: EMPTY_STRING;
+		aCommonTag.composer = compare(aCommonTag.composer, aMp3Tag.composer) ? aMp3Tag.composer : EMPTY_STRING;
+		aCommonTag.artist = compare(aCommonTag.artist, aMp3Tag.artist) ? aMp3Tag.artist : EMPTY_STRING;
 	}
 
 	/**
@@ -153,10 +224,11 @@ public class ID3Util {
 	 *            Target file to which the ID3 tag is to be written
 	 * @param mp3Tag
 	 *            Tag information
+	 * @param aTestMode
 	 * @throws AccelerateException
 	 */
-	public static void writeTag(File aTrack, Mp3Tag mp3Tag) throws AccelerateException {
-		writeTag(aTrack, mp3Tag, 0);
+	public static void writeTag(File aTrack, Mp3Tag mp3Tag, boolean aTestMode) throws AccelerateException {
+		writeTag(aTrack, mp3Tag, aTestMode ? 4 : 0);
 	}
 
 	/**
@@ -175,6 +247,7 @@ public class ID3Util {
 	 *            already present</li>
 	 *            <li>3: Write after creating a new tag, if a tag is present
 	 *            then delete it</li>
+	 *            <li>4: Do not write anything. Test mode</li>
 	 *            </ul>
 	 * @throws AccelerateException
 	 */
@@ -325,15 +398,16 @@ public class ID3Util {
 	 * This method deletes the given tag from the Mp3 file
 	 *
 	 * @param aTrack
+	 * @param aTestMode
 	 * @return Mp3Tag instance
 	 * @throws AccelerateException
 	 */
-	public static Mp3Tag deleteV1Tag(File aTrack) throws AccelerateException {
+	public static Mp3Tag deleteV1Tag(File aTrack, boolean aTestMode) throws AccelerateException {
 		try {
 			MP3File mp3File = ID3Util.getMP3File(aTrack);
 			Tag tag = mp3File.getID3v1Tag();
 
-			if (tag != null) {
+			if (!aTestMode && tag != null) {
 				mp3File.delete(mp3File.getID3v1Tag());
 				mp3File.commit();
 				mp3File.save();
@@ -342,7 +416,7 @@ public class ID3Util {
 			throw new AccelerateException(error);
 		}
 
-		return readTag(aTrack);
+		return readTag(aTrack, aTestMode);
 	}
 
 	/**
@@ -461,7 +535,7 @@ public class ID3Util {
 	 */
 	public static TagCheckResult validateTagFields(File aTrack) throws AccelerateException {
 		TagCheckResult result = new TagCheckResult();
-		Mp3Tag mp3Tag = readTag(aTrack);
+		Mp3Tag mp3Tag = readTag(aTrack, false);
 		int parentIndex = 2;
 
 		String titleName = FileUtil.getFileName(aTrack);
@@ -584,17 +658,18 @@ public class ID3Util {
 				fieldQueue.add(token);
 			} else {
 				int index = fileName.indexOf(token);
+
+				if (StringUtils.isEmpty(token)) {
+					index = fileName.length();
+				}
+
 				if (index < 0) {
 					throw new AccelerateException("token not found:" + token);
 				}
 
-				if (token.length() == 0) {
-					index = -1;
-				}
-
 				String field = fieldQueue.poll();
 				String fieldValue = StringUtils.substring(fileName, 0, index);
-				fileName = StringUtils.substring(fileName, index + token.length(), -1);
+				fileName = StringUtils.substring(fileName, index + token.length());
 
 				if (compare(field, "ignore")) {
 					continue;
@@ -611,43 +686,6 @@ public class ID3Util {
 		}
 
 		return mp3Tag;
-	}
-
-	/**
-	 * @param aTrack
-	 * @param aCommonTag
-	 * @throws AccelerateException
-	 */
-	public static void extractCommonTag(File aTrack, Mp3Tag aCommonTag) throws AccelerateException {
-		Mp3Tag mp3Tag = ID3Util.readTag(aTrack);
-
-		if (aCommonTag == null) {
-			return;
-		}
-
-		aCommonTag.language = (isEmpty(aCommonTag.language) || compare(aCommonTag.language, mp3Tag.language))
-				? mp3Tag.language : EMPTY_STRING;
-
-		aCommonTag.genre = (isEmpty(aCommonTag.genre) || compare(aCommonTag.genre, mp3Tag.genre)) ? mp3Tag.genre
-				: EMPTY_STRING;
-
-		aCommonTag.mood = (isEmpty(aCommonTag.mood) || compare(aCommonTag.mood, mp3Tag.mood)) ? mp3Tag.mood
-				: EMPTY_STRING;
-
-		aCommonTag.album = (isEmpty(aCommonTag.album) || compare(aCommonTag.album, mp3Tag.album)) ? mp3Tag.genre
-				: EMPTY_STRING;
-
-		aCommonTag.year = (isEmpty(aCommonTag.year) || compare(aCommonTag.year, mp3Tag.year)) ? mp3Tag.year
-				: EMPTY_STRING;
-
-		aCommonTag.albumArtist = (isEmpty(aCommonTag.albumArtist)
-				|| compare(aCommonTag.albumArtist, mp3Tag.albumArtist)) ? mp3Tag.albumArtist : EMPTY_STRING;
-
-		aCommonTag.composer = (isEmpty(aCommonTag.composer) || compare(aCommonTag.composer, mp3Tag.composer))
-				? mp3Tag.composer : EMPTY_STRING;
-
-		aCommonTag.artist = (isEmpty(aCommonTag.artist) || compare(aCommonTag.artist, mp3Tag.artist)) ? mp3Tag.artist
-				: EMPTY_STRING;
 	}
 
 	/**
@@ -691,106 +729,5 @@ public class ID3Util {
 		standardFields.add(FieldKey.LYRICS);
 		standardFields.add(FieldKey.TAGS);
 		standardFields.add(FieldKey.COVER_ART);
-	}
-
-	/**
-	 * @param aFileTrack
-	 * @param aDBTrack
-	 * @return {@link TagCheckResult} instance
-	 * @throws AccelerateException
-	 */
-	public static TagCheckResult compareTags(File aFileTrack, Mp3Tag aDBTrack) throws AccelerateException {
-		TagCheckResult result = new TagCheckResult();
-		Mp3Tag mp3Tag = readTag(aFileTrack);
-
-		try {
-			compareFields("Language", mp3Tag.language, aDBTrack.language);
-			compareFields("Genre", mp3Tag.genre, aDBTrack.genre);
-			compareFields("Album", mp3Tag.album, aDBTrack.album);
-			compareFields("Year", mp3Tag.year, aDBTrack.year);
-			compareFields("Composer", mp3Tag.composer, aDBTrack.composer);
-			compareFields("AlbumArtist", mp3Tag.albumArtist, aDBTrack.albumArtist);
-			compareFields("TrackNbr", mp3Tag.trackNbr, aDBTrack.trackNbr);
-			compareFields("Title", mp3Tag.title, aDBTrack.title);
-
-			if (AppUtil.xor((mp3Tag.artwork.base64Data == null), (aDBTrack.artwork.base64Data == null))) {
-				throw new FlowControlException("Mismatch Artwork:" + mp3Tag.artwork + "|" + aDBTrack.artwork);
-			}
-
-			result.setPassed(true);
-		} catch (FlowControlException error) {
-			result.setReason(error.getMessage() + "##" + aFileTrack.getPath() + "|" + aDBTrack.toJSON());
-		}
-
-		return result;
-	}
-
-	/**
-	 * @param aType
-	 * @param aValue1
-	 * @param aValue2
-	 * @throws FlowControlException
-	 */
-	private static void compareFields(String aType, Object aValue1, Object aValue2) throws FlowControlException {
-		if (compare(aValue1, aValue2)) {
-			return;
-		}
-
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("Mismatch ").append(aType).append(":").append(aValue1).append("|").append(aValue2);
-		throw new FlowControlException(buffer.toString());
-	}
-
-	/**
-	 * @param aTrack
-	 * @param aRemoveInvalidFrames
-	 * @return {@link TagCheckResult} instance
-	 * @throws AccelerateException
-	 */
-	public static TagCheckResult validateTag(File aTrack, boolean aRemoveInvalidFrames) throws AccelerateException {
-		return validateTag(aTrack, standardFields, aRemoveInvalidFrames);
-	}
-
-	/**
-	 * @param aTrack
-	 * @param aFieldKeys
-	 * @param aRemoveInvalidFrames
-	 * @return {@link TagCheckResult} instance
-	 * @throws AccelerateException
-	 */
-	public static TagCheckResult validateTag(File aTrack, List<FieldKey> aFieldKeys, boolean aRemoveInvalidFrames)
-			throws AccelerateException {
-		TagCheckResult result = new TagCheckResult();
-		result = checkTagFields(aTrack, aFieldKeys, aRemoveInvalidFrames);
-
-		if (result.isPassed()) {
-			result = validateTagFields(aTrack);
-		}
-
-		return result;
-	}
-
-	/**
-	 * @param aTrack
-	 * @return
-	 */
-	public static Mp3Tag tempTag(File aTrack) {
-		List<String> tokens = parseTagExpression("<language>-<genre>-<album>-<year>-<artist>-<title>");
-
-		Mp3Tag mp3Tag = parseTag(aTrack, tokens);
-		mp3Tag.fileName = aTrack.getName();
-
-		mp3Tag.composer = mp3Tag.artist;
-		mp3Tag.albumArtist = mp3Tag.artist;
-
-		Mp3Tag.Header header = mp3Tag.header;
-		header.size = 0;
-		header.length = 0;
-		header.mode = "mode";
-		header.bitrateType = "VBR";
-		header.bitrate = "0";
-		header.frequency = "frequency";
-
-		return mp3Tag;
 	}
 }

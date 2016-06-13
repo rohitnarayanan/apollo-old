@@ -14,7 +14,7 @@ apollo.utils = {
 
 	"createMessage" : function(aMessage, aArgs) {
 		var msg = aMessage + ":";
-		$.each(aArgs, function(aObj, aIdx) {
+		$.each(aArgs, function(aIdx, aObj) {
 			msg += JSON.stringify(aObj) + "|~|";
 		});
 
