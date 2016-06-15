@@ -1,0 +1,178 @@
+/* padding styles:start */
+.pad-0 {
+	padding: 0px !important;
+}
+
+.pad-5 {
+	padding: 5px !important;
+}
+
+.pad-10 {
+	padding: 10px !important;
+}
+
+.pad-left-0 {
+	padding-left: 0px !important;
+}
+
+.pad-right-0 {
+	padding-right: 0px !important;
+}
+
+.pad-top-0 {
+	padding-top: 0px !important;
+}
+
+.pad-bottom-0 {
+	padding-bottom: 0px !important;
+}
+
+.pad-sides-0 {
+	padding-left: 0px !important;
+	padding-right: 0px !important;
+}
+
+.pad-left-5 {
+	padding-left: 5px !important;
+}
+
+.pad-right-5 {
+	padding-right: 5px !important;
+}
+
+.pad-top-5 {
+	padding-top: 5px !important;
+}
+
+.pad-bottom-5 {
+	padding-bottom: 5px !important;
+}
+
+.pad-sides-5 {
+	padding-left: 5px !important;
+	padding-right: 5px !important;
+}
+
+.pad-left-10 {
+	padding-left: 10px !important;
+}
+
+.pad-right-10 {
+	padding-right: 10px !important;
+}
+
+.pad-top-10 {
+	padding-top: 10px !important;
+}
+
+.pad-bottom-10 {
+	padding-bottom: 10px !important;
+}
+
+.pad-sides-10 {
+	padding-left: 10px !important;
+	padding-right: 10px !important;
+}
+/* padding styles:end */
+
+/* margin styles:start */
+.margin-0 {
+	margin: 0px !important;
+}
+
+.margin-5 {
+	margin: 5px !important;
+}
+
+.margin-10 {
+	margin: 10px !important;
+}
+
+.margin-left-0 {
+	margin-left: 0px !important;
+}
+
+.margin-right-0 {
+	margin-right: 0px !important;
+}
+
+.margin-top-0 {
+	margin-top: 0px !important;
+}
+
+.margin-bottom-0 {
+	margin-bottom: 0px !important;
+}
+
+.margin-sides-0 {
+	margin-left: 5px !important;
+	margin-right: 5px !important;
+}
+
+.margin-left-5 {
+	margin-left: 5px !important;
+}
+
+.margin-right-5 {
+	margin-right: 5px !important;
+}
+
+.margin-top-5 {
+	margin-top: 5px !important;
+}
+
+.margin-bottom-5 {
+	margin-bottom: 5px !important;
+}
+
+.margin-sides-5 {
+	margin-left: 5px !important;
+	margin-right: 5px !important;
+}
+
+.margin-left-10 {
+	margin-left: 10px !important;
+}
+
+.margin-right-10 {
+	margin-right: 10px !important;
+}
+
+.margin-top-10 {
+	margin-top: 10px !important;
+}
+
+.margin-bottom-10 {
+	margin-bottom: 10px !important;
+}
+
+.margin-sides-10 {
+	margin-left: 10px !important;
+	margin-right: 10px !important;
+}
+/* margin styles:end */
+
+/* override bootstrap whitespace */
+.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2,
+	.col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3,
+	.col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5,
+	.col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6,
+	.col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8,
+	.col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9,
+	.col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11,
+	.col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12
+	{
+	position: relative;
+	min-height: 1px !important;
+	padding-right: 5px !important;
+	padding-left: 5px !important;
+}
+
+.form-horizontal .form-group {
+	margin-right: -5px;
+	margin-left: -5px;
+}
+
+.form-group {
+	margin-bottom: 5px;
+}

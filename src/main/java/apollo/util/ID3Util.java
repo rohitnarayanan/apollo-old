@@ -32,6 +32,7 @@ import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagField;
 import org.jaudiotagger.tag.id3.AbstractTag;
+import org.jaudiotagger.tag.id3.ID3v1Tag;
 import org.jaudiotagger.tag.id3.ID3v23Frames;
 import org.jaudiotagger.tag.id3.ID3v24Frames;
 import org.jaudiotagger.tag.id3.ID3v24Tag;
@@ -58,7 +59,7 @@ public class ID3Util {
 	/**
 	 * {@link Logger} instance
 	 */
-	protected static final Logger logger = LoggerFactory.getLogger(ID3Util.class);
+	protected static final Logger LOGGER = LoggerFactory.getLogger(ID3Util.class);
 
 	/**
 	 * {@link Map} containing standard frame names
@@ -78,7 +79,7 @@ public class ID3Util {
 			setupStandardFrames();
 			setupStandardFields();
 		} catch (Exception error) {
-			logger.error(error.getMessage(), error);
+			LOGGER.error(error.getMessage(), error);
 		}
 	}
 
@@ -109,10 +110,9 @@ public class ID3Util {
 			List<String> tokens = parseTagExpression("<language>-<genre>-<album>-<year>-<artist>-<title>");
 
 			Mp3Tag mp3Tag = parseTag(aTrack, tokens);
-			mp3Tag.sourceFile = aTrack;
-			mp3Tag.fileName = aTrack.getName();
+			mp3Tag.fileName = FileUtil.getFileName(aTrack);
+			mp3Tag.filePath = FileUtil.getFilePath(aTrack);
 
-			mp3Tag.id = String.valueOf(mp3Tag.fileName.hashCode());
 			mp3Tag.composer = mp3Tag.artist;
 			mp3Tag.albumArtist = mp3Tag.artist;
 
@@ -131,8 +131,8 @@ public class ID3Util {
 		Tag tag = mp3File.getTag();
 
 		Mp3Tag mp3Tag = new Mp3Tag();
-		mp3Tag.sourceFile = aTrack;
-		mp3Tag.fileName = aTrack.getName();
+		mp3Tag.fileName = FileUtil.getFileName(aTrack);
+		mp3Tag.filePath = FileUtil.getFilePath(aTrack);
 		mp3Tag.id = tag.getFirst(FieldKey.KEY);
 		mp3Tag.language = tag.getFirst(FieldKey.LANGUAGE);
 		mp3Tag.genre = tag.getFirst(FieldKey.GENRE);
@@ -154,7 +154,7 @@ public class ID3Util {
 		}
 
 		AudioHeader audioHeader = mp3File.getAudioHeader();
-		mp3Tag.header.size = mp3Tag.sourceFile.length();
+		mp3Tag.header.size = aTrack.length();
 		mp3Tag.header.length = audioHeader.getTrackLength();
 		mp3Tag.header.mode = audioHeader.getChannels();
 		mp3Tag.header.bitrateType = audioHeader.isVariableBitRate() ? "VBR" : "CBR";
@@ -228,7 +228,7 @@ public class ID3Util {
 	 * @throws AccelerateException
 	 */
 	public static void writeTag(File aTrack, Mp3Tag mp3Tag, boolean aTestMode) throws AccelerateException {
-		writeTag(aTrack, mp3Tag, aTestMode ? 4 : 0);
+		writeTag(aTrack, mp3Tag, aTestMode ? 6 : 0);
 	}
 
 	/**
@@ -240,23 +240,32 @@ public class ID3Util {
 	 *            Tag information
 	 * @param aWriteFlag
 	 *            <ul>
-	 *            <li>0: Write only if tag is available else ignore</li>
-	 *            <li>1: Write only if the tag is available else throw an
-	 *            error</li>
-	 *            <li>2: Write after creating a new tag, throw an error if tag
-	 *            already present</li>
-	 *            <li>3: Write after creating a new tag, if a tag is present
-	 *            then delete it</li>
-	 *            <li>4: Do not write anything. Test mode</li>
+	 *            <li>0: Write into available tag, create a new if no tag is
+	 *            present</li>
+	 *            <li>1: Write into available tag else ignore</li>
+	 *            <li>2: Write into available tag else throw an exeption is tag
+	 *            not available</li>
+	 *            <li>3: Write into a new tag, ignore if tag already
+	 *            present</li>
+	 *            <li>4: Write into a new tag, throw an exception if tag already
+	 *            present</li>
+	 *            <li>5: Always write into a new tag, delete if a tag is
+	 *            present</li>
+	 *            <li>6: Do not do anything. Test mode</li>
 	 *            </ul>
 	 * @throws AccelerateException
 	 */
 	public static void writeTag(File aTrack, Mp3Tag aMp3Tag, int aWriteFlag) throws AccelerateException {
 		try {
+			if (aWriteFlag == 6) {
+				LOGGER.info("Test mode active. Logging tag [{}]", aMp3Tag);
+				return;
+			}
+
 			MP3File mp3File = getMP3File(aTrack);
 			Tag tag = mp3File.getTag();
 
-			if (aWriteFlag == 2) {
+			if (aWriteFlag == 5) {
 				if (tag != null) {
 					mp3File.delete((AbstractTag) tag);
 				}
@@ -267,13 +276,39 @@ public class ID3Util {
 
 			if (tag == null) {
 				if (aWriteFlag == 1) {
-					tag = new ID3v24Tag();
-					mp3File.setTag(tag);
-				} else {
-					throw new AccelerateException("No Tag: " + aTrack);
+					LOGGER.debug("No Tag available for [{}]", aTrack);
+					return;
+				}
+
+				if (aWriteFlag == 2) {
+					throw new AccelerateException("No Tag available for [%s]", aTrack);
+				}
+
+				tag = new ID3v24Tag();
+				mp3File.setTag(tag);
+			} else {
+				if (aWriteFlag == 3) {
+					LOGGER.debug("Tag already present for [{}]", aTrack);
+					return;
+				}
+
+				if (aWriteFlag == 4) {
+					throw new AccelerateException("Tag already present for [%s]", aTrack);
 				}
 			}
 
+			/*
+			 * Delete any v1 tag if present
+			 */
+			ID3v1Tag v1Tag = mp3File.getID3v1Tag();
+			if (v1Tag != null) {
+				LOGGER.debug("Deleting v1 tag for [{}]", aTrack);
+				mp3File.delete(v1Tag);
+			}
+
+			/*
+			 * Start writing the tag
+			 */
 			if (aMp3Tag.id != null) {
 				if (aMp3Tag.id.length() == 0) {
 					tag.deleteField(FieldKey.KEY);
@@ -392,31 +427,6 @@ public class ID3Util {
 		} catch (Exception error) {
 			throw new AccelerateException(error);
 		}
-	}
-
-	/**
-	 * This method deletes the given tag from the Mp3 file
-	 *
-	 * @param aTrack
-	 * @param aTestMode
-	 * @return Mp3Tag instance
-	 * @throws AccelerateException
-	 */
-	public static Mp3Tag deleteV1Tag(File aTrack, boolean aTestMode) throws AccelerateException {
-		try {
-			MP3File mp3File = ID3Util.getMP3File(aTrack);
-			Tag tag = mp3File.getID3v1Tag();
-
-			if (!aTestMode && tag != null) {
-				mp3File.delete(mp3File.getID3v1Tag());
-				mp3File.commit();
-				mp3File.save();
-			}
-		} catch (Exception error) {
-			throw new AccelerateException(error);
-		}
-
-		return readTag(aTrack, aTestMode);
 	}
 
 	/**

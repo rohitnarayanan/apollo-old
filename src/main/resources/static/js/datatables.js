@@ -16,13 +16,13 @@ apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
 		"order" : [ [ 1, "asc" ] ],
 		"pageLength" : 6,
 		"dom" : "<'top clearfix'f>rt<'bottom clearfix'ip>",
-		"rowId" : "id",
+		"rowId" : "filePath",
 		"autoFill" : {
 			"alwaysAsk" : true,
 			"columns" : [ 1, 2, 3, 4, 5 ]
 		},
 		"createdRow" : function(aRow, aData, aDataIndex) {
-			aRowDataMap[aData.id] = aData;
+			aRowDataMap[aData.filePath] = aData;
 		},
 		"responsive" : true,
 		"columns" : [ {

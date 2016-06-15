@@ -21,7 +21,11 @@
 
 	<logger name="org.springframework.boot.autoconfigure.security"
 		level="info" additivity="false">
-		<appender-ref ref="FILE" />
+		<appender-ref ref="SysoutAppender" />
+	</logger>
+
+	<logger name="apollo.util" level="debug" additivity="false">
+		<appender-ref ref="SysoutAppender" />
 	</logger>
 
 	<root level="info">

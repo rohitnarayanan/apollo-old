@@ -11,5 +11,5 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AlbumService {
-	// blank
+	// blank impl
 }

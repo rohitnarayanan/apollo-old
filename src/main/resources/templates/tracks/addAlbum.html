@@ -1,41 +1,89 @@
-<div class="panel panel-primary">
+<div id="_mainPanel" class="panel panel-primary">
 	<div class="panel-body">
 		<!-- data table options -->
-		<div id="albumTracksDTControls">
-			<div class="form-group col-md-2" style="display: none">
-				<label class="col-md-8 control-label">Delete v1 Tag:</label>
-				<div class="col-md-4">
-					<input id="" type="checkbox" name="" ng-model="deleteV1Tag" />
-				</div>
-			</div>
+		<div id="albumTracksDTOptions"
+			class="datatable-cto-bar clearfix form-inline" style="display: none">
+			<button id="_parseTagsBtn" class="btn btn-warning btn-responsive"
+				data-ng-click="showParseTags()" data-ng-show="albumSelected">Parse
+				Tags</button>
+			<button id="_editAlbumTagBtn" class="btn btn-warning btn-responsive"
+				data-ng-click="editAlbumTag()" data-ng-show="albumSelected">Edit
+				Album Tag</button>
+			<button id="_saveTagsBtn" class="btn btn-warning btn-responsive"
+				data-ng-click="saveTags()" data-ng-show="albumSelected"
+				data-ng-show="!tagsParsed">Rename to Title</button>
 		</div>
 
 		<!-- data table -->
-		<div id="_filesDiv">
-			<table id="albumTracksDT" style="width: 100%;"
-				class="table table-stripped table-hover table-condensed nowrap apollo-table">
-			</table>
-		</div>
+		<table id="albumTracksDT" style="width: 100%;"
+			class="table table-stripped table-hover table-condensed apollo-table">
+		</table>
 
 		<!-- data table controls -->
-		<div class="datatable-controls-bar clearfix form-inline text-right">
+		<div id="albumTracksDTActions"
+			class="datatable-cta-bar clearfix form-inline text-right"
+			style="display: none">
 			<button id="_selectAlbumBtn" class="btn btn-warning btn-responsive"
-				ng-click="selectAlbum()">Select Album</button>
-			<button id="_parseTagsBtn" class="btn btn-warning btn-responsive"
-				data-ng-click="showParseTags()" ng-disabled="!albumSelected">Parse
-				Tags</button>
-			<button id="_editTrackTagBtn" class="btn btn-warning btn-responsive"
-				data-ng-click="editTrackTag()" ng-disabled="!albumSelected">Edit
-				Track Tags</button>
-			<button id="_editAlbumTagBtn" class="btn btn-warning btn-responsive"
-				data-ng-click="editAlbumTag()" ng-disabled="!albumSelected">Edit
-				Album Tags</button>
-			<button id="_saveTagsBtn" class="btn btn-warning btn-responsive"
-				data-ng-click="saveTags()" ng-disabled="!albumSelected">Save
-				Tags</button>
+				data-ng-click="selectAlbum()">Select Album</button>
 			<button id="_addToLibraryBtn" class="btn btn-warning btn-responsive"
-				ng-disabled="!albumSelected">Add to Library</button>
+				data-ng-show="albumSelected && !tagsParsed">Add to Library</button>
+
 		</div>
+	</div>
+</div>
+
+<div id="_tmpPanel" class="panel panel-primary"
+	data-ng-show="tagsParsed">
+	<div class="panel-heading">Tag Parse Result</div>
+	<div class="panel-body">
+		<div class="table-responsive">
+			<table
+				class="table table-striped table-bordered table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>Tag</th>
+						<th>Value</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Language</td>
+						<td>{{commonTag.language}}</td>
+					</tr>
+					<tr>
+						<td>Language</td>
+						<td>{{commonTag.language}}</td>
+					</tr>
+					<tr>
+						<td>Language</td>
+						<td>{{commonTag.language}}</td>
+					</tr>
+					<tr>
+						<td>Language</td>
+						<td>{{commonTag.language}}</td>
+					</tr>
+					<tr>
+						<td>Language</td>
+						<td>{{commonTag.language}}</td>
+					</tr>
+					<tr>
+						<td>Language</td>
+						<td>{{commonTag.language}}</td>
+					</tr>
+					<tr>
+						<td>Language</td>
+						<td>{{commonTag.language}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="panel-footer">
+		<button id="_discardParsedTagsBtn"
+			class="btn btn-warning btn-responsive"
+			data-ng-click="discardParsedTags()">Discard Tags</button>
+		<button id="_saveParsedTagsBtn" class="btn btn-warning btn-responsive"
+			data-ng-click="saveParsedTags()">Save Tags Album Tags</button>
 	</div>
 </div>
 
@@ -44,13 +92,13 @@
 
 <!-- Model for editing tags for selected track(s) -->
 <form id="_editTrackTagForm" name="editTagForm" class="form-horizontal">
-	<div id="_editTrackTagModal" class="modal fade" tabindex="-1"
-		aria-labelledby="_editTrackTagLabel" role="dialog"
+	<div id="_editTrackTagModal" class="modal fade apollo-modal"
+		tabindex="-1" aria-labelledby="_editTrackTagLabel" role="dialog"
 		data-backdrop="static">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h4 id="_editTrackTagLabel">
+					<h4 id="_editTrackTagLabel" class="modal-title">
 						Edit Track Tag<span class="glyphicon glyphicon-remove"
 							style="float: right; cursor: pointer;" data-dismiss="modal"
 							aria-hidden="true"></span>
@@ -134,8 +182,8 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button class="btn btn-warning" data-dismiss="modal"
-						data-ng-click="saveTags()">Save</button>
+					<button class="btn btn-warning btn-responsive" data-dismiss="modal"
+						datadata-ng-click="saveTrackTag()">Save</button>
 				</div>
 			</div>
 		</div>
@@ -145,13 +193,13 @@
 
 <!-- Model for editing tags for selected album -->
 <form id="_editAlbumTagForm" name="editTagForm" class="form-horizontal">
-	<div id="_editAlbumTagModal" class="modal fade" tabindex="-1"
-		aria-labelledby="_editAlbumTagLabel" role="dialog"
+	<div id="_editAlbumTagModal" class="modal fade apollo-modal"
+		tabindex="-1" aria-labelledby="_editAlbumTagLabel" role="dialog"
 		data-backdrop="static">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h4 id="_editAlbumTagLabel">
+					<h4 id="_editAlbumTagLabel" class="modal-title">
 						Edit Album Tag<span class="glyphicon glyphicon-remove"
 							style="float: right; cursor: pointer;" data-dismiss="modal"
 							aria-hidden="true"></span>
@@ -247,40 +295,103 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button class="btn btn-warning" data-dismiss="modal"
-						data-ng-click="saveAlbumTags()">Save</button>
+					<button class="btn btn-warning btn-responsive" data-dismiss="modal"
+						data-ng-click="saveAlbumTag()">Save</button>
 				</div>
 			</div>
 		</div>
 	</div>
 </form>
 
-<div id="_parseTagExprModal" class="modal fade" tabindex="-1"
-	aria-labelledby="_parseTagExprLabel" role="dialog"
+<style type="text/css">
+#_standardTokens li:hover {
+	cursor: pointer;
+}
+
+#_tokenContainer span {
+	margin: 5px 0px 5px 5px;
+	float: left;
+}
+
+#_tokenContainer li {
+	margin: 5px 0px 0px 5px;
+}
+</style>
+<div id="_parseTagExprModal" class="modal fade apollo-modal"
+	tabindex="-1" aria-labelledby="_parseTagExprLabel" role="dialog"
 	data-backdrop="static">
-	<div class="modal-dialog modal-md">
+	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 id="_parseTagExprLabel">
+				<h4 id="_parseTagExprLabel" class="modal-title">
 					Tag Expression<span class="glyphicon glyphicon-remove"
 						style="float: right; cursor: pointer;" data-dismiss="modal"
 						aria-hidden="true"></span>
 				</h4>
 			</div>
-			<div class="modal-body">
-				<div class="form-group">
-					<tags-input class="ti-input-sm" ng-model="tagExpressions"
-						min-length="1" add-on-enter="true" add-on-space="false"
-						add-on-comma="false" add-on-blur="true" add-on-paste="true"
-						replace-spaces-with-dashes="false"
-						add-from-autocomplete-only="false"> <auto-complete
-						source="getTagTokens($query)" min-length="1"
-						load-on-down-arrow="true" load-on-focus="true"
-						select-first-match="false"></auto-complete> </tags-input>
+			<div id="_parseTagExprModalBody" class="modal-body form-horizontal">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<div class="form-group">
+								<label class="col-xs-4 col-sm-2 col-md-2 col-lg-2 control-label">File
+									Name:</label>
+								<div class="col-xs-8 col-sm-10 col-md-10 col-lg-10">
+									<p class="form-control-static">{{sampleFileName}}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-7 col-sm-7 col-md-8 col-lg-8">
+							<div class="panel panel-primary apollo-panel">
+								<div id="_droppableContainer" class="panel-body">
+									<div id="_tokenContainer" />
+								</div>
+							</div>
+
+							<!-- Custom Token Section -->
+							<div>
+								<div class="col-xs-9 col-sm-9 col-md-10 col-lg-10 pad-left-0">
+									<input type="text" class="form-control" id="_customParseToken"
+										placeholder="Custom Token" />
+								</div>
+								<div class="col-xs-3 col-sm-3 col-md-2 col-lg-2 pad-left-10">
+									<button class="btn btn-warning btn-responsive"
+										data-ng-click="addParseTagToken()">Add</button>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-xs-5 col-sm-5 col-md-4 col-lg-4">
+							<!-- Standard Tokens Panel -->
+							<div class="panel panel-default apollo-panel">
+								<div class="panel-heading">Standard Tokens</div>
+								<div class="panel-body">
+									<ul id="_standardTokens" style="margin-left: -10px">
+										<li id="_token-language" data-token="language">Language</li>
+										<li id="_token-genre" data-token="genre">Genre</li>
+										<li id="_token-mood" data-token="mood">Mood</li>
+										<li id="_token-album" data-token="album">Album</li>
+										<li id="_token-mood" data-token="mood">Year</li>
+										<li id="_token-composer" data-token="composer">Composer</li>
+										<li id="_token-albumArtist" data-token="albumArtist">Album
+											Artist</li>
+										<li id="_token-artist" data-token="artist">Artist</li>
+										<li id="_token-trackNbr" data-token="trackNbr">Track Nbr</li>
+										<li id="_token-title" data-token="title">Title</li>
+										<li id="_token-tags" data-token="tags">Tags</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-warning" data-dismiss="modal"
+				<button class="btn btn-warning btn-responsive"
+					data-ng-click="resetParseTagTokens()">Reset</button>
+				<button class="btn btn-warning btn-responsive" data-dismiss="modal"
 					data-ng-click="parseTags()">Parse</button>
 			</div>
 		</div>

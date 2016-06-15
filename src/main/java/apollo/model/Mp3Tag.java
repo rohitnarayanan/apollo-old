@@ -105,9 +105,9 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	public String fileName;
 
 	/**
-	 * {@link File} instance
+	 * Path of the file
 	 */
-	public transient File sourceFile = null;
+	public String filePath = null;
 
 	/**
 	 * {@link TagCheckResult} instance

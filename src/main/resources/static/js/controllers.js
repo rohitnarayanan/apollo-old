@@ -49,8 +49,7 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	$rootScope.pageContentText = "Add a new album to the library";
 
 	$scope.albumSelected = false;
-	$scope.tagTokens = [ "language", "genre", "album", "year", "composer",
-			"albumArtist", "artist", "trackNbr", "title" ]
+	$scope.tagsParsed = false;
 
 	$scope.selectAlbum = function() {
 		$scope.albumSelected = false;
@@ -61,70 +60,167 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	}
 
 	$scope.loadTracks = function(aAlbumPath) {
-		albumService.fetchTracks(aAlbumPath).then(
-				function(aResponse) {
-					var responseData = aResponse.dataMap;
-
-					$scope.response = aResponse;
-					$scope.albumPath = responseData.albumPath;
-					$scope.albumTag = responseData.commonTag;
-					$scope.trackTagMap = {};
-
-					if (!$.fn.DataTable.isDataTable("#albumTracksDT")) {
-						$scope.albumTracksDT = apollo.datatables.albumTracksDT(
-								$scope.trackTagMap, function(aRow) {
-									$scope.editTrackTag(aRow.id());
-								});
-					}
-
-					$scope.albumTracksDT.clear();
-					$scope.albumTracksDT.rows.add(responseData.tags);
-
-					$scope.albumSelected = true;
-
-					$scope.albumTracksDT.columns.adjust().draw();
-					$scope.albumTracksDT.responsive.rebuild();
-					$scope.albumTracksDT.responsive.recalc();
-				}, apollo.plugins.AngularUtil.serverError);
+		albumService.fetchTracks(aAlbumPath).then(function(aResponse) {
+			$scope.loadAlbumTracksDT(aResponse);
+		}, apollo.plugins.AngularUtil.serverError);
 	};
 
+	$scope.loadAlbumTracksDT = function(aResponse) {
+		var responseData = aResponse.dataMap;
+		$scope.albumPath = responseData.albumPath;
+		$scope.commonTag = responseData.commonTag;
+		$scope.trackTags = responseData.trackTags;
+		$scope.trackTagMap = {};
+
+		if (!$.fn.DataTable.isDataTable("#albumTracksDT")) {
+			$scope.albumTracksDT = apollo.datatables.albumTracksDT(
+					$scope.trackTagMap, function(aRow) {
+						$scope.editTrackTag(aRow.id());
+					});
+
+			$("#albumTracksDTOptions").appendTo(
+					$("#albumTracksDT_wrapper div.top")).show();
+			$("#albumTracksDTActions").appendTo(
+					$("#albumTracksDT_wrapper div.bottom")).show();
+		}
+
+		$scope.albumTracksDT.clear();
+		$scope.albumTracksDT.rows.add(responseData.trackTags);
+
+		$scope.albumSelected = true;
+
+		$scope.albumTracksDT.columns.adjust().draw();
+		$scope.albumTracksDT.responsive.rebuild();
+		$scope.albumTracksDT.responsive.recalc();
+	}
+
 	$scope.showParseTags = function() {
+		$scope.sampleFileName = $scope.trackTags[0].fileName;
+		$scope.resetParseTagTokens();
 		$("#_parseTagExprModal").modal("show");
 	};
 
-	$scope.getTagTokens = function(aQuery) {
-		return $.map($scope.tagTokens, function(aToken, aIdx) {
-			return (aToken.startsWith(aQuery)) ? aToken : null;
-		});
-	};
+	$scope.addParseTagToken = function(aToken) {
+		var _token = null;
+		if (aToken) {
+			_token = "<" + aToken + ">";
+		} else {
+			_token = $("#_customParseToken").val();
+			if (!_token) {
+				return;
+			}
+		}
+
+		if ($("#_tokenContainer span").length == 0) {
+			$("#_tokenContainer").empty();
+		}
+
+		$("<span />").addClass("label label-primary").text(_token).appendTo(
+				$("#_tokenContainer"));
+		// var li = $("<li
+		// />").addClass("active").appendTo($("#_tokenContainer"));
+		// $("<a />").attr("href", "").text(_token).appendTo(li);
+
+		$scope.parseTagTokens += _token;
+		$("#_customParseToken").val("");
+	}
+
+	$scope.resetParseTagTokens = function() {
+		$scope.parseTagTokens = "";
+		$("#_tokenContainer").empty().html("<br /> <br />");
+	}
 
 	$scope.parseTags = function() {
-		var tagExprTokens = "";
-		$.each($scope.tagExpressions, function(aIdx, aExpr) {
-			tagExprTokens += aExpr.text + "|";
-		});
-
-		alert("parseTags:" + tagExprTokens);
+		albumService.parseTags($scope.albumTag, $scope.parseTagTokens).then(
+				function(aResponse) {
+					$scope.loadAlbumTracksDT(aResponse);
+					$scope.tagsParsed = true;
+					apollo.plugins.AlertUtil.showPageAlert(
+							"Tags parsed from file names "
+									+ "as per provided tokens", "info");
+				});
 	};
 
-	$scope.editTrackTag = function(aTrackId) {
-		$scope.trackTag = $scope.trackTagMap[aTrackId];
+	$scope.discardParsedTags = function() {
+
+	};
+
+	$scope.saveParsedTags = function() {
+
+	};
+
+	/**
+	 * Function to open modal for editing album tag
+	 */
+	$scope.editAlbumTag = function() {
+		$scope.albumTag = angular.copy($scope.commonTag);
+		$("#_editAlbumTagModal").modal("show");
+	};
+
+	/**
+	 * Function to open modal for editing track tag
+	 */
+	$scope.editTrackTag = function(aTrackPath) {
+		$scope.trackTag = angular.copy($scope.trackTagMap[aTrackPath]);
 		$scope.$apply();
 		$("#_editTrackTagModal").modal("show");
 	};
 
-	$scope.editAlbumTag = function() {
-		$("#_editAlbumTagModal").modal("show");
+	/**
+	 * Function to save album tag
+	 */
+	$scope.saveAlbumTag = function() {
+		$scope.albumTag.dataMap = {
+			"albumPath" : $scope.albumPath
+		};
+
+		albumService.saveAlbumTag($scope.albumTag).then(
+				function(aResponse) {
+					$scope.commonTag = aResponse.dataMap.savedTag;
+					apollo.plugins.AlertUtil.showPageAlert(
+							"Tags saved successfully for album tracks",
+							"success");
+				});
 	};
 
-	$scope.saveTags = function() {
-		apollo.utils.alert("saveTags", $scope.trackTag);
+	/**
+	 * Function to save track tag
+	 */
+	$scope.saveTrackTag = function() {
+		$scope.trackTag.dataMap = {
+			"trackPath" : $scope.trackTag.filePath
+		};
+
+		albumService.saveTrackTag($scope.trackTag).then(
+				function(aResponse) {
+					var newTrackTag = aResponse.dataMap.savedTag;
+					$scope.trackTagMap[newTrackTag.filePath] = newTrackTag;
+					apollo.plugins.AlertUtil.showPageAlert(
+							"Tags saved successfully", "success");
+				});
 	};
 
-	$scope.saveAlbumTags = function() {
-		apollo.utils.alert("saveAlbumTags", $scope.albumTag);
-	};
+	/*
+	 * Setup parse tags drag/drop functionality
+	 */
+	$("#_standardTokens li").draggable({
+		appendTo : "#_parseTagExprModalBody",
+		helper : "clone",
+		cursor : "pointer",
+		revert : "invalid"
+	});
 
+	$("#_droppableContainer").droppable({
+		hoverClass : "bg-warning",
+		accept : "#_standardTokens li",
+		drop : function(event, ui) {
+			$scope.addParseTagToken(ui.draggable.data("token"));
+		}
+	});
+
+	/*
+	 * Initial call
+	 */
 	setTimeout(
 			function() {
 				// $scope.selectAlbum();

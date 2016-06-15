@@ -81,6 +81,13 @@ div.modal.apollo-modal div.modal-header button {
 }
 /* modal styles:end */
 
+/* panel styles:start */
+div.panel.apollo-panel div.panel-heading, div.panel.apollo-panel div.panel-body
+	{
+	padding: 5px;
+}
+/* panel styles:end */
+
 /* form styles:start */
 .form-control:focus {
 	border-color: #96c346;
@@ -88,6 +95,8 @@ div.modal.apollo-modal div.modal-header button {
 	box-shadow: inset 0 1px 1px #96c346, 0 0 8px #96c346;
 }
 /* form styles:end */
+
+/* button styles:start */
 @media ( max-width : 768px) {
 	.btn-responsive {
 		padding: 2px 4px;
@@ -104,3 +113,4 @@ div.modal.apollo-modal div.modal-header button {
 		line-height: 1.2;
 	}
 }
+/* button styles:end */
