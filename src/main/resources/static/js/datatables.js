@@ -15,7 +15,7 @@ apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
 	var dtConfig = {
 		"order" : [ [ 1, "asc" ] ],
 		"pageLength" : 6,
-		"dom" : "<'top clearfix'f>rt<'bottom clearfix'ip>",
+		"dom" : "<'top clearfix'f><'bg-success'r><'table-responsive't><'bottom clearfix'ip>",
 		"rowId" : "filePath",
 		"autoFill" : {
 			"alwaysAsk" : true,
@@ -24,7 +24,7 @@ apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
 		"createdRow" : function(aRow, aData, aDataIndex) {
 			aRowDataMap[aData.filePath] = aData;
 		},
-		"responsive" : true,
+		// "responsive" : true,
 		"columns" : [ {
 			"title" : "File Name",
 			"data" : "fileName",
@@ -59,7 +59,7 @@ apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
 	}
 
 	var albumTracksDT = $("#albumTracksDT").DataTable(dtConfig);
-	$("#albumTracksDT tbody").on("click", "tr", function() {
+	$("#albumTracksDT tbody").on("click", "tr", function(aEvent) {
 		aRowClickCallback(albumTracksDT.row(this));
 	});
 

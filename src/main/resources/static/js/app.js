@@ -3,7 +3,7 @@
 /*
  * Module Declaration
  */
-apollo.module = angular.module('apollo', [ 'ngRoute', 'ngTagsInput' ]);
+apollo.module = angular.module('apollo', [ 'ngRoute' ]);
 
 /*
  * Module Configuration

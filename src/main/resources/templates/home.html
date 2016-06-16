@@ -119,7 +119,11 @@
 		<!-- container -->
 		<section class="apollo-content" id="mainContainer"
 			data-ng-cloak="true">
-			<h2 class="apollo-page-header">{{pageHeader}}</h2>
+			<h2 class="apollo-page-header">
+				{{pageHeader}}
+				<button class="btn btn-danger btn-responsive float-right"
+					data-ng-click="handlePageControl()" data-ng-show="showPageControl">{{pageControlName}}</button>
+			</h2>
 			<em>{{pageContentText}}</em>
 
 			<div class="apollo-msg" style="display: none;">

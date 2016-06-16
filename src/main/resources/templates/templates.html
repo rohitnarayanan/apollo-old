@@ -12,26 +12,28 @@
 		<link rel="shortcut icon" type="image/x-icon"
 			th:href="@{/img/icon.jpg}" />
 
-		<!-- external stylesheets -->
+		<!-- webjars stylesheets -->
 		<link type="text/css" rel="stylesheet"
 			th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.css}" />
 		<link type="text/css" rel="stylesheet"
-			th:href="@{/webjars/jstree/3.2.1/themes/default-dark/style.css}" />
-		<link type="text/css" rel="stylesheet"
-			th:href="@{/css/external/datatables.css}" />
-		<link type="text/css" rel="stylesheet"
 			th:href="@{/webjars/jquery-ui/1.11.4/jquery-ui.css}" />
+
+		<!-- external stylesheets -->
+		<link type="text/css" rel="stylesheet"
+			th:href="@{/css/external/datatables/datatables-1.10.12.css}" />
+		<link type="text/css" rel="stylesheet"
+			th:href="@{/css/external/jstree/jstree-3.3.1.css}" />
 
 		<!-- custom stylesheets -->
 		<link type="text/css" rel="stylesheet" th:href="@{/css/main.css}" />
 		<link type="text/css" rel="stylesheet"
-			th:href="@{/css/whitespace-styles.css}" />
+			th:href="@{/css/styles-allignment.css}" />
 		<link type="text/css" rel="stylesheet"
-			th:href="@{/css/menu-styles.css}" />
+			th:href="@{/css/styles-menu.css}" />
 		<link type="text/css" rel="stylesheet"
-			th:href="@{/css/message-styles.css}" />
+			th:href="@{/css/styles-message.css}" />
 		<link type="text/css" rel="stylesheet"
-			th:href="@{/css/datatable-styles.css}" />
+			th:href="@{/css/styles-datatable.css}" />
 		<link type="text/css" rel="stylesheet" th:href="@{/css/app.css}" />
 
 
@@ -41,14 +43,14 @@
 	<div th:fragment="footer">
 		<footer class="apollo-footer">
 			<nav id="apolloFooterNavbar" class="navbar">
-				<div class="row">
-					<div class="col-lg-6 col-xs-4">
+				<div>
+					<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 						<a class="apollo-footer-link" target="_new"
 							href="http://www.wikipedia.com"><strong>Wikipedia</strong></a>&nbsp;|&nbsp;
 						<a class="apollo-footer-link" href="" data-toggle="modal"
 							data-target="#helpMsg"><strong>Help</strong></a>
 					</div>
-					<div class="col-lg-6 col-xs-8 text-right">
+					<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 text-right">
 						<h6 style="margin: 0px;">
 							<span class="glyphicon glyphicon-copyright-mark"
 								style="margin-right: 2px;" />Copyright 2016 Rohit Narayanan.
@@ -123,16 +125,18 @@
 		</div>
 	</div>
 
-
 	<div th:fragment="scripts-external">
+		<!-- webjars javascripts -->
 		<script th:src="@{/webjars/modernizr/2.8.3/modernizr.js}"></script>
 		<script th:src="@{/webjars/jquery/2.2.4/jquery.js}"></script>
-		<script th:src="@{/webjars/jstree/3.2.1/jstree.js}"></script>
 		<script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.js}"></script>
 		<script th:src="@{/webjars/angularjs/1.5.5/angular.js}"></script>
 		<script th:src="@{/webjars/angularjs/1.5.5/angular-route.js}"></script>
-		<script th:src="@{/js/external/datatables.js}"></script>
 		<script th:src="@{/webjars/jquery-ui/1.11.4/jquery-ui.js}"></script>
+
+		<!-- external javascripts -->
+		<script th:src="@{/js/external/datatables/datatables-1.10.12.js}"></script>
+		<script th:src="@{/js/external/jstree/jstree-3.3.1.js}"></script>
 	</div>
 
 	<div th:fragment="scripts-custom">

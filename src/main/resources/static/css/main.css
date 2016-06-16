@@ -98,16 +98,19 @@ div.panel.apollo-panel div.panel-heading, div.panel.apollo-panel div.panel-body
 
 /* button styles:start */
 @media ( max-width : 768px) {
-	.btn-responsive {
-		padding: 2px 4px;
-		font-size: 80%;
+	.btn-wrap {
+		margin-top: 10px;
+	}
+	.btn-responsive-old {
+		padding: 4px 6px;
+		font-size: 90%;
 		line-height: 1;
 		border-radius: 3px;
 	}
 }
 
 @media ( min-width : 769px) and (max-width: 992px) {
-	.btn-responsive {
+	.btn-responsive-old {
 		padding: 4px 9px;
 		font-size: 90%;
 		line-height: 1.2;

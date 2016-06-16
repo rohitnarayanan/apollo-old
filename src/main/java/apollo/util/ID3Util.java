@@ -414,7 +414,7 @@ public class ID3Util {
 				}
 			}
 
-			if (aMp3Tag.artwork.base64Data != null) {
+			if (aMp3Tag.artwork != null && aMp3Tag.artwork.base64Data != null) {
 				tag.deleteArtworkField();
 
 				if (aMp3Tag.artwork.base64Data.length() > 0) {

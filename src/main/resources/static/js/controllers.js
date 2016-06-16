@@ -47,6 +47,8 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		fileSystemService, albumService) {
 	$rootScope.pageHeader = "Add Album";
 	$rootScope.pageContentText = "Add a new album to the library";
+	$rootScope.showPageControl = true;
+	$rootScope.pageControlName = "Select Album";
 
 	$scope.albumSelected = false;
 	$scope.tagsParsed = false;
@@ -57,7 +59,8 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 				aAlbumPath) {
 			$scope.loadTracks(aAlbumPath);
 		});
-	}
+	};
+	$rootScope.handlePageControl = $scope.selectAlbum;
 
 	$scope.loadTracks = function(aAlbumPath) {
 		albumService.fetchTracks(aAlbumPath).then(function(aResponse) {
@@ -75,10 +78,10 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		if (!$.fn.DataTable.isDataTable("#albumTracksDT")) {
 			$scope.albumTracksDT = apollo.datatables.albumTracksDT(
 					$scope.trackTagMap, function(aRow) {
-						$scope.editTrackTag(aRow.id());
+						$scope.showEditTrackTag(aRow.id());
 					});
 
-			$("#albumTracksDTOptions").appendTo(
+			$("#albumTracksDTOptions").prependTo(
 					$("#albumTracksDT_wrapper div.top")).show();
 			$("#albumTracksDTActions").appendTo(
 					$("#albumTracksDT_wrapper div.bottom")).show();
@@ -88,15 +91,19 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		$scope.albumTracksDT.rows.add(responseData.trackTags);
 
 		$scope.albumSelected = true;
+		apollo.plugins.AlertUtil.hidePageAlert();
 
 		$scope.albumTracksDT.columns.adjust().draw();
 		$scope.albumTracksDT.responsive.rebuild();
 		$scope.albumTracksDT.responsive.recalc();
 	}
 
-	$scope.showParseTags = function() {
-		$scope.sampleFileName = $scope.trackTags[0].fileName;
-		$scope.resetParseTagTokens();
+	$scope.showParseTags = function(aReset) {
+		if (aReset) {
+			$scope.sampleFileName = $scope.trackTags[0].fileName;
+			$scope.resetParseTagTokens();
+		}
+
 		$("#_parseTagExprModal").modal("show");
 	};
 
@@ -131,28 +138,34 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	}
 
 	$scope.parseTags = function() {
-		albumService.parseTags($scope.albumTag, $scope.parseTagTokens).then(
+		albumService.parseTags($scope.albumPath, $scope.parseTagTokens).then(
 				function(aResponse) {
-					$scope.loadAlbumTracksDT(aResponse);
+					var responseData = aResponse.dataMap;
+					$scope.parsedCommonTag = responseData.commonTag;
+					$scope.parsedTags = responseData.trackTags;
 					$scope.tagsParsed = true;
-					apollo.plugins.AlertUtil.showPageAlert(
-							"Tags parsed from file names "
-									+ "as per provided tokens", "info");
+					// apollo.plugins.AlertUtil.showPageAlert(
+					// "Tags parsed from file names "
+					// + "as per provided tokens", "info");
 				});
 	};
 
 	$scope.discardParsedTags = function() {
+		$scope.tagsParsed = false;
+	};
 
+	$scope.reparseTags = function() {
+		$scope.showParseTags(false);
 	};
 
 	$scope.saveParsedTags = function() {
-
+		$scope.tagsParsed = false;
 	};
 
 	/**
 	 * Function to open modal for editing album tag
 	 */
-	$scope.editAlbumTag = function() {
+	$scope.showEditAlbumTag = function() {
 		$scope.albumTag = angular.copy($scope.commonTag);
 		$("#_editAlbumTagModal").modal("show");
 	};
@@ -160,7 +173,7 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	/**
 	 * Function to open modal for editing track tag
 	 */
-	$scope.editTrackTag = function(aTrackPath) {
+	$scope.showEditTrackTag = function(aTrackPath) {
 		$scope.trackTag = angular.copy($scope.trackTagMap[aTrackPath]);
 		$scope.$apply();
 		$("#_editTrackTagModal").modal("show");
@@ -200,6 +213,14 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 				});
 	};
 
+	$scope.renameToTitle = function() {
+		alert("renaming tracks");
+	};
+
+	$scope.addToLibrary = function() {
+		alert("adding to library");
+	};
+
 	/*
 	 * Setup parse tags drag/drop functionality
 	 */
@@ -208,6 +229,8 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		helper : "clone",
 		cursor : "pointer",
 		revert : "invalid"
+	}).taphold(function(aEvent) {
+		$scope.addParseTagToken($(this).data("token"));
 	});
 
 	$("#_droppableContainer").droppable({
@@ -218,14 +241,20 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		}
 	});
 
+	$("#_scopeApplyBtn").click(function() {
+		$scope.$apply();
+	})
+
 	/*
 	 * Initial call
 	 */
 	setTimeout(
 			function() {
 				// $scope.selectAlbum();
+				// $scope
+				// .loadTracks("C:/Temp/M/Library/Hindi/TempGenre/TempArtist/TempAlbum");
 				$scope
-						.loadTracks("C:/Temp/M/Library/Hindi/TempGenre/TempArtist/TempAlbum");
+						.loadTracks("/Users/rohitnarayanan/Music/Unorganized/Bollywood/Azhar-320Kbps-2016(Songspk.LINK)");
 			}, 200);
 };
 
