@@ -51,18 +51,6 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td>Language</td>
-					<td>{{parsedCommonTag.language || '-'}}</td>
-				</tr>
-				<tr>
-					<td>Genre</td>
-					<td>{{parsedCommonTag.genre || '-'}}</td>
-				</tr>
-				<tr>
-					<td>Mood</td>
-					<td>{{parsedCommonTag.mood || '-'}}</td>
-				</tr>
-				<tr>
 					<td>Album</td>
 					<td>{{parsedCommonTag.album || '-'}}</td>
 				</tr>
@@ -83,20 +71,14 @@
 				<tr>
 					<th>Title</th>
 					<th>Artist</th>
-					<th>Composer</th>
 					<th>Track Nbr</th>
-					<th>Lyrics</th>
-					<th>Tags</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr ng-repeat="tmpTag in parsedTags">
 					<td>{{tmpTag.title || '-'}}</td>
 					<td>{{tmpTag.artist || '-'}}</td>
-					<td>{{tmpTag.composer || '-'}}</td>
 					<td>{{tmpTag.trackNbr || '-'}}</td>
-					<td>{{tmpTag.lyrics || '-'}}</td>
-					<td>{{tmpTag.tags || '-'}}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -209,7 +191,7 @@
 				</div>
 				<div class="modal-footer">
 					<button class="btn btn-warning btn-responsive" data-dismiss="modal"
-						datadata-ng-click="saveTrackTag()">Save</button>
+						data-ng-click="saveTrackTag()">Save</button>
 				</div>
 			</div>
 		</div>
@@ -233,6 +215,11 @@
 				</div>
 				<div class="modal-body">
 					<div class="container-fluid">
+						<div class="apollo-msg" style="display: none;">
+							<span class="_modalAlertIcon glyphicon">&nbsp;</span> <span
+								class="_modalAlertMsg" />
+						</div>
+
 						<div class="row">
 							<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 								<div class="form-group">
@@ -313,8 +300,18 @@
 									<label
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Artwork:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
-										<img id="_artwork" class="img-responsive"
+										<img id="_artworkPreview"
+											style="height: 80px; width: 80px; margin-bottom: 10px; display: block;"
+											data-ng-show="albumTag.artwork.base64Data.length > 0"
 											data-ng-src="{{albumTag.artwork.base64Data}}" />
+										<button id="_addEditArtworkBtn"
+											class="btn btn-warning btn-responsive"
+											data-ng-click="chooseArtwork()">{{albumTag.artwork.base64Data
+											!= null ? 'Edit' : 'Add'}}</button>
+										<button id="_deleteArtworkBtn"
+											class="btn btn-warning btn-responsive"
+											data-ng-show="albumTag.artwork.base64Data.length > 0"
+											data-ng-click="deleteArtwork()">Delete</button>
 									</div>
 								</div>
 							</div>
@@ -328,6 +325,11 @@
 			</div>
 		</div>
 	</div>
+</form>
+
+<form id="_artworkFileForm" name="artworkFileForm" action="#"
+	method="post">
+	<input id="_artworkFile" type="file" class="hidden" accept="image/*" />
 </form>
 
 <style type="text/css">

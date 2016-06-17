@@ -143,5 +143,36 @@ apollo.plugins.FileSystemUtil = {
 		}
 
 		$("#_fileSystemModal").modal("hide");
+	},
+
+	"readImage" : function(aFileControlId, aSuccessCallback, aFailureCallback) {
+		var imgFile = $("#" + aFileControlId).get(0).files[0];
+
+		if (!imgFile.type.match('image.*')) {
+			aFailureCallback("Selected file not an image: " + imgFile.name);
+			return;
+		}
+
+		var reader = new FileReader();
+		reader.onerror = function(evt) {
+			var errorMsg = null;
+
+			switch (evt.target.error.code) {
+			case evt.target.error.NOT_FOUND_ERR:
+				errorMsg = "File Not Found!";
+			case evt.target.error.NOT_READABLE_ERR:
+				errorMsg = "File is not readable";
+			default:
+				errorMsg = "An error occurred reading this file.";
+			}
+
+			aFailureCallback(errorMsg);
+		};
+
+		reader.onload = function() {
+			aSuccessCallback(reader.result);
+		};
+
+		reader.readAsDataURL(imgFile);
 	}
 };

@@ -170,6 +170,37 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		$("#_editAlbumTagModal").modal("show");
 	};
 
+	$scope.chooseArtwork = function() {
+		$("#_artworkFileForm")[0].reset();
+		$("#_artworkFile")
+				.click()
+				.change(
+						function() {
+							if (!$scope.albumTag.artwork) {
+								$scope.albumTag.artwork = {};
+							}
+
+							var readResult = apollo.plugins.FileSystemUtil
+									.readImage(
+											"_artworkFile",
+											function(aImageData) {
+												$scope.albumTag.artwork.base64Data = aImageData;
+												$scope.$apply();
+											},
+											function(aErrorMsg) {
+												apollo.plugins.AlertUtil
+														.showModalAlert(
+																"_editAlbumTagModal",
+																aErrorMsg,
+																"error");
+											});
+						});
+	};
+
+	$scope.deleteArtwork = function() {
+		$scope.albumTag.artwork = null;
+	};
+
 	/**
 	 * Function to open modal for editing track tag
 	 */
@@ -229,8 +260,6 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		helper : "clone",
 		cursor : "pointer",
 		revert : "invalid"
-	}).taphold(function(aEvent) {
-		$scope.addParseTagToken($(this).data("token"));
 	});
 
 	$("#_droppableContainer").droppable({
@@ -251,10 +280,10 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	setTimeout(
 			function() {
 				// $scope.selectAlbum();
-				// $scope
-				// .loadTracks("C:/Temp/M/Library/Hindi/TempGenre/TempArtist/TempAlbum");
 				$scope
-						.loadTracks("/Users/rohitnarayanan/Music/Unorganized/Bollywood/Azhar-320Kbps-2016(Songspk.LINK)");
+						.loadTracks("C:/Temp/M/Library/Hindi/TempGenre/TempArtist/TempAlbum");
+				// $scope
+				// .loadTracks("/Users/rohitnarayanan/Music/Unorganized/Bollywood/Azhar-320Kbps-2016(Songspk.LINK)");
 			}, 200);
 };
 
