@@ -332,18 +332,27 @@
 	<input id="_artworkFile" type="file" class="hidden" accept="image/*" />
 </form>
 
+<!-- styles for token labels -->
 <style type="text/css">
-#_standardTokens li:hover {
-	cursor: pointer;
+#_standardTokens a.label {
+	display: block;
+	margin-top: 5px;
+	padding: 5px;
 }
 
-#_tokenContainer span {
+#_tokenContainer span.label {
 	margin: 5px 0px 5px 5px;
+	padding: 8px;
 	float: left;
 }
 
-#_tokenContainer li {
-	margin: 5px 0px 0px 5px;
+#_tokenContainer span.label span.glyphicon {
+	margin-left: 5px;
+	float: right;
+}
+
+#_tokenContainer span.label span.glyphicon:hover {
+	cursor: pointer;
 }
 </style>
 <div id="_parseTagExprModal" class="modal fade apollo-modal"
@@ -361,17 +370,6 @@
 			<div id="_parseTagExprModalBody" class="modal-body form-horizontal">
 				<div class="container-fluid">
 					<div class="row">
-						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-							<div class="form-group">
-								<label class="col-xs-4 col-sm-2 col-md-2 col-lg-2 control-label">File
-									Name:</label>
-								<div class="col-xs-8 col-sm-10 col-md-10 col-lg-10">
-									<p class="form-control-static">{{sampleFileName}}</p>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="row">
 						<div class="col-xs-7 col-sm-7 col-md-8 col-lg-8">
 							<div class="panel panel-primary apollo-panel">
 								<div id="_droppableContainer" class="panel-body">
@@ -380,39 +378,70 @@
 							</div>
 
 							<!-- Custom Token Section -->
-							<div>
-								<form>
-									<div class="col-xs-9 col-sm-9 col-md-10 col-lg-10 pad-left-0">
-										<input type="text" class="form-control" id="_customParseToken"
-											placeholder="Custom Token" />
+							<form>
+								<div class="form-horizontal">
+									<div class="form-group">
+										<div class="radio col-xs-1 col-sm-1 col-md-1 col-lg-1">
+											<label><input id="_customParseTokenOptionSelect"
+												type="radio" name="customParseTokenOption" value="select"
+												checked="checked" /></label>
+										</div>
+										<div class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+											<p id="_customParseTokenSelect" class="form-control-static">{{sampleFileName}}</p>
+										</div>
 									</div>
-									<div class="col-xs-3 col-sm-3 col-md-2 col-lg-2 pad-left-10">
-										<button class="btn btn-warning btn-responsive"
-											data-ng-click="addParseTagToken()">Add</button>
+									<div class="form-group">
+										<div class="radio col-xs-1 col-sm-1 col-md-1 col-lg-1">
+											<label><input id="_customParseTokenOptionInput"
+												type="radio" name="customParseTokenOption" value="input" /></label>
+										</div>
+										<div class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+											<input type="text" class="form-control"
+												id="_customParseTokenInput" placeholder="Custom Token" />
+										</div>
 									</div>
-								</form>
-							</div>
+									<div class="form-group text-center">
+										<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+											<button class="btn btn-warning btn-responsive"
+												data-ng-click="addParseTagToken()">Add</button>
+										</div>
+									</div>
+								</div>
+							</form>
 						</div>
 
 						<div class="col-xs-5 col-sm-5 col-md-4 col-lg-4">
 							<!-- Standard Tokens Panel -->
-							<div class="panel panel-default apollo-panel">
+							<div class="panel panel-primary apollo-panel">
 								<div class="panel-heading">Standard Tokens</div>
 								<div class="panel-body">
-									<ul id="_standardTokens" style="margin-left: -10px">
-										<li id="_token-language" data-token="language">Language</li>
-										<li id="_token-genre" data-token="genre">Genre</li>
-										<li id="_token-mood" data-token="mood">Mood</li>
-										<li id="_token-album" data-token="album">Album</li>
-										<li id="_token-mood" data-token="mood">Year</li>
-										<li id="_token-composer" data-token="composer">Composer</li>
-										<li id="_token-albumArtist" data-token="albumArtist">Album
-											Artist</li>
-										<li id="_token-artist" data-token="artist">Artist</li>
-										<li id="_token-trackNbr" data-token="trackNbr">Track Nbr</li>
-										<li id="_token-title" data-token="title">Title</li>
-										<li id="_token-tags" data-token="tags">Tags</li>
-									</ul>
+									<div id="_standardTokens">
+										<!-- class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-8 col-xs-offset-2" -->
+										<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+											<!-- <a id="_token-language" class="label label-default"
+												data-token="language">Language</a> <a id="_token-genre"
+												class="label label-default" data-token="genre">Genre</a> <a
+												id="_token-mood" class="label label-default"
+												data-token="mood">Mood</a> -->
+											<a id="_token-album" class="label label-default"
+												data-token="album">Album</a> <a id="_token-year"
+												class="label label-default" data-token="year">Year</a> <a
+												id="_token-albumArtist" class="label label-default"
+												data-token="albumArtist">Album Artist</a>
+										</div>
+										<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+											<a id="_token-title" class="label label-default"
+												data-token="title">Title</a> <a id="_token-artist"
+												class="label label-default" data-token="artist">Artist</a>
+											<!-- <a
+												id="_token-composer" class="label label-default"
+												data-token="composer">Composer</a> -->
+											<a id="_token-trackNbr" class="label label-default"
+												data-token="trackNbr">Track Nbr</a>
+											<!--  <a id="_token-tags" class="label label-default"
+												data-token="tags">Tags</a> -->
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -422,7 +451,7 @@
 			<div class="modal-footer">
 				<button class="btn btn-warning btn-responsive"
 					data-ng-click="resetParseTagTokens()">Reset</button>
-				<button class="btn btn-warning btn-responsive" data-dismiss="modal"
+				<button class="btn btn-warning btn-responsive"
 					data-ng-click="parseTags()">Parse</button>
 			</div>
 		</div>

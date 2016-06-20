@@ -41,5 +41,23 @@ apollo.utils = {
 		}
 
 		return false;
+	},
+
+	"getSelectedText" : function() {
+		var text = "";
+		if (window.getSelection) {
+			text = window.getSelection().toString();
+		} else if (document.selection && document.selection.type != "Control") {
+			text = document.selection.createRange().text;
+		}
+		return text;
+	},
+
+	"clearSelectedText" : function() {
+		if (window.getSelection) {
+			window.getSelection().removeAllRanges();
+		} else if (document.selection) {
+			document.selection.empty();
+		}
 	}
 };

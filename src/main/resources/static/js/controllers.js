@@ -108,12 +108,22 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	};
 
 	$scope.addParseTagToken = function(aToken) {
-		var _token = null;
-		if (aToken) {
-			_token = "<" + aToken + ">";
-		} else {
-			_token = $("#_customParseToken").val();
-			if (!_token) {
+		var tokenText = null;
+		var tokenVal = null;
+
+		if (aToken) { // Called from standard token click
+			tokenText = "<" + aToken + ">";
+			tokenVal = aToken
+		} else { // Called from add custom token button
+			var tokenType = $("input[name='customParseTokenOption']:checked")
+					.val();
+			if (tokenType == "input") {
+				tokenVal = tokenText = $("#_customParseTokenInput").val();
+			} else {
+				tokenVal = tokenText = apollo.utils.getSelectedText();
+			}
+
+			if (!tokenText) {
 				return;
 			}
 		}
@@ -122,32 +132,42 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 			$("#_tokenContainer").empty();
 		}
 
-		$("<span />").addClass("label label-primary").text(_token).appendTo(
-				$("#_tokenContainer"));
-		// var li = $("<li
-		// />").addClass("active").appendTo($("#_tokenContainer"));
-		// $("<a />").attr("href", "").text(_token).appendTo(li);
+		var span = $("<span />").addClass("label label-primary")
+				.text(tokenText).data("token", tokenVal).appendTo(
+						$("#_tokenContainer"));
+		$("<span />").addClass("glyphicon glyphicon-remove").appendTo(span);
 
-		$scope.parseTagTokens += _token;
-		$("#_customParseToken").val("");
+		$("#_customParseTokenInput").val("");
+		apollo.utils.clearSelectedText();
 	}
 
 	$scope.resetParseTagTokens = function() {
-		$scope.parseTagTokens = "";
+		$scope.parseTagTokens = [];
+		$("#_customParseTokenInput").val("");
+		apollo.utils.clearSelectedText();
+		$("#_customParseTokenOptionSelect").prop("checked", true);
+		$("#_standardTokens a").show();
 		$("#_tokenContainer").empty().html("<br /> <br />");
 	}
 
 	$scope.parseTags = function() {
-		albumService.parseTags($scope.albumPath, $scope.parseTagTokens).then(
+		if ($("#_tokenContainer span").length == 0) {
+			return;
+		}
+
+		var tokenList = "";
+		$("#_tokenContainer span").each(function(aIdx, aSpan) {
+			tokenList += $(aSpan).text();
+		});
+
+		albumService.parseTags($scope.albumPath, tokenList).then(
 				function(aResponse) {
 					var responseData = aResponse.dataMap;
 					$scope.parsedCommonTag = responseData.commonTag;
 					$scope.parsedTags = responseData.trackTags;
 					$scope.tagsParsed = true;
-					// apollo.plugins.AlertUtil.showPageAlert(
-					// "Tags parsed from file names "
-					// + "as per provided tokens", "info");
 				});
+		$("#_parseTagExprModal").modal("hide");
 	};
 
 	$scope.discardParsedTags = function() {
@@ -253,26 +273,39 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	};
 
 	/*
-	 * Setup parse tags drag/drop functionality
+	 * Setup parse tags token add/remove functionality: start
 	 */
-	$("#_standardTokens li").draggable({
-		appendTo : "#_parseTagExprModalBody",
-		helper : "clone",
-		cursor : "pointer",
-		revert : "invalid"
+	// add a standard token on click
+	$("#_standardTokens a").click(function(aEvent) {
+		var token = $(this).data("token");
+		$scope.addParseTagToken(token);
+		$("#_token-" + token).hide();
 	});
 
-	$("#_droppableContainer").droppable({
-		hoverClass : "bg-warning",
-		accept : "#_standardTokens li",
-		drop : function(event, ui) {
-			$scope.addParseTagToken(ui.draggable.data("token"));
-		}
+	// remove a token on 'X' click
+	$("#_tokenContainer").on("click", "span.glyphicon", function(aEvent) {
+		var tokenSpan = $(this).parent();
+		var token = tokenSpan.data("token");
+		tokenSpan.remove();
+
+		$("#_token-" + token).show();
 	});
 
-	$("#_scopeApplyBtn").click(function() {
-		$scope.$apply();
-	})
+	// select custom token type on focus/click
+	$("#_customParseTokenInput").focus(function(aEvent) {
+		$("#_customParseTokenOptionInput").prop("checked", true);
+	});
+
+	$("#_customParseTokenSelect").click(function(aEvent) {
+		$("#_customParseTokenOptionSelect").prop("checked", true);
+	});
+
+	// allow reordering of tokens
+	$("#_tokenContainer").sortable();
+	$("#_tokenContainer").disableSelection();
+	/*
+	 * Setup parse tags token add/remove functionality: end
+	 */
 
 	/*
 	 * Initial call
@@ -293,6 +326,5 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 apollo.controllers.replaceTrackController = function($rootScope, $scope) {
 	$rootScope.pageHeader = "Replace Track";
 	$rootScope.pageContentText = "Replace a track file with one with better quality";
-
-	$('#example').DataTable();
+	$rootScope.showPageControl = false;
 };
