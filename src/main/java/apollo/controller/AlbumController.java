@@ -34,9 +34,9 @@ public class AlbumController {
 	 * @param aAlbumPath
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, path = "/tracks")
+	@RequestMapping(method = RequestMethod.GET, path = "/listTracks")
 	@HandleError
-	public AccelerateWebResponse albumTracks(@RequestParam(name = "albumPath") String aAlbumPath) {
+	public AccelerateWebResponse listTracks(@RequestParam(name = "albumPath") String aAlbumPath) {
 		AccelerateWebResponse model = new AccelerateWebResponse();
 		model.put("albumPath", aAlbumPath);
 		model.putAll(this.tagService.readTags(aAlbumPath));
@@ -54,15 +54,28 @@ public class AlbumController {
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
 		AccelerateWebResponse model = new AccelerateWebResponse();
 		model.put("albumPath", aAlbumPath);
-		model.putAll(this.tagService.parseTags(aAlbumPath, aParseTagTokens));
+		model.putAll(this.tagService.parseTags(aAlbumPath, aParseTagTokens, false));
 		return model;
+	}
+
+	/**
+	 * @param aAlbumPath
+	 * @param aParseTagTokens
+	 * @return
+	 */
+	@RequestMapping(method = RequestMethod.POST, path = "/saveParsedTags")
+	@HandleError
+	public AccelerateWebResponse saveParsedTags(@RequestParam(name = "albumPath") String aAlbumPath,
+			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
+		this.tagService.parseTags(aAlbumPath, aParseTagTokens, true);
+		return listTracks(aAlbumPath);
 	}
 
 	/**
 	 * @param aAlbumTag
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.POST, path = "/albumTag")
+	@RequestMapping(method = RequestMethod.POST, path = "/saveAlbumTag")
 	@HandleError
 	public AccelerateWebResponse saveAlbumTag(@RequestBody Mp3Tag aAlbumTag) {
 		this.tagService.saveCommonTag(aAlbumTag, aAlbumTag.getString("albumPath"));
@@ -76,7 +89,7 @@ public class AlbumController {
 	 * @param aTrackTag
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.POST, path = "/trackTag")
+	@RequestMapping(method = RequestMethod.POST, path = "/saveTrackTag")
 	@HandleError
 	public AccelerateWebResponse saveTrackTag(@RequestBody Mp3Tag aTrackTag) {
 		this.tagService.saveTag(aTrackTag, new File(aTrackTag.getString("trackPath")));

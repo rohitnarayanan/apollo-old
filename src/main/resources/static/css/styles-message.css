@@ -9,20 +9,20 @@ div.apollo-msg {
 }
 
 div.apollo-msg.msg-info {
-	background-color: #336699;
+	background-color: #74badb;
 }
 
 div.apollo-msg.msg-success {
-	background-color: #93C896;
+	background-color: #a2cc55;
 	color: #333333;
 }
 
 div.apollo-msg.msg-warn {
-	background-color: #E9D37D;
+	background-color: #e9d37d;
 	color: #333333;
 }
 
 div.apollo-msg.msg-error {
-	background-color: #ED8696;
+	background-color: #d9534f;
 	color: #333333;
 }

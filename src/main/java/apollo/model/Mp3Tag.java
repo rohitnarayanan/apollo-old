@@ -2,12 +2,9 @@ package apollo.model;
 
 import static accelerate.util.AppUtil.compare;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jaudiotagger.tag.images.StandardArtwork;
 
 import accelerate.databean.AccelerateDataBean;
 
@@ -97,7 +94,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	/**
 	 * Album Artwork
 	 */
-	public Artwork artwork;
+	public String artwork;
 
 	/**
 	 * Name of the file
@@ -156,78 +153,6 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		 * Encoding Refquency
 		 */
 		public String frequency;
-	}
-
-	/**
-	 * class holding Mp3 header information
-	 * 
-	 * @version 1.0 Initial Version
-	 * @author Rohit Narayanan
-	 * @since Jan 13, 2011
-	 */
-	public class Artwork implements Serializable, Comparable<Artwork> {
-		/**
-		 * serialVersionUID
-		 */
-		private static final long serialVersionUID = 1L;
-
-		/**
-		 * Length of the trackNbr
-		 */
-		public String base64Data = null;
-
-		/**
-		 * Album Artwork File
-		 */
-		public File artworkFile = null;
-
-		/**
-		 * Method to encode the artwork image to Base64 string
-		 *
-		 * @param aJATArtwork
-		 *            instance of org.jaudiotagger.tag.images.Artwork
-		 */
-		public void encode(org.jaudiotagger.tag.images.Artwork aJATArtwork) {
-			if (aJATArtwork != null) {
-				Base64.Encoder encoder = Base64.getEncoder();
-				this.base64Data = encoder.encodeToString(aJATArtwork.getBinaryData());
-			}
-		}
-
-		/**
-		 * Method to decode the artwork image from Base64 string
-		 *
-		 * @return instance of org.jaudiotagger.tag.images.Artwork
-		 */
-		public org.jaudiotagger.tag.images.Artwork decode() {
-			org.jaudiotagger.tag.images.Artwork jatArtwork = null;
-
-			if (this.base64Data != null) {
-				Base64.Decoder decoder = Base64.getDecoder();
-				jatArtwork = new StandardArtwork();
-				jatArtwork.setBinaryData(decoder.decode(this.base64Data));
-			}
-
-			return jatArtwork;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Comparable#compareTo(java.lang.Object)
-		 */
-		/**
-		 * @param aArtwork
-		 * @return
-		 */
-		@Override
-		public int compareTo(Artwork aArtwork) {
-			if (!compare(this.base64Data, aArtwork.base64Data)) {
-				return -1;
-			}
-
-			return 0;
-		}
 	}
 
 	/**

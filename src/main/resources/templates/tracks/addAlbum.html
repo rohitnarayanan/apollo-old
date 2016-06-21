@@ -1,24 +1,25 @@
-<div id="_mainPanel" class="panel panel-primary">
+<div class="text-center" data-ng-show="!albumSelected">
+	<br /> <em>Select an Album first</em> <br />
+</div>
+
+<div id="_mainPanel" class="panel panel-primary"
+	data-ng-show="albumSelected">
 	<div class="panel-body" data-ng-show="!tagsParsed">
 		<!-- data table options -->
 		<div id="albumTracksDTOptions"
 			class="datatable-cto-bar clearfix form-inline" style="display: none">
 			<button id="_parseTagsBtn"
 				class="btn btn-warning btn-responsive btn-wrap"
-				data-ng-click="showParseTags(true)" data-ng-show="albumSelected">Parse
-				Tags</button>
+				data-ng-click="showParseTags(true)">Parse Tags</button>
 			<button id="_editAlbumTagBtn"
 				class="btn btn-warning btn-responsive btn-wrap"
-				data-ng-click="showEditAlbumTag()" data-ng-show="albumSelected">Edit
-				Album Tag</button>
+				data-ng-click="showEditAlbumTag()">Edit Album Tag</button>
 			<button id="_editAlbumTagBtn"
 				class="btn btn-warning btn-responsive btn-wrap"
-				data-ng-click="showEditAlbumTag()" data-ng-show="albumSelected">Edit
-				Track Tag</button>
+				data-ng-click="showEditAlbumTag()">Edit Track Tag</button>
 			<button id="_saveTagsBtn"
 				class="btn btn-warning btn-responsive btn-wrap"
-				data-ng-click="renameToTitle()" data-ng-show="albumSelected">Rename
-				to Title</button>
+				data-ng-click="renameToTitle()">Rename to Title</button>
 		</div>
 
 		<!-- data table -->
@@ -31,8 +32,7 @@
 			class="col-xs-12 col-sm-12 col-md-12 col-lg-12 datatable-cta-bar text-right"
 			style="display: none">
 			<button id="_addToLibraryBtn" class="btn btn-warning btn-responsive"
-				data-ng-click="addToLibrary()" data-ng-show="albumSelected">Add
-				to Library</button>
+				data-ng-click="addToLibrary()">Add to Library</button>
 		</div>
 	</div>
 </div>
@@ -300,17 +300,16 @@
 									<label
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Artwork:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
-										<img id="_artworkPreview"
-											style="height: 80px; width: 80px; margin-bottom: 10px; display: block;"
-											data-ng-show="albumTag.artwork.base64Data.length > 0"
-											data-ng-src="{{albumTag.artwork.base64Data}}" />
+										<img id="_artworkPreview" class="artworkImage"
+											data-ng-show="albumTag.artwork.length > 0"
+											data-ng-src="{{albumTag.artwork}}" />
 										<button id="_addEditArtworkBtn"
 											class="btn btn-warning btn-responsive"
-											data-ng-click="chooseArtwork()">{{albumTag.artwork.base64Data
+											data-ng-click="chooseArtwork()">{{albumTag.artwork
 											!= null ? 'Edit' : 'Add'}}</button>
 										<button id="_deleteArtworkBtn"
 											class="btn btn-warning btn-responsive"
-											data-ng-show="albumTag.artwork.base64Data.length > 0"
+											data-ng-show="albumTag.artwork.length > 0"
 											data-ng-click="deleteArtwork()">Delete</button>
 									</div>
 								</div>
@@ -332,7 +331,7 @@
 	<input id="_artworkFile" type="file" class="hidden" accept="image/*" />
 </form>
 
-<!-- styles for token labels -->
+<!-- page styles -->
 <style type="text/css">
 #_standardTokens a.label {
 	display: block;
@@ -353,6 +352,19 @@
 
 #_tokenContainer span.label span.glyphicon:hover {
 	cursor: pointer;
+}
+
+.artworkImage {
+	height: 80px;
+	width: 120px;
+	margin-bottom: 10px;
+	display: block;
+}
+
+@media ( min-width : 992px) {
+	.artworkImage {
+		margin-top: 10px;
+	}
 }
 </style>
 <div id="_parseTagExprModal" class="modal fade apollo-modal"

@@ -21,6 +21,7 @@ import apollo.data.repository.UserRepository;
  * @since Apr 15, 2016
  */
 @Component
+@SuppressWarnings("unused")
 public class ApolloUserDetailsService implements UserDetailsService {
 	/**
 	 * 
@@ -46,28 +47,24 @@ public class ApolloUserDetailsService implements UserDetailsService {
 	 */
 	@Override
 	public UserDetails loadUserByUsername(String aUsername) throws UsernameNotFoundException {
-		User user = null;
+		/*
+		 * TODO: Uncomment the following code when backend is ready.
+		 */
+		// User user = this.userRepository.findByUsername(aUsername);
+		// if (user == null) {
+		// throw new UsernameNotFoundException("Unknown User: " + aUsername);
+		// }
 
-		try {
-			this.userRepository.findByUsername(aUsername);
-		} catch (Exception error) {
-			LOGGER.warn("Error in fetching user from database, sending default user", error);
-
-			/*
-			 * TODO: Remove the default user and throw appropriate exception to
-			 * display error on login page.
-			 */
-			user = new User();
-			user.setUsername("q");
-			user.setPassword("q");
-			user.setId("1");
-			user.setEmail("rohit.nn@gmail.com");
-			user.setRoles(Arrays.asList("user"));
-		}
-
-		if (user == null) {
-			throw new UsernameNotFoundException("Unknown User: " + aUsername);
-		}
+		/*
+		 * TODO: Remove the default user and throw appropriate exception to
+		 * display error on login page.
+		 */
+		User user = new User();
+		user.setUsername("q");
+		user.setPassword("q");
+		user.setId("1");
+		user.setEmail("rohit.nn@gmail.com");
+		user.setRoles(Arrays.asList("user"));
 
 		ApolloSession apolloSession = new ApolloSession(user);
 		return apolloSession;

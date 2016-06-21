@@ -56,6 +56,7 @@ dependencies {
 	
 	// webjars
 	runtime("org.webjars:modernizr:2.8.3")
+	runtime("org.webjars:font-awesome:4.6.3")
 	runtime("org.webjars:jquery:2.2.4")
 	runtime("org.webjars:jquery-mobile:1.4.5")
 	runtime("org.webjars:jquery-ui:1.11.4")

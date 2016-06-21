@@ -63,9 +63,11 @@ public class TagService {
 	/**
 	 * @param aTargetPath
 	 * @param aParseTagTokens
+	 * @param aWriteFlag
 	 * @return
 	 */
-	public DataMap parseTags(String aTargetPath, String aParseTagTokens) {
+	public DataMap parseTags(String aTargetPath, String aParseTagTokens, boolean aWriteFlag) {
+		boolean testMode = this.apolloProps.isEnabled("apollo.testMode");
 		final String fileExtn = this.apolloProps.get("apollo.targetExtn");
 		LOGGER.debug("Parsing tag tokens [{}] for tracks with extn [{}] under [{}]", aParseTagTokens, fileExtn,
 				aTargetPath);
@@ -75,6 +77,9 @@ public class TagService {
 		Mp3Tag commonTag = new Mp3Tag();
 		List<Mp3Tag> tagList = FileUtil.findFilesByExtn(aTargetPath, fileExtn).parallelStream().map(aFile -> {
 			Mp3Tag mp3Tag = ID3Util.parseTag(aFile, parseTokens);
+			if (aWriteFlag) {
+				ID3Util.writeTag(aFile, mp3Tag, testMode);
+			}
 			ID3Util.extractCommonTag(commonTag, mp3Tag);
 			return mp3Tag;
 		}).collect(Collectors.toList());

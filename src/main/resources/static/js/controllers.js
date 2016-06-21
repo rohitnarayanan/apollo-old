@@ -11,9 +11,13 @@ apollo.controllers = {};
  * @param $scope
  * @param $$routeParams
  */
-apollo.controllers.errorController = function($scope, $routeParams) {
-	var _statusCode = $routeParams.statusCode;
+apollo.controllers.errorController = function($rootScope, $scope, $routeParams) {
+	$rootScope.pageHeader = "Application Error";
+	$rootScope.pageContentText = "";
+	$rootScope.showPageControl = false;
+	apollo.plugins.AlertUtil.hidePageAlert();
 
+	var _statusCode = $routeParams.statusCode;
 	if (_statusCode.match(/^(403|404)$/)) {
 		$scope.statusCode = _statusCode;
 	} else {
@@ -26,7 +30,7 @@ apollo.controllers.errorController = function($scope, $routeParams) {
  */
 apollo.controllers.mainController = function($rootScope, $scope, $http,
 		$window, $q, $compile) {
-	$rootScope.pageHeader = "This is Apollo";
+	$rootScope.pageHeader = "Home";
 	$rootScope.pageContentText = "This application provides a set of utilities to manage your music library";
 	$rootScope.context = apollo.context;
 	apollo.angularSvc = {};
@@ -53,6 +57,9 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	$scope.albumSelected = false;
 	$scope.tagsParsed = false;
 
+	/**
+	 * Function to open the file browser to select an album
+	 */
 	$scope.selectAlbum = function() {
 		$scope.albumSelected = false;
 		apollo.plugins.FileSystemUtil.showModal(fileSystemService, function(
@@ -62,12 +69,18 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	};
 	$rootScope.handlePageControl = $scope.selectAlbum;
 
+	/**
+	 * Function to fetch and diplay tags for the selected album
+	 */
 	$scope.loadTracks = function(aAlbumPath) {
 		albumService.fetchTracks(aAlbumPath).then(function(aResponse) {
 			$scope.loadAlbumTracksDT(aResponse);
 		}, apollo.plugins.AngularUtil.serverError);
 	};
 
+	/**
+	 * Reusable function to actually diplay the tags
+	 */
 	$scope.loadAlbumTracksDT = function(aResponse) {
 		var responseData = aResponse.dataMap;
 		$scope.albumPath = responseData.albumPath;
@@ -98,6 +111,9 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		$scope.albumTracksDT.responsive.recalc();
 	}
 
+	/**
+	 * Function to show the parse tag modal
+	 */
 	$scope.showParseTags = function(aReset) {
 		if (aReset) {
 			$scope.sampleFileName = $scope.trackTags[0].fileName;
@@ -107,6 +123,9 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		$("#_parseTagExprModal").modal("show");
 	};
 
+	/**
+	 * Function to add a custom parse token either by entering or selecting
+	 */
 	$scope.addParseTagToken = function(aToken) {
 		var tokenText = null;
 		var tokenVal = null;
@@ -141,6 +160,9 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		apollo.utils.clearSelectedText();
 	}
 
+	/**
+	 * Function to reset all changes within parse tags modal
+	 */
 	$scope.resetParseTagTokens = function() {
 		$scope.parseTagTokens = [];
 		$("#_customParseTokenInput").val("");
@@ -150,17 +172,20 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		$("#_tokenContainer").empty().html("<br /> <br />");
 	}
 
+	/**
+	 * Function to parse the tags and display the result
+	 */
 	$scope.parseTags = function() {
 		if ($("#_tokenContainer span").length == 0) {
 			return;
 		}
 
-		var tokenList = "";
+		$scope.parseTokenList = "";
 		$("#_tokenContainer span").each(function(aIdx, aSpan) {
-			tokenList += $(aSpan).text();
+			$scope.parseTokenList += $(aSpan).text();
 		});
 
-		albumService.parseTags($scope.albumPath, tokenList).then(
+		albumService.parseTags($scope.albumPath, $scope.parseTokenList).then(
 				function(aResponse) {
 					var responseData = aResponse.dataMap;
 					$scope.parsedCommonTag = responseData.commonTag;
@@ -170,15 +195,29 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		$("#_parseTagExprModal").modal("hide");
 	};
 
+	/**
+	 * Function to discard the parsed tags and return to previous view
+	 */
 	$scope.discardParsedTags = function() {
 		$scope.tagsParsed = false;
 	};
 
+	/**
+	 * Function to re-show to parse tag model for editing
+	 */
 	$scope.reparseTags = function() {
 		$scope.showParseTags(false);
 	};
 
+	/**
+	 * Function to accept the parsed tags and save them
+	 */
 	$scope.saveParsedTags = function() {
+		albumService.saveParsedTags($scope.albumPath, $scope.parseTokenList)
+				.then(function(aResponse) {
+					$scope.loadAlbumTracksDT(aResponse);
+				});
+
 		$scope.tagsParsed = false;
 	};
 
@@ -190,50 +229,44 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		$("#_editAlbumTagModal").modal("show");
 	};
 
+	/**
+	 * Function to choose an artwork
+	 */
 	$scope.chooseArtwork = function() {
 		$("#_artworkFileForm")[0].reset();
-		$("#_artworkFile")
-				.click()
-				.change(
-						function() {
-							if (!$scope.albumTag.artwork) {
-								$scope.albumTag.artwork = {};
-							}
-
-							var readResult = apollo.plugins.FileSystemUtil
-									.readImage(
-											"_artworkFile",
-											function(aImageData) {
-												$scope.albumTag.artwork.base64Data = aImageData;
-												$scope.$apply();
-											},
-											function(aErrorMsg) {
-												apollo.plugins.AlertUtil
-														.showModalAlert(
-																"_editAlbumTagModal",
-																aErrorMsg,
-																"error");
-											});
-						});
-	};
-
-	$scope.deleteArtwork = function() {
-		$scope.albumTag.artwork = null;
+		$("#_artworkFile").click().change(
+				function() {
+					var readResult = apollo.plugins.FileSystemUtil.readImage(
+							"_artworkFile", function(aImageData) {
+								$scope.albumTag.artwork = aImageData;
+								$scope.$apply();
+							}, function(aErrorMsg) {
+								apollo.plugins.AlertUtil.showModalAlert(
+										"_editAlbumTagModal", aErrorMsg,
+										"error");
+							});
+				});
 	};
 
 	/**
-	 * Function to open modal for editing track tag
+	 * Function to delete artwork
 	 */
-	$scope.showEditTrackTag = function(aTrackPath) {
-		$scope.trackTag = angular.copy($scope.trackTagMap[aTrackPath]);
-		$scope.$apply();
-		$("#_editTrackTagModal").modal("show");
+	$scope.deleteArtwork = function() {
+		$scope.albumTag.artwork = "|~|";
 	};
 
 	/**
 	 * Function to save album tag
 	 */
 	$scope.saveAlbumTag = function() {
+		$.each($scope.albumTag, function(aKey, aValue) {
+			if (!aValue) {
+				if ($scope.commonTag[aKey]) {
+					$scope.albumTag[aKey] = "|~|";
+				}
+			}
+		});
+
 		$scope.albumTag.dataMap = {
 			"albumPath" : $scope.albumPath
 		};
@@ -245,6 +278,15 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 							"Tags saved successfully for album tracks",
 							"success");
 				});
+	};
+
+	/**
+	 * Function to open modal for editing track tag
+	 */
+	$scope.showEditTrackTag = function(aTrackPath) {
+		$scope.trackTag = angular.copy($scope.trackTagMap[aTrackPath]);
+		$scope.$apply();
+		$("#_editTrackTagModal").modal("show");
 	};
 
 	/**
@@ -264,10 +306,16 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 				});
 	};
 
+	/**
+	 * 
+	 */
 	$scope.renameToTitle = function() {
 		alert("renaming tracks");
 	};
 
+	/**
+	 * 
+	 */
 	$scope.addToLibrary = function() {
 		alert("adding to library");
 	};

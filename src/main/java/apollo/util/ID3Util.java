@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +38,7 @@ import org.jaudiotagger.tag.id3.ID3v23Frames;
 import org.jaudiotagger.tag.id3.ID3v24Frames;
 import org.jaudiotagger.tag.id3.ID3v24Tag;
 import org.jaudiotagger.tag.images.Artwork;
+import org.jaudiotagger.tag.images.StandardArtwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
@@ -60,6 +62,11 @@ public class ID3Util {
 	 * {@link Logger} instance
 	 */
 	protected static final Logger LOGGER = LoggerFactory.getLogger(ID3Util.class);
+
+	/**
+	 * {@link Map} containing standard frame names
+	 */
+	public static final String DELETE_FIELD_CONSTANT = "|~|";
 
 	/**
 	 * {@link Map} containing standard frame names
@@ -149,8 +156,7 @@ public class ID3Util {
 
 		Artwork artwork = tag.getFirstArtwork();
 		if (artwork != null) {
-			mp3Tag.artwork = mp3Tag.new Artwork();
-			mp3Tag.artwork.encode(artwork);
+			mp3Tag.artwork = Base64.getEncoder().encodeToString(artwork.getBinaryData());
 		}
 
 		AudioHeader audioHeader = mp3File.getAudioHeader();
@@ -310,7 +316,7 @@ public class ID3Util {
 			 * Start writing the tag
 			 */
 			if (aMp3Tag.id != null) {
-				if (aMp3Tag.id.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.id, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.KEY);
 				} else {
 					tag.setField(FieldKey.KEY, aMp3Tag.id);
@@ -318,7 +324,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.language != null) {
-				if (aMp3Tag.language.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.language, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.LANGUAGE);
 				} else {
 					tag.setField(FieldKey.LANGUAGE, aMp3Tag.language);
@@ -326,7 +332,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.genre != null) {
-				if (aMp3Tag.genre.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.genre, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.GENRE);
 				} else {
 					tag.setField(FieldKey.GENRE, aMp3Tag.genre);
@@ -334,7 +340,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.mood != null) {
-				if (aMp3Tag.mood.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.mood, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.MOOD);
 				} else {
 					tag.setField(FieldKey.MOOD, aMp3Tag.mood);
@@ -342,7 +348,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.album != null) {
-				if (aMp3Tag.album.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.album, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.ALBUM);
 				} else {
 					tag.setField(FieldKey.ALBUM, aMp3Tag.album);
@@ -350,7 +356,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.year != null) {
-				if (aMp3Tag.year.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.year, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.YEAR);
 				} else {
 					tag.setField(FieldKey.YEAR, aMp3Tag.year);
@@ -358,7 +364,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.albumArtist != null) {
-				if (aMp3Tag.albumArtist.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.albumArtist, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.ALBUM_ARTIST);
 				} else {
 					tag.setField(FieldKey.ALBUM_ARTIST, aMp3Tag.albumArtist);
@@ -366,7 +372,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.composer != null) {
-				if (aMp3Tag.composer.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.composer, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.COMPOSER);
 				} else {
 					tag.setField(FieldKey.COMPOSER, aMp3Tag.composer);
@@ -374,7 +380,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.artist != null) {
-				if (aMp3Tag.artist.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.artist, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.ARTIST);
 				} else {
 					tag.setField(FieldKey.ARTIST, aMp3Tag.artist);
@@ -383,7 +389,7 @@ public class ID3Util {
 
 			if (aMp3Tag.trackNbr != null) {
 				tag.deleteField(FieldKey.TRACK_TOTAL);
-				if (aMp3Tag.trackNbr.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.trackNbr, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.TRACK);
 				} else {
 					tag.setField(FieldKey.TRACK, aMp3Tag.trackNbr);
@@ -391,7 +397,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.title != null) {
-				if (aMp3Tag.title.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.title, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.TITLE);
 				} else {
 					tag.setField(FieldKey.TITLE, aMp3Tag.title);
@@ -399,7 +405,7 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.lyrics != null) {
-				if (aMp3Tag.lyrics.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.lyrics, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.LYRICS);
 				} else {
 					tag.setField(FieldKey.LYRICS, aMp3Tag.lyrics);
@@ -407,18 +413,20 @@ public class ID3Util {
 			}
 
 			if (aMp3Tag.tags != null) {
-				if (aMp3Tag.tags.length() == 0) {
+				if (AppUtil.compare(aMp3Tag.tags, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.TAGS);
 				} else {
 					tag.setField(FieldKey.TAGS, aMp3Tag.tags);
 				}
 			}
 
-			if (aMp3Tag.artwork != null && aMp3Tag.artwork.base64Data != null) {
+			if (aMp3Tag.artwork != null) {
 				tag.deleteArtworkField();
 
-				if (aMp3Tag.artwork.base64Data.length() > 0) {
-					tag.addField(aMp3Tag.artwork.decode());
+				if (AppUtil.compare(aMp3Tag.artwork, DELETE_FIELD_CONSTANT)) {
+					Artwork artwork = new StandardArtwork();
+					artwork.setBinaryData(Base64.getDecoder().decode(aMp3Tag.artwork));
+					tag.addField(artwork);
 				}
 			}
 

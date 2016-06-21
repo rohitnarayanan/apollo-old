@@ -35,14 +35,21 @@
 				<form method="post" th:action="@{/login}">
 					<h3 class="form-signin-heading">Please sign in</h3>
 					<div class="form-group">
-						<label for="_username" class="sr-only">Username</label> <input
-							type="text" id="_username" name="username" class="form-control"
-							placeholder="Username" required="required" autofocus="autofocus" />
+						<label for="_username" class="sr-only">Username</label>
+						<div class="input-group">
+							<span class="input-group-addon"><i
+								class="fa fa-user fa-fw"></i></span> <input type="text" id="_username"
+								name="username" class="form-control" placeholder="Username"
+								required="required" autofocus="autofocus" />
+						</div>
 					</div>
 					<div class="form-group">
-						<label for="_password" class="sr-only">Password</label> <input
-							type="password" id="_password" name="password"
-							class="form-control" placeholder="Password" required="required" />
+						<label for="_password" class="sr-only">Password</label>
+						<div class="input-group">
+							<span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
+							<input type="password" id="_password" name="password"
+								class="form-control" placeholder="Password" required="required" />
+						</div>
 					</div>
 					<!-- <div class="form-group">
 						<div class="checkbox">

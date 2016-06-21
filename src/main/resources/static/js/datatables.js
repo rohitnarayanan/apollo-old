@@ -15,26 +15,15 @@ apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
 	var dtConfig = {
 		"order" : [ [ 1, "asc" ] ],
 		"pageLength" : 6,
-		"dom" : "<'top clearfix'f><'bg-success'r><'table-responsive't><'bottom clearfix'ip>",
+		"dom" : "<'top clearfix'f><'table-responsive't><'bottom clearfix'ip>",
 		"rowId" : "filePath",
-		"autoFill" : {
-			"alwaysAsk" : true,
-			"columns" : [ 1, 2, 3, 4, 5 ]
-		},
 		"createdRow" : function(aRow, aData, aDataIndex) {
 			aRowDataMap[aData.filePath] = aData;
 		},
-		// "responsive" : true,
 		"columns" : [ {
 			"title" : "File Name",
 			"data" : "fileName",
 			"defaultContent" : ""
-		// "mData" : "fileName",
-		// "mRender" : function(data, type, full, meta) {
-		// return "<span class='glyphicon glyphicon-music' data-toggle='tooltip'
-		// data-placement='top' title='"
-		// + data + "'/>";
-		// }
 		}, {
 			"title" : "Title",
 			"data" : "title",

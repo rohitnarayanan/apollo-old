@@ -14,6 +14,8 @@
 
 		<!-- webjars stylesheets -->
 		<link type="text/css" rel="stylesheet"
+			th:href="@{/webjars/font-awesome/4.6.3/css/font-awesome.css}" />
+		<link type="text/css" rel="stylesheet"
 			th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.css}" />
 		<link type="text/css" rel="stylesheet"
 			th:href="@{/webjars/jquery-ui/1.11.4/jquery-ui.css}" />
@@ -43,19 +45,22 @@
 	<div th:fragment="footer">
 		<footer class="apollo-footer">
 			<nav id="apolloFooterNavbar" class="navbar">
-				<div>
-					<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-						<a class="apollo-footer-link" target="_new"
-							href="http://www.wikipedia.com"><strong>Wikipedia</strong></a>&nbsp;|&nbsp;
-						<a class="apollo-footer-link" href="" data-toggle="modal"
-							data-target="#helpMsg"><strong>Help</strong></a>
-					</div>
-					<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 text-right">
-						<h6 style="margin: 0px;">
-							<span class="glyphicon glyphicon-copyright-mark"
-								style="margin-right: 2px;" />Copyright 2016 Rohit Narayanan.
-							All rights reserved.
-						</h6>
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 pad-left-0">
+							<a class="apollo-footer-link" target="_new"
+								href="http://www.wikipedia.com"><strong>Wikipedia</strong></a>&nbsp;|&nbsp;
+							<a class="apollo-footer-link" href="" data-toggle="modal"
+								data-target="#helpMsg"><strong>Help</strong></a>
+						</div>
+						<div
+							class="col-xs-8 col-sm-8 col-md-8 col-lg-8 text-right pad-right-0">
+							<h6 style="margin: 0px;">
+								<span class="glyphicon glyphicon-copyright-mark"
+									style="margin-right: 2px;" />Copyright 2016 Rohit Narayanan.
+								All rights reserved.
+							</h6>
+						</div>
 					</div>
 				</div>
 			</nav>
