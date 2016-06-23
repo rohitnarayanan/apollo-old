@@ -121,7 +121,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Title:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_title"
-											data-ng-model="trackTag.title" placeholder="Title" />
+											data-ng-model="tmpTrackTag.title"
+											data-ng-change="captureTrackTagUpdate('title')"
+											placeholder="Title" />
 									</div>
 								</div>
 							</div>
@@ -133,7 +135,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Artist:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_artist"
-											data-ng-model="trackTag.artist" placeholder="Artist" />
+											data-ng-model="tmpTrackTag.artist"
+											data-ng-change="captureTrackTagUpdate('artist')"
+											placeholder="Artist" />
 									</div>
 								</div>
 							</div>
@@ -145,7 +149,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Composer:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_composer"
-											data-ng-model="trackTag.composer" placeholder="Composer" />
+											data-ng-model="tmpTrackTag.composer"
+											data-ng-change="captureTrackTagUpdate('composer')"
+											placeholder="Composer" />
 									</div>
 								</div>
 							</div>
@@ -158,7 +164,9 @@
 										Nbr:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_trackNbr"
-											data-ng-model="trackTag.trackNbr" placeholder="Track Nbr" />
+											data-ng-model="tmpTrackTag.trackNbr"
+											data-ng-change="captureTrackTagUpdate('trackNbr')"
+											placeholder="Track Nbr" />
 									</div>
 								</div>
 							</div>
@@ -170,7 +178,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Lyrics:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_lyrics"
-											data-ng-model="trackTag.lyrics" placeholder="Lyrics" />
+											data-ng-model="tmpTrackTag.lyrics"
+											data-ng-change="captureTrackTagUpdate('lyrics')"
+											placeholder="Lyrics" />
 									</div>
 								</div>
 							</div>
@@ -182,7 +192,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Tags:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_tags"
-											data-ng-model="trackTag.tags" placeholder="Tags" />
+											data-ng-model="tmpTrackTag.tags"
+											data-ng-change="captureTrackTagUpdate('tags')"
+											placeholder="Tags" />
 									</div>
 								</div>
 							</div>
@@ -227,7 +239,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Album:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_album"
-											data-ng-model="albumTag.album" placeholder="Album" />
+											data-ng-model="tmpAlbumTag.album"
+											data-ng-change="captureAlbumTagUpdate('album')"
+											placeholder="Album" />
 									</div>
 								</div>
 							</div>
@@ -240,7 +254,8 @@
 										Artist:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_albumArtist"
-											data-ng-model="albumTag.albumArtist"
+											data-ng-model="tmpAlbumTag.albumArtist"
+											data-ng-change="captureAlbumTagUpdate('albumArtist')"
 											placeholder="Album Artist" />
 									</div>
 								</div>
@@ -253,7 +268,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Year:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_year"
-											data-ng-model="albumTag.year" placeholder="Year" />
+											data-ng-model="tmpAlbumTag.year"
+											data-ng-change="captureAlbumTagUpdate('year')"
+											placeholder="Year" />
 									</div>
 								</div>
 							</div>
@@ -265,7 +282,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Language:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_language"
-											data-ng-model="albumTag.language" placeholder="Language" />
+											data-ng-model="tmpAlbumTag.language"
+											data-ng-change="captureAlbumTagUpdate('language')"
+											placeholder="Language" />
 									</div>
 								</div>
 							</div>
@@ -277,7 +296,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Genre:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_genre"
-											data-ng-model="albumTag.genre" placeholder="Genre" />
+											data-ng-model="tmpAlbumTag.genre"
+											data-ng-change="captureAlbumTagUpdate('genre')"
+											placeholder="Genre" />
 									</div>
 								</div>
 							</div>
@@ -289,7 +310,9 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Mood:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<input type="text" class="form-control" id="_mood"
-											data-ng-model="albumTag.mood" placeholder="Mood" />
+											data-ng-model="tmpAlbumTag.mood"
+											data-ng-change="captureAlbumTagUpdate('mood')"
+											placeholder="Mood" />
 									</div>
 								</div>
 							</div>
@@ -301,15 +324,15 @@
 										class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Artwork:</label>
 									<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
 										<img id="_artworkPreview" class="artworkImage"
-											data-ng-show="albumTag.artwork.length > 0"
-											data-ng-src="{{albumTag.artwork}}" />
+											data-ng-show="tmpAlbumTag.artwork.length > 0"
+											data-ng-src="{{tmpAlbumTag.artwork}}" />
 										<button id="_addEditArtworkBtn"
 											class="btn btn-warning btn-responsive"
-											data-ng-click="chooseArtwork()">{{albumTag.artwork
+											data-ng-click="chooseArtwork()">{{tmpAlbumTag.artwork
 											!= null ? 'Edit' : 'Add'}}</button>
 										<button id="_deleteArtworkBtn"
 											class="btn btn-warning btn-responsive"
-											data-ng-show="albumTag.artwork.length > 0"
+											data-ng-show="tmpAlbumTag.artwork.length > 0"
 											data-ng-click="deleteArtwork()">Delete</button>
 									</div>
 								</div>

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import accelerate.web.AccelerateWebResponse;
 import apollo.model.Mp3Tag;
+import apollo.service.AlbumService;
 import apollo.service.TagService;
 import apollo.util.HandleError;
 
@@ -28,6 +29,12 @@ public class AlbumController {
 	 * 
 	 */
 	@Autowired
+	private AlbumService albumService = null;
+
+	/**
+	 * 
+	 */
+	@Autowired
 	private TagService tagService = null;
 
 	/**
@@ -39,7 +46,7 @@ public class AlbumController {
 	public AccelerateWebResponse listTracks(@RequestParam(name = "albumPath") String aAlbumPath) {
 		AccelerateWebResponse model = new AccelerateWebResponse();
 		model.put("albumPath", aAlbumPath);
-		model.putAll(this.tagService.readTags(aAlbumPath));
+		model.putAll(this.albumService.getAlbumTags(aAlbumPath));
 		return model;
 	}
 
@@ -78,7 +85,7 @@ public class AlbumController {
 	@RequestMapping(method = RequestMethod.POST, path = "/saveAlbumTag")
 	@HandleError
 	public AccelerateWebResponse saveAlbumTag(@RequestBody Mp3Tag aAlbumTag) {
-		this.tagService.saveCommonTag(aAlbumTag, aAlbumTag.getString("albumPath"));
+		this.tagService.saveCommonTag(aAlbumTag, aAlbumTag.getFilePath());
 
 		AccelerateWebResponse model = new AccelerateWebResponse();
 		model.put("savedTag", aAlbumTag);
@@ -92,7 +99,7 @@ public class AlbumController {
 	@RequestMapping(method = RequestMethod.POST, path = "/saveTrackTag")
 	@HandleError
 	public AccelerateWebResponse saveTrackTag(@RequestBody Mp3Tag aTrackTag) {
-		this.tagService.saveTag(aTrackTag, new File(aTrackTag.getString("trackPath")));
+		this.tagService.saveTag(aTrackTag, new File(aTrackTag.getFilePath()));
 
 		AccelerateWebResponse model = new AccelerateWebResponse();
 		model.put("savedTag", aTrackTag);

@@ -84,14 +84,14 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	$scope.loadAlbumTracksDT = function(aResponse) {
 		var responseData = aResponse.dataMap;
 		$scope.albumPath = responseData.albumPath;
-		$scope.commonTag = responseData.commonTag;
+		$scope.albumTag = responseData.albumTag;
 		$scope.trackTags = responseData.trackTags;
 		$scope.trackTagMap = {};
 
 		if (!$.fn.DataTable.isDataTable("#albumTracksDT")) {
 			$scope.albumTracksDT = apollo.datatables.albumTracksDT(
 					$scope.trackTagMap, function(aRow) {
-						$scope.showEditTrackTag(aRow.id());
+						$scope.showEditTrackTag(aRow);
 					});
 
 			$("#albumTracksDTOptions").prependTo(
@@ -225,8 +225,18 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	 * Function to open modal for editing album tag
 	 */
 	$scope.showEditAlbumTag = function() {
-		$scope.albumTag = angular.copy($scope.commonTag);
+		$scope.tmpAlbumTag = angular.copy($scope.albumTag);
+		$scope.updatedAlbumTag = {};
 		$("#_editAlbumTagModal").modal("show");
+	};
+
+	/**
+	 * Function to capture changes is album tag
+	 */
+	$scope.captureAlbumTagUpdate = function(aFieldName) {
+		var currentValue = $scope.tmpAlbumTag[aFieldName];
+		$scope.updatedAlbumTag[aFieldName] = (currentValue) ? currentValue
+				: "|~|";
 	};
 
 	/**
@@ -238,7 +248,8 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 				function() {
 					var readResult = apollo.plugins.FileSystemUtil.readImage(
 							"_artworkFile", function(aImageData) {
-								$scope.albumTag.artwork = aImageData;
+								$scope.tmpAlbumTag.artwork = aImageData;
+								$scope.captureAlbumTagUpdate("artwork");
 								$scope.$apply();
 							}, function(aErrorMsg) {
 								apollo.plugins.AlertUtil.showModalAlert(
@@ -252,58 +263,83 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	 * Function to delete artwork
 	 */
 	$scope.deleteArtwork = function() {
-		$scope.albumTag.artwork = "|~|";
+		$scope.tmpAlbumTag.artwork = "|~|";
+		$scope.captureAlbumTagUpdate("artwork");
 	};
 
 	/**
 	 * Function to save album tag
 	 */
 	$scope.saveAlbumTag = function() {
-		$.each($scope.albumTag, function(aKey, aValue) {
-			if (!aValue) {
-				if ($scope.commonTag[aKey]) {
-					$scope.albumTag[aKey] = "|~|";
-				}
-			}
-		});
+		if (jQuery.isEmptyObject($scope.updatedAlbumTag)) {
+			return;
+		}
 
-		$scope.albumTag.dataMap = {
-			"albumPath" : $scope.albumPath
-		};
-
-		albumService.saveAlbumTag($scope.albumTag).then(
+		var _updatedTag = $scope.updatedAlbumTag;
+		_updatedTag.filePath = $scope.albumPath;
+		albumService.saveAlbumTag(_updatedTag).then(
 				function(aResponse) {
-					$scope.commonTag = aResponse.dataMap.savedTag;
+					$.each(_updatedTag, function(aKey, aValue) {
+						$scope.albumTag[aKey] = (aValue === "|~|") ? ""
+								: aValue;
+					});
+
 					apollo.plugins.AlertUtil.showPageAlert(
 							"Tags saved successfully for album tracks",
 							"success");
 				});
+
+		$("#_editAlbumTagModal").modal("hide");
+		$("#_editAlbumTagModal div.form-group").removeClass("bg-warning");
 	};
 
 	/**
 	 * Function to open modal for editing track tag
 	 */
-	$scope.showEditTrackTag = function(aTrackPath) {
-		$scope.trackTag = angular.copy($scope.trackTagMap[aTrackPath]);
+	$scope.showEditTrackTag = function(aRow) {
+		$scope.currentRow = aRow;
+		$scope.tmpTrackTag = angular.copy($scope.trackTagMap[aRow.id()]);
+		$scope.updatedTrackTag = {};
 		$scope.$apply();
 		$("#_editTrackTagModal").modal("show");
+	};
+
+	/**
+	 * Function to capture changes is track tag
+	 */
+	$scope.captureTrackTagUpdate = function(aFieldName) {
+		var currentValue = $scope.tmpTrackTag[aFieldName];
+		$scope.updatedTrackTag[aFieldName] = (currentValue) ? currentValue
+				: "|~|";
+		$("#_" + aFieldName).parent().parent().addClass("bg-warning");
 	};
 
 	/**
 	 * Function to save track tag
 	 */
 	$scope.saveTrackTag = function() {
-		$scope.trackTag.dataMap = {
-			"trackPath" : $scope.trackTag.filePath
-		};
+		if (jQuery.isEmptyObject($scope.updatedTrackTag)) {
+			return;
+		}
 
-		albumService.saveTrackTag($scope.trackTag).then(
+		var _currentRow = $scope.currentRow;
+		var _updatedTag = $scope.updatedTrackTag;
+		_updatedTag.filePath = $scope.tmpTrackTag.filePath;
+
+		albumService.saveTrackTag(_updatedTag).then(
 				function(aResponse) {
-					var newTrackTag = aResponse.dataMap.savedTag;
-					$scope.trackTagMap[newTrackTag.filePath] = newTrackTag;
+					var _tag = $scope.trackTagMap[_currentRow.id()];
+					$.each(_updatedTag, function(aKey, aValue) {
+						_tag[aKey] = (aValue === "|~|") ? "" : aValue;
+					});
+
+					_currentRow.data(_tag).draw();
 					apollo.plugins.AlertUtil.showPageAlert(
 							"Tags saved successfully", "success");
 				});
+
+		$("#_editTrackTagModal").modal("hide");
+		$("#_editTrackTagModal div.form-group").removeClass("bg-warning");
 	};
 
 	/**
@@ -361,10 +397,10 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	setTimeout(
 			function() {
 				// $scope.selectAlbum();
-				$scope
-						.loadTracks("C:/Temp/M/Library/Hindi/TempGenre/TempArtist/TempAlbum");
 				// $scope
-				// .loadTracks("/Users/rohitnarayanan/Music/Unorganized/Bollywood/Azhar-320Kbps-2016(Songspk.LINK)");
+				// .loadTracks("C:/Temp/M/Library/Hindi/TempGenre/TempArtist/TempAlbum");
+				$scope
+						.loadTracks("/Users/rohitnarayanan/Music/Unorganized/Bollywood/Azhar-320Kbps-2016(Songspk.LINK)");
 			}, 200);
 };
 

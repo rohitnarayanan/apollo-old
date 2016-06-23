@@ -16,4 +16,5 @@ public class ApolloConstants {
 	}
 
 	public static final String MP3 = "mp3";
+	public static final String DELETE_FIELD_CONSTANT = "|~|";
 }

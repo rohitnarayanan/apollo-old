@@ -53,7 +53,7 @@ public class ApolloConfig extends SpringBootServletInitializer {
 	 * @return
 	 */
 	@Bean
-	public static PropertyCache apolloProps() {
+	public static PropertyCache apolloConfigCache() {
 		return new PropertyCache("ApolloConfig", "classpath:config/application.properties");
 	}
 

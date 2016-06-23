@@ -2,7 +2,7 @@ package test.apollo;
 
 import java.io.File;
 
-import apollo.util.ID3Util;
+import apollo.model.Mp3Tag;
 
 /**
  * Junit test for accelerate spring context
@@ -21,7 +21,7 @@ public class QuickApolloTest {
 		try {
 			File file = new File(
 					"C:\\Temp\\M\\Library\\Hindi\\TempGenre\\TempArtist\\TempAlbum\\Hindi-TempGenre-TempAlbum-2016-TempArtist-TempTitle_1.zzz");
-			System.out.println(ID3Util.readTag(file, true));
+			System.out.println(new Mp3Tag(file));
 		} catch (Exception error) {
 			error.printStackTrace();
 		}
