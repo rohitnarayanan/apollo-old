@@ -35,9 +35,10 @@ apollo.services.albumService = function($http, $q) {
 	return ({
 		"fetchTracks" : fetchTracks,
 		"parseTags" : parseTags,
-		"saveAlbumTag" : saveAlbumTag,
 		"saveParsedTags" : saveParsedTags,
+		"saveAlbumTag" : saveAlbumTag,
 		"saveTrackTag" : saveTrackTag,
+		"addToLibrary" : addToLibrary
 	});
 
 	function fetchTracks(aAlbumPath) {
@@ -104,6 +105,18 @@ apollo.services.albumService = function($http, $q) {
 		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
 				apollo.plugins.AngularUtil.httpError));
 	}
+
+	function addToLibrary(aAlbumTag) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/album/addToLibrary",
+			data : aAlbumTag,
+			datatype : "json"
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
 };
 
 /**
@@ -111,33 +124,22 @@ apollo.services.albumService = function($http, $q) {
  */
 apollo.services.tagService = function($http, $q) {
 	return ({
-		"getCommonTag" : getCommonTag
+		"extractCommonTag" : extractCommonTag
 	});
 
-	function getCommonTag(aMP3TagList) {
-		var commonTag = {};
+	function extractCommonTag(aCommonTag, aMp3Tag) {
+		if (aCommonTag.initialized !== "true") {
+			aCommonTag.composer = aMp3Tag.composer;
+			aCommonTag.artist = aMp3Tag.artist;
+			aCommonTag.tags = aMp3Tag.tags;
+			aCommonTag.initialized = "true";
+			return;
+		}
 
-		$.each(aMP3TagList, function(aIdx, aMP3Tag) {
-			if (aIdx === 0) {
-				commonTag.language = aMp3Tag.language;
-				commonTag.genre = aMp3Tag.genre;
-				commonTag.mood = aMp3Tag.mood;
-				commonTag.album = aMp3Tag.album;
-				commonTag.year = aMp3Tag.year;
-				commonTag.albumArtist = aMp3Tag.albumArtist;
-				commonTag.composer = aMp3Tag.composer;
-				commonTag.artist = aMp3Tag.artist;
-				commonTag.tags = aMp3Tag.tags;
-				return;
+		$.each(aCommonTag, function(aKey, aValue) {
+			if (aKey !== "initialized" && aCommonTag[aKey] !== aMp3Tag[aKey]) {
+				delete aCommonTag[aKey];
 			}
-
-			$.each(commonTag, function(aKey, aValue) {
-				if (commonTag[aKey] !== aMp3Tag[aKey]) {
-					commonTag[aKey] = "";
-				}
-			});
 		});
-
-		return commonTag;
 	}
 };

@@ -13,9 +13,10 @@ apollo.datatables.utils = {
 
 apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
 	var dtConfig = {
-		"order" : [ [ 1, "asc" ] ],
+		"order" : [ [ 4, "asc" ] ],
 		"pageLength" : 6,
 		"dom" : "<'top clearfix'f><'table-responsive't><'bottom clearfix'ip>",
+		"select" : true,
 		"rowId" : "filePath",
 		"createdRow" : function(aRow, aData, aDataIndex) {
 			aRowDataMap[aData.filePath] = aData;
@@ -38,6 +39,7 @@ apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
 			"defaultContent" : ""
 		}, {
 			"title" : "Track Nbr",
+			"className" : "text-center",
 			"data" : "trackNbr",
 			"defaultContent" : ""
 		}, {
@@ -48,9 +50,9 @@ apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
 	}
 
 	var albumTracksDT = $("#albumTracksDT").DataTable(dtConfig);
-	$("#albumTracksDT tbody").on("click", "tr", function(aEvent) {
-		aRowClickCallback(albumTracksDT.row(this));
-	});
+	// $("#albumTracksDT tbody").on("click", "tr", function(aEvent) {
+	// aRowClickCallback(albumTracksDT.row(this));
+	// });
 
 	return albumTracksDT;
 };

@@ -48,7 +48,7 @@ apollo.controllers.mainController = function($rootScope, $scope, $http,
  * addAlbumController
  */
 apollo.controllers.addAlbumController = function($rootScope, $scope,
-		fileSystemService, albumService) {
+		fileSystemService, albumService, tagService) {
 	$rootScope.pageHeader = "Add Album";
 	$rootScope.pageContentText = "Add a new album to the library";
 	$rootScope.showPageControl = true;
@@ -91,7 +91,7 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		if (!$.fn.DataTable.isDataTable("#albumTracksDT")) {
 			$scope.albumTracksDT = apollo.datatables.albumTracksDT(
 					$scope.trackTagMap, function(aRow) {
-						$scope.showEditTrackTag(aRow);
+						// $scope.showEditTrackTag(aRow);
 					});
 
 			$("#albumTracksDTOptions").prependTo(
@@ -297,10 +297,25 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	 * Function to open modal for editing track tag
 	 */
 	$scope.showEditTrackTag = function(aRow) {
-		$scope.currentRow = aRow;
-		$scope.tmpTrackTag = angular.copy($scope.trackTagMap[aRow.id()]);
+		$scope.selectedRows = $scope.albumTracksDT.rows({
+			selected : true
+		}).data();
+
+		if ($scope.selectedRows.length == 1) {
+			$scope.tmpTrackTag = $scope.selectedRows[0];
+		} else {
+			$scope.tmpTrackTag = {};
+			$.each($scope.selectedRows, function(aIdx, aRowData) {
+				tagService.extractCommonTag($scope.tmpTrackTag,
+						$scope.trackTagMap[aRowData.filePath]);
+			});
+		}
+
+		// $scope.currentRow = aRow;
+		// $scope.tmpTrackTag = angular.copy($scope.trackTagMap[aRow.id()]);
+		// $scope.$apply();
+
 		$scope.updatedTrackTag = {};
-		$scope.$apply();
 		$("#_editTrackTagModal").modal("show");
 	};
 
@@ -322,8 +337,19 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 			return;
 		}
 
-		var _currentRow = $scope.currentRow;
+		var _selectedRows = $scope.selectedRows;
 		var _updatedTag = $scope.updatedTrackTag;
+
+		if (_selectedRows.length == 1) {
+			$scope.tmpTrackTag = $scope.selectedRows[0];
+		} else {
+			$scope.tmpTrackTag = {};
+			$.each($scope.selectedRows, function(aIdx, aRowData) {
+				tagService.extractCommonTag($scope.tmpTrackTag,
+						$scope.trackTagMap[aRowData.filePath]);
+			});
+		}
+
 		_updatedTag.filePath = $scope.tmpTrackTag.filePath;
 
 		albumService.saveTrackTag(_updatedTag).then(
@@ -340,13 +366,6 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 
 		$("#_editTrackTagModal").modal("hide");
 		$("#_editTrackTagModal div.form-group").removeClass("bg-warning");
-	};
-
-	/**
-	 * 
-	 */
-	$scope.renameToTitle = function() {
-		alert("renaming tracks");
 	};
 
 	/**
@@ -397,10 +416,10 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	setTimeout(
 			function() {
 				// $scope.selectAlbum();
-				// $scope
-				// .loadTracks("C:/Temp/M/Library/Hindi/TempGenre/TempArtist/TempAlbum");
 				$scope
-						.loadTracks("/Users/rohitnarayanan/Music/Unorganized/Bollywood/Azhar-320Kbps-2016(Songspk.LINK)");
+						.loadTracks("C:/Temp/Raman-Raghav-2.0-320Kbps-2016[Songspk.LIVE]");
+				// $scope
+				// .loadTracks("/Users/rohitnarayanan/Music/Unorganized/Bollywood/Azhar-320Kbps-2016(Songspk.LINK)");
 			}, 200);
 };
 

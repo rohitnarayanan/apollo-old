@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import accelerate.cache.PropertyCache;
 import accelerate.databean.DataMap;
+import accelerate.logging.Auditable;
 import accelerate.util.FileUtil;
 import accelerate.util.JSONUtil;
 import apollo.model.Mp3Tag;
@@ -43,6 +44,7 @@ public class TagService {
 	 * @param aWriteFlag
 	 * @return
 	 */
+	@Auditable
 	public DataMap parseTags(String aTargetPath, String aParseTagTokens, boolean aWriteFlag) {
 		final String fileExtn = this.apolloProps.get("apollo.targetExtn");
 		LOGGER.debug("Parsing tag tokens [{}] for tracks with extn [{}] under [{}]", aParseTagTokens, fileExtn,
@@ -73,6 +75,7 @@ public class TagService {
 	 * @param aTargetFiles
 	 */
 	@SuppressWarnings("static-method")
+	@Auditable
 	public void saveTag(Mp3Tag aMp3Tag, File... aTargetFiles) {
 		Arrays.stream(aTargetFiles).parallel().forEach(aTrack -> {
 			LOGGER.debug("Saving common tag [{}] for track [{}]", aMp3Tag, aTrack);
@@ -84,6 +87,7 @@ public class TagService {
 	 * @param aMp3TagJSONList
 	 */
 	@SuppressWarnings("static-method")
+	@Auditable
 	public void saveTags(String... aMp3TagJSONList) {
 		Arrays.stream(aMp3TagJSONList).parallel().forEach(aMp3TagJSON -> {
 			LOGGER.debug("Saving tag [{}]", aMp3TagJSON);
@@ -94,9 +98,22 @@ public class TagService {
 	}
 
 	/**
+	 * @param aMp3TagList
+	 */
+	@SuppressWarnings("static-method")
+	@Auditable
+	public void saveTags(List<Mp3Tag> aMp3TagList) {
+		aMp3TagList.stream().parallel().forEach(aMp3Tag -> {
+			LOGGER.debug("Saving tag [{}]", aMp3Tag);
+			aMp3Tag.save();
+		});
+	}
+
+	/**
 	 * @param aCommonTag
 	 * @param aTargetPath
 	 */
+	@Auditable
 	public void saveCommonTag(Mp3Tag aCommonTag, String aTargetPath) {
 		String fileExtn = this.apolloProps.get("apollo.targetExtn");
 		LOGGER.debug("Saving common tag for all tracks with extn [{}] under [{}]", fileExtn, aTargetPath);
