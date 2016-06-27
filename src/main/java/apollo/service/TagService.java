@@ -1,7 +1,5 @@
 package apollo.service;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +12,6 @@ import accelerate.cache.PropertyCache;
 import accelerate.databean.DataMap;
 import accelerate.logging.Auditable;
 import accelerate.util.FileUtil;
-import accelerate.util.JSONUtil;
 import apollo.model.Mp3Tag;
 import apollo.util.Mp3TagUtil;
 
@@ -25,6 +22,7 @@ import apollo.util.Mp3TagUtil;
  * @author Rohit Narayanan
  * @since 07-Jun-2016
  */
+@SuppressWarnings("static-method")
 @Component
 public class TagService {
 	/**
@@ -72,35 +70,16 @@ public class TagService {
 
 	/**
 	 * @param aMp3Tag
-	 * @param aTargetFiles
 	 */
-	@SuppressWarnings("static-method")
 	@Auditable
-	public void saveTag(Mp3Tag aMp3Tag, File... aTargetFiles) {
-		Arrays.stream(aTargetFiles).parallel().forEach(aTrack -> {
-			LOGGER.debug("Saving common tag [{}] for track [{}]", aMp3Tag, aTrack);
-			aMp3Tag.writeTo(aTrack);
-		});
-	}
-
-	/**
-	 * @param aMp3TagJSONList
-	 */
-	@SuppressWarnings("static-method")
-	@Auditable
-	public void saveTags(String... aMp3TagJSONList) {
-		Arrays.stream(aMp3TagJSONList).parallel().forEach(aMp3TagJSON -> {
-			LOGGER.debug("Saving tag [{}]", aMp3TagJSON);
-
-			Mp3Tag mp3Tag = JSONUtil.deserialize(aMp3TagJSON, Mp3Tag.class);
-			mp3Tag.save();
-		});
+	public void saveTag(Mp3Tag aMp3Tag) {
+		LOGGER.debug("Saving tag [{}]", aMp3Tag);
+		aMp3Tag.save();
 	}
 
 	/**
 	 * @param aMp3TagList
 	 */
-	@SuppressWarnings("static-method")
 	@Auditable
 	public void saveTags(List<Mp3Tag> aMp3TagList) {
 		aMp3TagList.stream().parallel().forEach(aMp3Tag -> {
@@ -119,7 +98,7 @@ public class TagService {
 		LOGGER.debug("Saving common tag for all tracks with extn [{}] under [{}]", fileExtn, aTargetPath);
 
 		FileUtil.findFilesByExtn(aTargetPath, fileExtn).parallelStream().forEach(aFile -> {
-			aCommonTag.writeTo(aFile);
+			aCommonTag.save(0, aFile);
 		});
 		aCommonTag.clear();
 	}

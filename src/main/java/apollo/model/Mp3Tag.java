@@ -30,8 +30,10 @@ import org.jaudiotagger.tag.id3.ID3v1Tag;
 import org.jaudiotagger.tag.id3.ID3v23Frames;
 import org.jaudiotagger.tag.id3.ID3v24Frames;
 import org.jaudiotagger.tag.id3.ID3v24Tag;
+import org.jaudiotagger.tag.id3.valuepair.ImageFormats;
 import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.images.StandardArtwork;
+import org.jaudiotagger.tag.reference.PictureTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
@@ -287,7 +289,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		this.title = StringUtils.defaultString(aMp3Tag.title, this.title);
 		this.lyrics = StringUtils.defaultString(aMp3Tag.lyrics, this.lyrics);
 		this.tags = StringUtils.defaultString(aMp3Tag.tags, this.tags);
-		this.artwork = aMp3Tag.artwork;
+		this.artwork = StringUtils.defaultString(aMp3Tag.artwork, this.artwork);
 	}
 
 	/**
@@ -296,7 +298,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	 */
 	public void extractCommonTag(Mp3Tag aMp3Tag) throws AccelerateException {
 		String[] fieldList = new String[] { "language", "genre", "mood", "album", "year", "albumArtist", "composer",
-				"artist", "tags" };
+				"artist", "tags", "artwork" };
 
 		for (String field : fieldList) {
 			if (!AppUtil.compare(get("initialized"), "true")) {
@@ -403,6 +405,9 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		case "artwork":
 			this.artwork = _value;
 			break;
+		case "filePath":
+			this.filePath = _value;
+			break;
 		default:
 			throw new AccelerateException("unknown field [%s]", aFieldName);
 		}
@@ -420,26 +425,13 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	}
 
 	/**
-	 * This method writes the current tag to the given file. It allows to write
-	 * tag information to the file that was not read from the file in the first
-	 * place. Example: data from web or parsed from the file name.
-	 * 
-	 * @param aTrack
-	 * @throws AccelerateException
-	 */
-	public void writeTo(File aTrack) throws AccelerateException {
-		this.filePath = aTrack.getPath();
-		save();
-	}
-
-	/**
 	 * This is the default method to write the tag to the given file. It calls
-	 * the {@link #save(int)} method with aSaveFlag argument as 0
+	 * the {@link #save(int, File)} method with aSaveFlag argument as 0
 	 *
 	 * @throws AccelerateException
 	 */
 	public void save() throws AccelerateException {
-		save(0);
+		save(0, new File(this.filePath));
 	}
 
 	/**
@@ -460,16 +452,18 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	 *            present</li>
 	 *            <li>6: Do not do anything. Test mode</li>
 	 *            </ul>
+	 * @param aTrackFile
+	 *            File to which the track has to be written to
 	 * @throws AccelerateException
 	 */
-	public void save(int aSaveFlag) throws AccelerateException {
+	public void save(int aSaveFlag, File aTrackFile) throws AccelerateException {
 		try {
 			if (aSaveFlag == 6) {
 				LOGGER.info("Test mode active. Logging tag [{}]", this);
 				return;
 			}
 
-			MP3File mp3File = Mp3TagUtil.getMP3File(new File(this.filePath));
+			MP3File mp3File = Mp3TagUtil.getMP3File(aTrackFile);
 			Tag tag = mp3File.getTag();
 
 			if (aSaveFlag == 5) {
@@ -624,9 +618,14 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 				tag.deleteArtworkField();
 
 				if (!AppUtil.compare(this.artwork, DELETE_FIELD_CONSTANT)) {
+					byte[] imageData = Base64.getDecoder()
+							.decode(this.artwork.split(AccelerateConstants.COMMA_CHAR)[1]);
+
 					Artwork _artwork = new StandardArtwork();
-					_artwork.setBinaryData(
-							Base64.getDecoder().decode(this.artwork.split(AccelerateConstants.COMMA_CHAR)[1]));
+					_artwork.setBinaryData(imageData);
+					_artwork.setMimeType(ImageFormats.getMimeTypeForBinarySignature(imageData));
+					_artwork.setPictureType(PictureTypes.DEFAULT_ID);
+
 					tag.addField(_artwork);
 				}
 			}

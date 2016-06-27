@@ -17,13 +17,17 @@ $.fn.removeClassRegex = function(aRegExp) {
 apollo.plugins.AngularUtil = {
 	"httpSuccess" : function(aResponse) {
 		var _responseData = aResponse.data;
-		if (!_responseData || _responseData.returnCode != 0
-				|| aResponse.serverError) {
+		if (!_responseData) {
+			// service call with no return data
+			return null;
+		}
+
+		if (_responseData.returnCode != 0 || aResponse.serverError) {
 			apollo.plugins.AngularUtil.serverError(aResponse);
 			return (apollo.angularSvc.q.reject(aResponse));
 		}
 
-		return (aResponse.data);
+		return _responseData;
 	},
 
 	"httpError" : function(aResponse) {
@@ -41,8 +45,8 @@ apollo.plugins.AngularUtil = {
 	"serverError" : function(aResponse) {
 		var _responseData = aResponse.data;
 
-		console.log("Error:" + _responseData.dataMap.errorMessage);
-		console.log(_responseData.dataMap.errorDetails);
+		console.log("Error:" + _responseData.errorMessage);
+		console.log(_responseData.errorDetails);
 		apollo.plugins.AlertUtil.showPageAlert(
 				_responseData.message.messageText, "error");
 	},
@@ -117,7 +121,7 @@ apollo.plugins.FileSystemUtil = {
 
 									aFileSystemService.listFolders(dirPath,
 											dirName).then(function(aResponse) {
-										aCallback(aResponse.dataMap.folders);
+										aCallback(aResponse.folders);
 									}, function(aResponse) {
 										$("#_fileSystemModal").modal("hide");
 									});

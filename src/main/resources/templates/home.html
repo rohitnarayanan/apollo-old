@@ -47,30 +47,30 @@
 									class="fa fa-search margin-right-5" aria-hidden="true" />Search</a></li>
 							<li class="menu-li"><a href="" class="dropdown-toggle"
 								data-toggle="dropdown" role="button" aria-haspopup="true"
-								aria-expanded="false"><i class="fa fa-bars margin-right-5"
-									aria-hidden="true" />Tracks<span
+								aria-expanded="false"><i class="fa fa-plus margin-right-5"
+									aria-hidden="true" />Add<span
 									class="glyphicon glyphicon-menu-right visible-xs-block"
 									style="float: right;" aria-hidden="true" /><span
 									class="glyphicon glyphicon-menu-down visible-xs-block"
 									style="float: right;" aria-hidden="true" /></a>
 								<ul class="dropdown-menu submenu-ul">
-									<li class="submenu-li"><a href="#addAlbum">Add Album</a></li>
-									<li class="submenu-li"><a href="">Edit</a></li>
-									<li class="submenu-li"><a href="#replaceTrack">Replace</a></li>
+									<li class="submenu-li"><a href="#addAlbum">Album</a></li>
+									<li class="submenu-li"><a href="#addPlaylist">Playlist</a></li>
+									<li class="submenu-li"><a href="#addSong">Song</a></li>
 								</ul></li>
 							<li class="menu-li"><a href="" class="dropdown-toggle"
 								data-toggle="dropdown" aria-haspopup="true"
 								aria-expanded="false"><i
-									class="fa fa-database margin-right-5" aria-hidden="true" />Library<span
+									class="fa fa-folder-open margin-right-5" aria-hidden="true" />Browse<span
 									class="glyphicon glyphicon-menu-right visible-xs-block"
 									style="float: right;" aria-hidden="true" /><span
 									class="glyphicon glyphicon-menu-down visible-xs-block"
 									style="float: right;" aria-hidden="true" /></a>
 								<ul class="dropdown-menu submenu-ul">
-									<li class="submenu-li"><a href="#listPlaylists">PlayLists</a></li>
-									<li class="submenu-li"><a href="">Album Artists</a></li>
-									<li class="submenu-li"><a href="">Track Artists</a></li>
-									<li class="submenu-li"><a href="">Albums</a></li>
+									<li class="submenu-li"><a href="#browseAlbums">Albums</a></li>
+									<li class="submenu-li"><a href="#browsePlaylists">Playlists</a></li>
+									<li class="submenu-li"><a href="#browseArtists">Artists</a></li>
+									<li class="submenu-li"><a href="#browseSongs">Songs</a></li>
 								</ul></li>
 							<li class="menu-li"><a href="" class="dropdown-toggle"
 								data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -121,11 +121,11 @@
 		<section class="apollo-content" id="mainContainer"
 			data-ng-cloak="true">
 			<h2 class="apollo-page-header">
-				{{pageHeader}}
-				<button class="btn btn-danger btn-responsive float-right"
+				{{pageTitle}}
+				<button class="btn btn-danger float-right"
 					data-ng-click="handlePageControl()" data-ng-show="showPageControl">{{pageControlName}}</button>
 			</h2>
-			<em>{{pageContentText}}</em>
+			<em>{{pageDescription}}</em>
 
 			<div class="apollo-msg" style="display: none;">
 				<span id="_pageAlertIcon" class="glyphicon">&nbsp;</span> <span
@@ -135,6 +135,10 @@
 			<div style="margin-top: 10px;" data-ng-view=""></div>
 
 			<a id="routingLink" href="#" class="hidden"></a>
+			<form id="_artworkFileForm" name="artworkFileForm" action="#"
+				method="post">
+				<input id="_artworkFile" type="file" class="hidden" accept="image/*" />
+			</form>
 		</section>
 		<!-- ./container -->
 

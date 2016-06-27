@@ -100,8 +100,15 @@ public class ApolloConfig extends SpringBootServletInitializer {
 			aRegistry.addViewController("/errorPage/view").setViewName("error");
 
 			aRegistry.addViewController("/view/main").setViewName("main");
-			aRegistry.addViewController("/view/addAlbum").setViewName("tracks/addAlbum");
-			aRegistry.addViewController("/view/replaceTrack").setViewName("tracks/replaceTrack");
+
+			aRegistry.addViewController("/view/manageAlbum").setViewName("manage/album");
+			aRegistry.addViewController("/view/managePlaylist").setViewName("manage/playlist");
+			aRegistry.addViewController("/view/manageSong").setViewName("manage/song");
+
+			aRegistry.addViewController("/view/browseAlbums").setViewName("browse/albums");
+			aRegistry.addViewController("/view/browsePlaylists").setViewName("browse/playlists");
+			aRegistry.addViewController("/view/browseArtists").setViewName("browse/artists");
+			aRegistry.addViewController("/view/browseSongs").setViewName("browse/songs");
 		}
 	}
 }

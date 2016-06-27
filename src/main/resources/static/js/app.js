@@ -68,11 +68,26 @@ apollo.config = {
 			templateUrl : context_path + "/view/main",
 			controller : 'mainController'
 		}).when('/addAlbum', {
-			templateUrl : context_path + "/view/addAlbum",
+			templateUrl : context_path + "/view/manageAlbum",
 			controller : 'addAlbumController'
-		}).when('/replaceTrack', {
-			templateUrl : context_path + "/view/replaceTrack",
-			controller : 'replaceTrackController'
+		}).when('/addPlaylist', {
+			templateUrl : context_path + "/view/managePlaylist",
+			controller : 'addPlaylistController'
+		}).when('/addSong', {
+			templateUrl : context_path + "/view/manageSong",
+			controller : 'addSongController'
+		}).when('/browseAlbums', {
+			templateUrl : context_path + "/view/browseAlbums",
+			controller : 'browseAlbumsController'
+		}).when('/browsePlaylists', {
+			templateUrl : context_path + "/view/browsePlaylists",
+			controller : 'browsePlaylistsController'
+		}).when('/browseArtists', {
+			templateUrl : context_path + "/view/browseArtists",
+			controller : 'browseArtistsController'
+		}).when('/browseSongs', {
+			templateUrl : context_path + "/view/browseSongs",
+			controller : 'browseSongsController'
 		}).otherwise({
 			redirectTo : '/main'
 		});

@@ -1,0 +1,257 @@
+<div class="text-center" data-ng-show="!songSelected">
+	<br /> <em>Select an Song first</em> <br />
+</div>
+
+<div id="_mainPanel" class="panel panel-primary"
+	data-ng-show="songSelected">
+	<div class="panel-body" data-ng-show="!tagsParsed">
+		<div class="container-fluid form-horizontal">
+			<div class="row">
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Language:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_language"
+								data-ng-model="tmpAlbumTag.language"
+								data-ng-change="captureAlbumTagUpdate('language')"
+								placeholder="Language" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Genre:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_genre"
+								data-ng-model="tmpAlbumTag.genre"
+								data-ng-change="captureAlbumTagUpdate('genre')"
+								placeholder="Genre" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-sm" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Mood:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_mood"
+								data-ng-model="tmpAlbumTag.mood"
+								data-ng-change="captureAlbumTagUpdate('mood')"
+								placeholder="Mood" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs visible-md visible-lg" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Album:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_album"
+								data-ng-model="tmpAlbumTag.album"
+								data-ng-change="captureAlbumTagUpdate('album')"
+								placeholder="Album" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs visible-sm" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Album
+							Artist:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_albumArtist"
+								data-ng-model="tmpAlbumTag.albumArtist"
+								data-ng-change="captureAlbumTagUpdate('albumArtist')"
+								placeholder="Album Artist" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Year:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_year"
+								data-ng-model="tmpAlbumTag.year"
+								data-ng-change="captureAlbumTagUpdate('year')"
+								placeholder="Year" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs visible-sm visible-md visible-lg" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Artist:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_artist"
+								data-ng-model="tmpTrackTag.artist"
+								data-ng-change="captureTrackTagUpdate('artist')"
+								placeholder="Artist" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Composer:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_composer"
+								data-ng-model="tmpTrackTag.composer"
+								data-ng-change="captureTrackTagUpdate('composer')"
+								placeholder="Composer" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs visible-sm" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Title:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_title"
+								data-ng-model="tmpTrackTag.title"
+								data-ng-change="captureTrackTagUpdate('title')"
+								placeholder="Title" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs visible-md visible-lg" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Track
+							Nbr:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_trackNbr"
+								data-ng-model="tmpTrackTag.trackNbr"
+								data-ng-change="captureTrackTagUpdate('trackNbr')"
+								placeholder="Track Nbr" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs visible-sm" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Lyrics:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<textarea type="text" class="form-control" id="_lyrics"
+								data-ng-model="tmpTrackTag.lyrics"
+								data-ng-change="captureTrackTagUpdate('lyrics')"
+								placeholder="Lyrics" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Tags:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<input type="text" class="form-control" id="_tags"
+								data-ng-model="tmpTrackTag.tags"
+								data-ng-change="captureTrackTagUpdate('tags')"
+								placeholder="Tags" />
+						</div>
+					</div>
+				</div>
+				<div class="clearfix visible-xs visible-sm visible-md visible-lg" />
+
+				<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+					<div class="form-group">
+						<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Artwork:</label>
+						<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+							<img id="_artworkPreview" class="artworkImage"
+								data-ng-show="tmpAlbumTag.artwork.length > 0"
+								data-ng-src="{{tmpAlbumTag.artwork}}" />
+							<button id="_addEditArtworkBtn" class="btn apollo-btn"
+								data-ng-click="chooseArtwork()">{{tmpAlbumTag.artwork
+								!= null ? 'Edit' : 'Add'}}</button>
+							<button id="_deleteArtworkBtn" class="btn apollo-btn"
+								data-ng-show="tmpAlbumTag.artwork.length > 0"
+								data-ng-click="deleteArtwork()">Delete</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<button id="_parseTagsBtn" class="btn apollo-btn wrap"
+						data-ng-click="showParseTags(true)">Parse Tags</button>
+					<button class="btn apollo-btn" data-dismiss="modal"
+						data-ng-click="saveTrackTag()">Save</button>
+					<button id="_addToLibraryBtn" class="btn apollo-btn wrap"
+						data-ng-click="addToLibrary()" data-ng-show="!addedToLibrary">Add
+						to Library</button>
+					<button id="_addToPlaylistBtn" class="btn apollo-btn wrap"
+						data-ng-click="addToPlaylist()">Add to Playlist</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="_tmpPanel" class="panel panel-primary"
+	data-ng-show="tagsParsed">
+	<div class="panel-heading">Tag Parse Result</div>
+	<div class="panel-body">
+		<table class="table stripe hover display compact apollo-table">
+			<thead>
+				<tr>
+					<th>Tag</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Album</td>
+					<td>{{parsedCommonTag.album || '-'}}</td>
+				</tr>
+				<tr>
+					<td>Year</td>
+					<td>{{parsedCommonTag.year || '-'}}</td>
+				</tr>
+				<tr>
+					<td>Album Artist</td>
+					<td>{{parsedCommonTag.albumArtist || '-'}}</td>
+				</tr>
+				<tr>
+					<td>Artist</td>
+					<td>{{parsedCommonTag.artist || '-'}}</td>
+				</tr>
+				<tr>
+					<td>Title</td>
+					<td>{{parsedCommonTag.title || '-'}}</td>
+				</tr>
+				<tr>
+					<td>Track Nbr</td>
+					<td>{{parsedCommonTag.trackNbr || '-'}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="panel-footer text-right">
+		<button id="_discardParsedTagsBtn" class="btn apollo-btn"
+			data-ng-click="discardParsedTags()">Discard Tags</button>
+		<button id="_discardParsedTagsBtn" class="btn apollo-btn"
+			data-ng-click="reparseTags()">Re Parse</button>
+		<button id="_saveParsedTagsBtn" class="btn apollo-btn"
+			data-ng-click="saveParsedTags()">Save Tags</button>
+	</div>
+</div>
+
+
+<!-- Include modal for file system operations -->
+<object th:remove="tag" th:include="templates :: parse-tags-modal" />
+
+<!-- Include modal for file system operations -->
+<object th:remove="tag" th:include="templates :: file-system-modal" />

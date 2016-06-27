@@ -110,23 +110,21 @@ div.panel.apollo-panel div.panel-heading, div.panel.apollo-panel div.panel-body
 /* form styles:end */
 
 /* button styles:start */
-@media ( max-width : 768px) {
-	.btn-wrap {
-		margin-top: 10px;
-	}
-	.btn-responsive-old {
-		padding: 4px 6px;
-		font-size: 90%;
-		line-height: 1;
-		border-radius: 3px;
-	}
+.apollo-btn {
+	color: #fff;
+	background-color: #4775d1 !important;
+	border: 1px solid #29447e;
 }
 
-@media ( min-width : 769px) and (max-width: 992px) {
-	.btn-responsive-old {
-		padding: 4px 9px;
-		font-size: 90%;
-		line-height: 1.2;
+.apollo-btn:hover, .apollo-btn:focus {
+	color: #fff;
+	background-color: #2e5cb8 !important;
+	border: 1px solid #29447e;
+}
+
+@media ( max-width : 768px) {
+	.apollo-btn.wrap {
+		margin-top: 10px;
 	}
 }
 /* button styles:end */

@@ -3,9 +3,11 @@ package apollo.service;
 import static accelerate.util.AccelerateConstants.UNIX_PATH_CHAR;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,11 +69,19 @@ public class AlbumService {
 
 			return mp3Tag;
 		}).collect(Collectors.toList());
+
+		albumTag.setField("filePath", aAlbumPath);
 		albumTag.clear();
+
+		String albumLibraryPath = StringUtils.join(this.apolloProps.get("apollo.library.root"), UNIX_PATH_CHAR,
+				albumTag.getLanguage(), UNIX_PATH_CHAR, albumTag.getGenre(), UNIX_PATH_CHAR, albumTag.getAlbumArtist(),
+				UNIX_PATH_CHAR, albumTag.getAlbum());
+		boolean addedToLibrary = AppUtil.compare(albumLibraryPath, aAlbumPath);
 
 		DataMap dataMap = new DataMap();
 		dataMap.put("albumTag", albumTag);
 		dataMap.put("trackTags", tagList);
+		dataMap.put("addedToLibrary", addedToLibrary);
 		return dataMap;
 	}
 
@@ -86,13 +96,17 @@ public class AlbumService {
 
 		StringBuilder msgBuffer = new StringBuilder();
 		String currentAlbumPath = aAlbumTag.getFilePath();
-		File currentalbumFolder = new File(currentAlbumPath);
+		File currentAlbumFolder = new File(currentAlbumPath);
 
 		/*
 		 * rename tracks to <title>.<extn>
 		 */
 		FileUtil.findFilesByExtn(currentAlbumPath, fileExtn).parallelStream().forEach(aFile -> {
 			Mp3Tag mp3Tag = new Mp3Tag(aFile);
+			if (AppUtil.compare(FileUtil.getFileName(aFile), mp3Tag.getTitle())) {
+				return;
+			}
+
 			File renamedFile = FileUtil.renameFile(aFile, mp3Tag.getTitle());
 			if (!renamedFile.exists()) {
 				LOGGER.warn("Unable to rename track [{}] to [{}]", aFile, aAlbumTag.getTitle());
@@ -103,15 +117,14 @@ public class AlbumService {
 		/*
 		 * rename album folder to <album>
 		 */
-
-		if (!AppUtil.compare(currentalbumFolder.getName(), aAlbumTag.getAlbum())) {
-			File renamedFile = FileUtil.renameFile(currentalbumFolder, aAlbumTag.getAlbum());
+		if (!AppUtil.compare(currentAlbumFolder.getName(), aAlbumTag.getAlbum())) {
+			File renamedFile = FileUtil.renameFile(currentAlbumFolder, aAlbumTag.getAlbum());
 			if (!renamedFile.exists()) {
 				LOGGER.warn("Unable to rename album [{}] to [{}]", aAlbumTag.getFilePath(), aAlbumTag.getAlbum());
 				msgBuffer.append(String.format("Unable to rename album [%s] to [%s]", aAlbumTag.getFilePath(),
 						aAlbumTag.getAlbum()));
 			} else {
-				currentalbumFolder = renamedFile;
+				currentAlbumFolder = renamedFile;
 			}
 		}
 
@@ -122,12 +135,14 @@ public class AlbumService {
 				aAlbumTag.getLanguage(), UNIX_PATH_CHAR, aAlbumTag.getGenre(), UNIX_PATH_CHAR,
 				aAlbumTag.getAlbumArtist(), UNIX_PATH_CHAR, aAlbumTag.getAlbum());
 		if (!AppUtil.compare(albumPath, currentAlbumPath)) {
-			File renamedFile = new File(albumPath);
-			currentalbumFolder.renameTo(renamedFile);
-			if (!renamedFile.exists()) {
-				LOGGER.warn("Unable to move album from [{}] to [{}]", aAlbumTag.getFilePath(), renamedFile);
-				msgBuffer.append(
-						String.format("Unable to move album from [%s] to [%s]", aAlbumTag.getFilePath(), renamedFile));
+			File destination = new File(albumPath).getParentFile();
+			try {
+				destination.mkdirs();
+				FileUtils.moveDirectoryToDirectory(currentAlbumFolder, destination, true);
+			} catch (IOException error) {
+				LOGGER.warn("Unable to move album from [{}] to [{}]", aAlbumTag.getFilePath(), destination, error);
+				msgBuffer.append(String.format("Unable to move album from [%s] to [%s] due to error [%s]",
+						aAlbumTag.getFilePath(), destination, error.getMessage()));
 			}
 		}
 

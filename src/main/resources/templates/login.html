@@ -31,7 +31,7 @@
 			<div th:replace="templates :: section_auth_error_msg"></div>
 
 			<div
-				class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
+				class="text-center col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
 				<form method="post" th:action="@{/login}">
 					<h3 class="form-signin-heading">Please sign in</h3>
 					<div class="form-group">
@@ -58,8 +58,8 @@
 							</label>
 						</div>
 					</div> -->
-					<button class="btn btn-md btn-block btn-primary" type="submit">Sign
-						in</button>
+					<button class="btn apollo-btn" style="min-width: 120px;"
+						type="submit">Sign in</button>
 				</form>
 			</div>
 		</section>

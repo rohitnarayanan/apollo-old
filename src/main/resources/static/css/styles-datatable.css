@@ -22,8 +22,7 @@ div.datatable-cta-bar {
 }
 
 table.dataTable.apollo-table {
-	border-top: 2px solid #96c246;
-	border-bottom: 2px solid #96c246;
+	border: 2px solid #96c246;
 }
 
 table.dataTable.apollo-table tbody tr:hover {
@@ -44,4 +43,32 @@ div.dataTables_wrapper div.datatable-cto-bar {
 		float: none;
 		text-align: center;
 	}
+}
+
+/* hover rows */
+.table-hover>tbody>tr:hover {
+	background-color: #a2cc55 !important;
+}
+
+/* selected rows */
+table.dataTable tbody>tr.selected, table.dataTable tbody>tr>.selected {
+	font-style: italic;
+	color: white;
+	background-color: #5b74a8;
+}
+
+table.dataTable.hover tbody>tr.selected:hover, table.dataTable.hover tbody>tr>.selected:hover,
+	table.dataTable.display tbody>tr.selected:hover, table.dataTable.display tbody>tr>.selected:hover
+	{
+	font-style: italic;
+	color: white;
+	background-color: #5b74a8;
+}
+
+/* pagination button */
+.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover,
+	.pagination>.active>span:hover, .pagination>.active>a:focus,
+	.pagination>.active>span:focus {
+	background-color: #a2cc55;
+	border-color: #a2cc55;
 }

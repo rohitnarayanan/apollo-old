@@ -38,6 +38,7 @@ apollo.services.albumService = function($http, $q) {
 		"saveParsedTags" : saveParsedTags,
 		"saveAlbumTag" : saveAlbumTag,
 		"saveTrackTag" : saveTrackTag,
+		"saveTrackTags" : saveTrackTags,
 		"addToLibrary" : addToLibrary
 	});
 
@@ -99,6 +100,18 @@ apollo.services.albumService = function($http, $q) {
 			method : "post",
 			url : apollo.context.path + "/album/saveTrackTag",
 			data : aTrackTag,
+			datatype : "json"
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function saveTrackTags(aTrackTagList) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/album/saveTrackTags",
+			data : aTrackTagList,
 			datatype : "json"
 		});
 

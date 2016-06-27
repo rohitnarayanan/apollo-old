@@ -1,6 +1,5 @@
 package apollo.controller;
 
-import java.io.File;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,6 @@ public class AlbumController {
 	@HandleError
 	public AccelerateWebResponse listTracks(@RequestParam(name = "albumPath") String aAlbumPath) {
 		AccelerateWebResponse model = new AccelerateWebResponse();
-		model.put("albumPath", aAlbumPath);
 		model.putAll(this.albumService.getAlbumTags(aAlbumPath));
 		return model;
 	}
@@ -94,7 +92,7 @@ public class AlbumController {
 	@RequestMapping(method = RequestMethod.POST, path = "/saveTrackTag")
 	@HandleError
 	public void saveTrackTag(@RequestBody Mp3Tag aTrackTag) {
-		this.tagService.saveTag(aTrackTag, new File(aTrackTag.getFilePath()));
+		this.tagService.saveTag(aTrackTag);
 	}
 
 	/**
