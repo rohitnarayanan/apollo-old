@@ -81,10 +81,10 @@
 		</table>
 	</div>
 	<div class="panel-footer text-right">
+		<button id="_reparseTagsBtn" class="btn apollo-btn"
+			data-ng-click="showParseTags(false)">Re Parse</button>
 		<button id="_discardParsedTagsBtn" class="btn apollo-btn"
-			data-ng-click="discardParsedTags()">Discard Tags</button>
-		<button id="_discardParsedTagsBtn" class="btn apollo-btn"
-			data-ng-click="reparseTags()">Re Parse</button>
+			data-ng-click="tagsParsed = false">Discard Tags</button>
 		<button id="_saveParsedTagsBtn" class="btn apollo-btn"
 			data-ng-click="saveParsedTags()">Save Tags</button>
 	</div>
@@ -338,9 +338,3 @@
 		</div>
 	</div>
 </form>
-
-<!-- Include modal for file system operations -->
-<object th:remove="tag" th:include="templates :: parse-tags-modal" />
-
-<!-- Include modal for file system operations -->
-<object th:remove="tag" th:include="templates :: file-system-modal" />

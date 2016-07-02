@@ -201,42 +201,6 @@
 	</div>
 
 	<div th:fragment="parse-tags-modal">
-		<!-- page styles -->
-		<style type="text/css">
-#_standardTokens a.label {
-	display: block;
-	margin-top: 5px;
-	padding: 5px;
-}
-
-#_tokenContainer span.label {
-	margin: 5px 0px 5px 5px;
-	padding: 8px;
-	float: left;
-}
-
-#_tokenContainer span.label span.glyphicon {
-	margin-left: 5px;
-	float: right;
-}
-
-#_tokenContainer span.label span.glyphicon:hover {
-	cursor: pointer;
-}
-
-.artworkImage {
-	height: 80px;
-	width: 120px;
-	margin-bottom: 10px;
-	display: block;
-}
-
-@media ( min-width : 992px) {
-	.artworkImage {
-		margin-top: 10px;
-	}
-}
-</style>
 		<div id="_parseTagExprModal" class="modal fade apollo-modal"
 			tabindex="-1" aria-labelledby="_parseTagExprLabel" role="dialog"
 			data-backdrop="static">
@@ -269,7 +233,7 @@
 														checked="checked" /></label>
 												</div>
 												<div class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
-													<p id="_customParseTokenSelect" class="form-control-static">{{sampleFileName}}</p>
+													<p id="_customParseTokenSelect" class="form-control-static" />
 												</div>
 											</div>
 											<div class="form-group">
@@ -285,7 +249,7 @@
 											<div class="form-group text-center">
 												<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 													<button class="btn apollo-btn"
-														data-ng-click="addParseTagToken()">Add</button>
+														onclick="apollo.plugins.ParseTagsUtil.addToken()">Add</button>
 												</div>
 											</div>
 										</div>
@@ -332,8 +296,9 @@
 					</div>
 					<div class="modal-footer">
 						<button class="btn apollo-btn"
-							data-ng-click="resetParseTagTokens()">Reset</button>
-						<button class="btn apollo-btn" data-ng-click="parseTags()">Parse</button>
+							onclick="apollo.plugins.ParseTagsUtil.reset()">Reset</button>
+						<button class="btn apollo-btn" data-dismiss="modal"
+							data-ng-click="parseTags()">Parse</button>
 					</div>
 				</div>
 			</div>

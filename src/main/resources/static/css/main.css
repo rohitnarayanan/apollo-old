@@ -128,3 +128,39 @@ div.panel.apollo-panel div.panel-heading, div.panel.apollo-panel div.panel-body
 	}
 }
 /* button styles:end */
+
+/* custom styles:start */
+.artworkImage {
+	height: 80px;
+	width: 120px;
+	margin-bottom: 10px;
+	display: block;
+}
+
+@media ( min-width : 992px) {
+	.artworkImage {
+		margin-top: 10px;
+	}
+}
+
+#_standardTokens a.label {
+	display: block;
+	margin-top: 5px;
+	padding: 5px;
+}
+
+#_tokenContainer span.label {
+	margin: 5px 0px 5px 5px;
+	padding: 8px;
+	float: left;
+}
+
+#_tokenContainer span.label span.glyphicon {
+	margin-left: 5px;
+	float: right;
+}
+
+#_tokenContainer span.label span.glyphicon:hover {
+	cursor: pointer;
+}
+/* custom styles:end */

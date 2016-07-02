@@ -149,34 +149,104 @@ apollo.plugins.FileSystemUtil = {
 		$("#_fileSystemModal").modal("hide");
 	},
 
-	"readImage" : function(aFileControlId, aSuccessCallback, aFailureCallback) {
-		var imgFile = $("#" + aFileControlId).get(0).files[0];
+	"selectArtwork" : function(aSuccessCallback, aFailureCallback) {
+		$("#_artworkFileForm")[0].reset();
+		$("#_artworkFile").click().change(
+				function(aEvent) {
+					var imgFile = this.files[0];
 
-		if (!imgFile.type.match('image.*')) {
-			aFailureCallback("Selected file not an image: " + imgFile.name);
-			return;
+					if (!imgFile.type.match('image.*')) {
+						aFailureCallback("Selected file not an image: "
+								+ imgFile.name);
+						return;
+					}
+
+					var reader = new FileReader();
+					reader.onerror = function(evt) {
+						var errorMsg = null;
+
+						switch (evt.target.error.code) {
+						case evt.target.error.NOT_FOUND_ERR:
+							errorMsg = "File Not Found!";
+						case evt.target.error.NOT_READABLE_ERR:
+							errorMsg = "File is not readable";
+						default:
+							errorMsg = "An error occurred reading this file.";
+						}
+
+						aFailureCallback(errorMsg);
+					};
+
+					reader.onload = function() {
+						aSuccessCallback(reader.result);
+					};
+
+					reader.readAsDataURL(imgFile);
+				});
+	}
+};
+
+/**
+ * Alert helper functions object
+ */
+apollo.plugins.ParseTagsUtil = {
+	"showModal" : function(aReset, aSampleFilname) {
+		if (aReset) {
+			$("#_customParseTokenSelect").text(aSampleFilname);
+			apollo.plugins.ParseTagsUtil.reset();
 		}
 
-		var reader = new FileReader();
-		reader.onerror = function(evt) {
-			var errorMsg = null;
+		$("#_parseTagExprModal").modal("show");
+	},
 
-			switch (evt.target.error.code) {
-			case evt.target.error.NOT_FOUND_ERR:
-				errorMsg = "File Not Found!";
-			case evt.target.error.NOT_READABLE_ERR:
-				errorMsg = "File is not readable";
-			default:
-				errorMsg = "An error occurred reading this file.";
+	"reset" : function() {
+		$("#_customParseTokenInput").val("");
+		apollo.utils.clearSelectedText();
+		$("#_customParseTokenOptionSelect").prop("checked", true);
+		$("#_standardTokens a").show();
+		$("#_tokenContainer").empty().html("<br /> <br />");
+	},
+
+	"addToken" : function(aToken) {
+		var tokenText = null;
+		var tokenVal = null;
+
+		if (aToken) { // Called from standard token click
+			tokenText = "<" + aToken + ">";
+			tokenVal = aToken
+		} else { // Called from add custom token button
+			var tokenType = $("input[name='customParseTokenOption']:checked")
+					.val();
+			if (tokenType == "input") {
+				tokenVal = tokenText = $("#_customParseTokenInput").val();
+			} else {
+				tokenVal = tokenText = apollo.utils.getSelectedText();
 			}
 
-			aFailureCallback(errorMsg);
-		};
+			if (!tokenText) {
+				return;
+			}
+		}
 
-		reader.onload = function() {
-			aSuccessCallback(reader.result);
-		};
+		if ($("#_tokenContainer span").length == 0) {
+			$("#_tokenContainer").empty();
+		}
 
-		reader.readAsDataURL(imgFile);
+		var span = $("<span />").addClass("label label-primary")
+				.text(tokenText).data("token", tokenVal).appendTo(
+						$("#_tokenContainer"));
+		$("<span />").addClass("glyphicon glyphicon-remove").appendTo(span);
+
+		$("#_customParseTokenInput").val("");
+		apollo.utils.clearSelectedText();
+	},
+
+	"getTokens" : function(aFileControlId, aSuccessCallback, aFailureCallback) {
+		var parseTokenList = "";
+		$("#_tokenContainer span").each(function(aIdx, aSpan) {
+			parseTokenList += $(aSpan).text();
+		});
+
+		return parseTokenList;
 	}
 };

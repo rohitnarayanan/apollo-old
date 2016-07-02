@@ -132,13 +132,23 @@
 					id="_pageAlertMsg" />
 			</div>
 
+			<!-- content div to load routing views -->
 			<div style="margin-top: 10px;" data-ng-view=""></div>
 
+			<!-- hidden link to switch views -->
 			<a id="routingLink" href="#" class="hidden"></a>
+
+			<!-- form with hidden control to choose artwork file from local filesystem -->
 			<form id="_artworkFileForm" name="artworkFileForm" action="#"
 				method="post">
 				<input id="_artworkFile" type="file" class="hidden" accept="image/*" />
 			</form>
+
+			<!-- Include modal for file system operations -->
+			<object th:remove="tag" th:include="templates :: parse-tags-modal" />
+
+			<!-- Include modal for file system operations -->
+			<object th:remove="tag" th:include="templates :: file-system-modal" />
 		</section>
 		<!-- ./container -->
 

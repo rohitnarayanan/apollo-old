@@ -20,6 +20,7 @@ import accelerate.logging.Auditable;
 import accelerate.util.AppUtil;
 import accelerate.util.FileUtil;
 import apollo.model.Mp3Tag;
+import apollo.util.Mp3TagUtil;
 
 /**
  * PUT DESCRIPTION HERE
@@ -82,6 +83,38 @@ public class AlbumService {
 		dataMap.put("albumTag", albumTag);
 		dataMap.put("trackTags", tagList);
 		dataMap.put("addedToLibrary", addedToLibrary);
+		return dataMap;
+	}
+	
+	/**
+	 * @param aAlbumPath
+	 * @param aParseTagTokens
+	 * @param aWriteFlag
+	 * @return
+	 */
+	@Auditable
+	public DataMap parseAlbumTags(String aAlbumPath, String aParseTagTokens, boolean aWriteFlag) {
+		final String fileExtn = this.apolloProps.get("apollo.targetExtn");
+		LOGGER.debug("Parsing tag tokens [{}] for tracks with extn [{}] under [{}]", aParseTagTokens, fileExtn,
+				aAlbumPath);
+
+		List<String> parseTokens = Mp3TagUtil.parseTagExpression(aParseTagTokens);
+
+		Mp3Tag commonTag = new Mp3Tag();
+		List<Mp3Tag> tagList = FileUtil.findFilesByExtn(aAlbumPath, fileExtn).parallelStream().map(aFile -> {
+			Mp3Tag mp3Tag = new Mp3Tag(aFile, parseTokens);
+			if (aWriteFlag) {
+				mp3Tag.save();
+			}
+
+			commonTag.extractCommonTag(mp3Tag);
+			return mp3Tag;
+		}).collect(Collectors.toList());
+		commonTag.clear();
+
+		DataMap dataMap = new DataMap();
+		dataMap.put("commonTag", commonTag);
+		dataMap.put("trackTags", tagList);
 		return dataMap;
 	}
 

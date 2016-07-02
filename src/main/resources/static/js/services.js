@@ -31,9 +31,56 @@ apollo.services.fileSystemService = function($http, $q) {
 /**
  * 
  */
+apollo.services.tagService = function($http, $q) {
+	return ({
+		"extractCommonTag" : extractCommonTag
+	});
+
+	function extractCommonTag(aCommonTag, aMp3Tag) {
+		if (aCommonTag.initialized !== "true") {
+			aCommonTag.composer = aMp3Tag.composer;
+			aCommonTag.artist = aMp3Tag.artist;
+			aCommonTag.tags = aMp3Tag.tags;
+			aCommonTag.initialized = "true";
+			return;
+		}
+
+		$.each(aCommonTag, function(aKey, aValue) {
+			if (aKey !== "initialized" && aCommonTag[aKey] !== aMp3Tag[aKey]) {
+				delete aCommonTag[aKey];
+			}
+		});
+	}
+};
+
+/**
+ * 
+ */
+apollo.services.songService = function($http, $q) {
+	return ({
+		"getTag" : getTag
+	});
+
+	function getTag(aSongPath) {
+		var request = $http({
+			method : "get",
+			url : apollo.context.path + "/song/getTag",
+			params : {
+				"songPath" : aSongPath
+			}
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+};
+
+/**
+ * 
+ */
 apollo.services.albumService = function($http, $q) {
 	return ({
-		"fetchTracks" : fetchTracks,
+		"getTracks" : getTracks,
 		"parseTags" : parseTags,
 		"saveParsedTags" : saveParsedTags,
 		"saveAlbumTag" : saveAlbumTag,
@@ -42,7 +89,7 @@ apollo.services.albumService = function($http, $q) {
 		"addToLibrary" : addToLibrary
 	});
 
-	function fetchTracks(aAlbumPath) {
+	function getTracks(aAlbumPath) {
 		var request = $http({
 			method : "get",
 			url : apollo.context.path + "/album/listTracks",
@@ -129,30 +176,5 @@ apollo.services.albumService = function($http, $q) {
 
 		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
 				apollo.plugins.AngularUtil.httpError));
-	}
-};
-
-/**
- * 
- */
-apollo.services.tagService = function($http, $q) {
-	return ({
-		"extractCommonTag" : extractCommonTag
-	});
-
-	function extractCommonTag(aCommonTag, aMp3Tag) {
-		if (aCommonTag.initialized !== "true") {
-			aCommonTag.composer = aMp3Tag.composer;
-			aCommonTag.artist = aMp3Tag.artist;
-			aCommonTag.tags = aMp3Tag.tags;
-			aCommonTag.initialized = "true";
-			return;
-		}
-
-		$.each(aCommonTag, function(aKey, aValue) {
-			if (aKey !== "initialized" && aCommonTag[aKey] !== aMp3Tag[aKey]) {
-				delete aCommonTag[aKey];
-			}
-		});
 	}
 };
