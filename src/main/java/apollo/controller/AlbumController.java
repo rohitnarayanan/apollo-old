@@ -13,7 +13,6 @@ import accelerate.databean.DataMap;
 import accelerate.web.AccelerateWebResponse;
 import apollo.model.Mp3Tag;
 import apollo.service.AlbumService;
-import apollo.service.TagService;
 import apollo.util.HandleError;
 
 /**
@@ -31,12 +30,6 @@ public class AlbumController {
 	 */
 	@Autowired
 	private AlbumService albumService = null;
-
-	/**
-	 * 
-	 */
-	@Autowired
-	private TagService tagService = null;
 
 	/**
 	 * @param aAlbumPath
@@ -60,7 +53,7 @@ public class AlbumController {
 	public AccelerateWebResponse parseTags(@RequestParam(name = "albumPath") String aAlbumPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
 		AccelerateWebResponse model = new AccelerateWebResponse();
-		model.putAll(this.tagService.parseTags(aAlbumPath, aParseTagTokens, false));
+		model.putAll(this.albumService.parseAlbumTags(aAlbumPath, aParseTagTokens, false));
 		return model;
 	}
 
@@ -73,7 +66,7 @@ public class AlbumController {
 	@HandleError
 	public AccelerateWebResponse saveParsedTags(@RequestParam(name = "albumPath") String aAlbumPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
-		this.tagService.parseTags(aAlbumPath, aParseTagTokens, true);
+		this.albumService.parseAlbumTags(aAlbumPath, aParseTagTokens, true);
 		return listTracks(aAlbumPath);
 	}
 
@@ -83,16 +76,7 @@ public class AlbumController {
 	@RequestMapping(method = RequestMethod.POST, path = "/saveAlbumTag")
 	@HandleError
 	public void saveAlbumTag(@RequestBody Mp3Tag aAlbumTag) {
-		this.tagService.saveCommonTag(aAlbumTag, aAlbumTag.getFilePath());
-	}
-
-	/**
-	 * @param aTrackTag
-	 */
-	@RequestMapping(method = RequestMethod.POST, path = "/saveTrackTag")
-	@HandleError
-	public void saveTrackTag(@RequestBody Mp3Tag aTrackTag) {
-		this.tagService.saveTag(aTrackTag);
+		this.albumService.saveAlbumTag(aAlbumTag, aAlbumTag.getFilePath());
 	}
 
 	/**
@@ -101,7 +85,7 @@ public class AlbumController {
 	@RequestMapping(method = RequestMethod.POST, path = "/saveTrackTags")
 	@HandleError
 	public void saveTrackTags(@RequestBody List<Mp3Tag> aTrackTags) {
-		this.tagService.saveTags(aTrackTags);
+		this.albumService.saveTrackTags(aTrackTags);
 	}
 
 	/**
@@ -116,5 +100,4 @@ public class AlbumController {
 		model.putAll(attributes);
 		return model;
 	}
-
 }

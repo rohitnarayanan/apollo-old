@@ -234,7 +234,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		this.filePath = FileUtil.getFilePath(aTrack);
 
 		String parseString = this.fileName;
-		Queue<String> fieldQueue = new ArrayDeque<>();
+		Queue<String> fieldQueue = new ArrayDeque<>(8);
 
 		for (String token : aTokens) {
 			if (token.endsWith(">")) {
@@ -243,6 +243,14 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 				int index = parseString.indexOf(token);
 				if (index < 0) {
 					throw new AccelerateException("token not found:" + token);
+				}
+
+				/*
+				 * If it is the empty token created at the end while parsing the
+				 * tokens, then set the field value to remaining string
+				 */
+				if (AppUtil.compare(token, AccelerateConstants.EMPTY_STRING) && index == 0) {
+					index = parseString.length();
 				}
 
 				String field = fieldQueue.poll();
@@ -256,6 +264,12 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 				}
 			}
 		}
+
+		// Check if there is remaining field to be mapped
+		if (fieldQueue.size() > 0) {
+			throw new AccelerateException("[%s] unmapped fields remaining", fieldQueue.size());
+		}
+
 	}
 
 	/**

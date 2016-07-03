@@ -1,8 +1,10 @@
 package test.apollo;
 
 import java.io.File;
+import java.util.List;
 
 import apollo.model.Mp3Tag;
+import apollo.util.Mp3TagUtil;
 
 /**
  * Junit test for accelerate spring context
@@ -19,9 +21,13 @@ public class QuickApolloTest {
 	 */
 	public static void main(String[] args) {
 		try {
-			File file = new File(
-					"C:\\Temp\\M\\Library\\Hindi\\TempGenre\\TempArtist\\TempAlbum\\Hindi-TempGenre-TempAlbum-2016-TempArtist-TempTitle_1.zzz");
-			System.out.println(new Mp3Tag(file));
+			// File file = new File();
+			String tokens = "<artist> - <title>";
+			List<String> parseTokens = Mp3TagUtil.parseTagExpression(tokens);
+			Mp3Tag songTag = new Mp3Tag(
+					new File("/Users/rohitnarayanan/Music/Unorganized/Assorted Indi Pop/Jal - Kash Yeh Pal.mp3"),
+					parseTokens);
+			System.out.println(songTag);
 		} catch (Exception error) {
 			error.printStackTrace();
 		}

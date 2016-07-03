@@ -34,7 +34,7 @@ public class AlbumService {
 	/**
 	 * 
 	 */
-	private static Logger LOGGER = LoggerFactory.getLogger(TagService.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(AlbumService.class);
 
 	/**
 	 * 
@@ -85,7 +85,7 @@ public class AlbumService {
 		dataMap.put("addedToLibrary", addedToLibrary);
 		return dataMap;
 	}
-	
+
 	/**
 	 * @param aAlbumPath
 	 * @param aParseTagTokens
@@ -116,6 +116,33 @@ public class AlbumService {
 		dataMap.put("commonTag", commonTag);
 		dataMap.put("trackTags", tagList);
 		return dataMap;
+	}
+
+	/**
+	 * @param aCommonTag
+	 * @param aTargetPath
+	 */
+	@Auditable
+	public void saveAlbumTag(Mp3Tag aCommonTag, String aTargetPath) {
+		String fileExtn = this.apolloProps.get("apollo.targetExtn");
+		LOGGER.debug("Saving common tag for all tracks with extn [{}] under [{}]", fileExtn, aTargetPath);
+
+		FileUtil.findFilesByExtn(aTargetPath, fileExtn).parallelStream().forEach(aFile -> {
+			aCommonTag.save(0, aFile);
+		});
+		aCommonTag.clear();
+	}
+
+	/**
+	 * @param aMp3TagList
+	 */
+	@SuppressWarnings("static-method")
+	@Auditable
+	public void saveTrackTags(List<Mp3Tag> aMp3TagList) {
+		aMp3TagList.stream().parallel().forEach(aMp3Tag -> {
+			LOGGER.debug("Saving tag [{}]", aMp3Tag);
+			aMp3Tag.save();
+		});
 	}
 
 	/**

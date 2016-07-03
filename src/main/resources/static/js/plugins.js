@@ -105,7 +105,7 @@ apollo.plugins.AlertUtil = {
  * Alert helper functions object
  */
 apollo.plugins.FileSystemUtil = {
-	"showModal" : function(aFileSystemService, aSelectCallback) {
+	"showModal" : function(aFileSystemService, aFoldersOnly, aSelectCallback) {
 		$("#_fileTree")
 				.jstree(
 						{
@@ -119,12 +119,15 @@ apollo.plugins.FileSystemUtil = {
 									var dirName = (aNode.id === "#") ? ""
 											: aNode.text;
 
-									aFileSystemService.listFolders(dirPath,
-											dirName).then(function(aResponse) {
-										aCallback(aResponse.folders);
-									}, function(aResponse) {
-										$("#_fileSystemModal").modal("hide");
-									});
+									aFileSystemService.getFileTree(dirPath,
+											dirName, aFoldersOnly).then(
+											function(aResponse) {
+												aCallback(aResponse.fileTree);
+											},
+											function(aResponse) {
+												$("#_fileSystemModal").modal(
+														"hide");
+											});
 								}
 							}
 						});

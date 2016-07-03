@@ -11,7 +11,7 @@ apollo.datatables.utils = {
 	}
 };
 
-apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
+apollo.datatables.albumTracksDT = function(aRowDataMap) {
 	var dtConfig = {
 		"order" : [ [ 4, "asc" ] ],
 		"pageLength" : 6,
@@ -50,9 +50,5 @@ apollo.datatables.albumTracksDT = function(aRowDataMap, aRowClickCallback) {
 	}
 
 	var albumTracksDT = $("#albumTracksDT").DataTable(dtConfig);
-	// $("#albumTracksDT tbody").on("click", "tr", function(aEvent) {
-	// aRowClickCallback(albumTracksDT.row(this));
-	// });
-
 	return albumTracksDT;
 };

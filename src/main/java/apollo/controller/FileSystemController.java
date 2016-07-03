@@ -29,14 +29,16 @@ public class FileSystemController {
 	/**
 	 * @param aDirPath
 	 * @param aDirName
+	 * @param aFoldersOnly
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, path = "/folders")
+	@RequestMapping(method = RequestMethod.GET, path = "/fileTree")
 	@HandleError
-	public AccelerateWebResponse listFolders(@RequestParam(name = "dirPath", defaultValue = "") String aDirPath,
-			@RequestParam(name = "dirName", defaultValue = "") String aDirName) {
+	public AccelerateWebResponse getFileTree(@RequestParam(name = "dirPath", defaultValue = "") String aDirPath,
+			@RequestParam(name = "dirName", defaultValue = "") String aDirName,
+			@RequestParam(name = "foldersOnly", defaultValue = "") boolean aFoldersOnly) {
 		AccelerateWebResponse model = new AccelerateWebResponse();
-		model.putAll(this.fileSystemService.listFolders(aDirPath, aDirName));
+		model.putAll(this.fileSystemService.getFileTree(aDirPath, aDirName, aFoldersOnly));
 		return model;
 	}
 }

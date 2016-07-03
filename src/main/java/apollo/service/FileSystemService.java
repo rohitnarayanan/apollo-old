@@ -3,6 +3,7 @@ package apollo.service;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import org.springframework.util.ObjectUtils;
 import accelerate.cache.PropertyCache;
 import accelerate.databean.DataMap;
 import accelerate.logging.Auditable;
+import accelerate.util.FileUtil;
 
 /**
  * PUT DESCRIPTION HERE
@@ -39,33 +41,42 @@ public class FileSystemService {
 	/**
 	 * @param aDirPath
 	 * @param aDirName
+	 * @param aFoldersOnly
 	 * @return
 	 */
 	@Auditable
-	public DataMap listFolders(String aDirPath, String aDirName) {
-		String dirPath = StringUtils.isEmpty(aDirPath) ? this.apolloProps.get("apollo.library.root") : aDirPath;
+	public DataMap getFileTree(String aDirPath, String aDirName, final Boolean aFoldersOnly) {
+		String dirPath = StringUtils.isEmpty(aDirPath) ? this.apolloProps.get("apollo.fileselector.root") : aDirPath;
 		File targetDir = StringUtils.isEmpty(aDirName) ? new File(dirPath) : new File(dirPath, aDirName);
 
-		LOGGER.debug("Fetching sub folders for [{}]", targetDir);
+		LOGGER.debug("Fetching file tree for [{}]", targetDir);
 
-		DataMap dataMap = new DataMap();
-		dataMap.put("path", StringUtils.replacePattern(targetDir.getPath(), "\\\\", "/"));
-		dataMap.put("folders", Arrays.stream(targetDir.listFiles(new FileFilter() {
+		List<DataMap> fileTree = Arrays.stream(targetDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File aFile) {
-				return !aFile.getName().startsWith(".") && aFile.isDirectory();
+				return !aFile.getName().startsWith(".") && (!aFoldersOnly || aFile.isDirectory());
 			}
 		})).map(aFile -> {
-			File[] childFolders = aFile.listFiles(new FileFilter() {
-				@Override
-				public boolean accept(File aInnerFile) {
-					return aInnerFile.isDirectory();
+			boolean children = false;
+			if (aFile.isDirectory()) {
+				if (!aFoldersOnly) {
+					children = !ObjectUtils.isEmpty(aFile.listFiles());
+				} else {
+					children = !ObjectUtils.isEmpty(aFile.listFiles(new FileFilter() {
+						@Override
+						public boolean accept(File aInnerFile) {
+							return aInnerFile.isDirectory();
+						}
+					}));
 				}
-			});
+			}
 
-			return DataMap.buildMap("text", aFile.getName(), "data", targetDir.getPath(), "children",
-					!ObjectUtils.isEmpty(childFolders));
-		}).collect(Collectors.toList()));
+			return DataMap.buildMap("text", aFile.getName(), "data", targetDir.getPath(), "children", children);
+		}).collect(Collectors.toList());
+
+		DataMap dataMap = new DataMap();
+		dataMap.put("path", FileUtil.getFilePath(targetDir));
+		dataMap.put("fileTree", fileTree);
 
 		return dataMap;
 	}

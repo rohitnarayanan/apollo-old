@@ -10,16 +10,17 @@ apollo.services = {};
  */
 apollo.services.fileSystemService = function($http, $q) {
 	return ({
-		"listFolders" : listFolders
+		"getFileTree" : getFileTree
 	});
 
-	function listFolders(aDirPath, aDirName) {
+	function getFileTree(aDirPath, aDirName, aFoldersOnly) {
 		var request = $http({
 			method : "get",
-			url : apollo.context.path + "/fileSystem/folders",
+			url : apollo.context.path + "/fileSystem/fileTree",
 			params : {
 				"dirPath" : aDirPath,
-				"dirName" : aDirName
+				"dirName" : aDirName,
+				"foldersOnly" : aFoldersOnly
 			}
 		});
 
@@ -58,7 +59,11 @@ apollo.services.tagService = function($http, $q) {
  */
 apollo.services.songService = function($http, $q) {
 	return ({
-		"getTag" : getTag
+		"getTag" : getTag,
+		"parseTags" : parseTags,
+		"saveParsedTags" : saveParsedTags,
+		"saveTag" : saveTag,
+		"addToLibrary" : addToLibrary
 	});
 
 	function getTag(aSongPath) {
@@ -68,6 +73,58 @@ apollo.services.songService = function($http, $q) {
 			params : {
 				"songPath" : aSongPath
 			}
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function parseTags(aAlbumPath, aParseTagTokens) {
+		var request = $http({
+			method : "get",
+			url : apollo.context.path + "/song/parseTags",
+			params : {
+				"songPath" : aAlbumPath,
+				"parseTagTokens" : aParseTagTokens
+			}
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function saveParsedTags(aAlbumPath, aParseTagTokens) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/song/saveParsedTags",
+			params : {
+				"songPath" : aAlbumPath,
+				"parseTagTokens" : aParseTagTokens
+			}
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function saveTag(aTrackTag) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/song/saveTag",
+			data : aTrackTag,
+			datatype : "json"
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function addToLibrary(aAlbumTag) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/song/addToLibrary",
+			data : aAlbumTag,
+			datatype : "json"
 		});
 
 		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
