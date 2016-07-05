@@ -13,10 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import accelerate.cache.PropertyCache;
 import accelerate.databean.DataMap;
 import accelerate.logging.Auditable;
+import accelerate.util.AppUtil;
 import accelerate.util.FileUtil;
+import apollo.config.ApolloConfigProps;
 
 /**
  * PUT DESCRIPTION HERE
@@ -36,17 +37,19 @@ public class FileSystemService {
 	 * 
 	 */
 	@Autowired
-	private PropertyCache apolloProps = null;
+	private ApolloConfigProps apolloConfigProps = null;
 
 	/**
 	 * @param aDirPath
 	 * @param aDirName
-	 * @param aFoldersOnly
+	 * @param aFileType
+	 *            - 'all' for all files, 'none' for folders only, 'xyz' to match
+	 *            file extension
 	 * @return
 	 */
 	@Auditable
-	public DataMap getFileTree(String aDirPath, String aDirName, final Boolean aFoldersOnly) {
-		String dirPath = StringUtils.isEmpty(aDirPath) ? this.apolloProps.get("apollo.fileselector.root") : aDirPath;
+	public DataMap getFileTree(String aDirPath, String aDirName, final String aFileType) {
+		String dirPath = StringUtils.isEmpty(aDirPath) ? this.apolloConfigProps.getFileSelectorRoot() : aDirPath;
 		File targetDir = StringUtils.isEmpty(aDirName) ? new File(dirPath) : new File(dirPath, aDirName);
 
 		LOGGER.debug("Fetching file tree for [{}]", targetDir);
@@ -54,24 +57,38 @@ public class FileSystemService {
 		List<DataMap> fileTree = Arrays.stream(targetDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File aFile) {
-				return !aFile.getName().startsWith(".") && (!aFoldersOnly || aFile.isDirectory());
+				if (aFile.getName().startsWith(".")) {
+					return false;
+				}
+
+				if (AppUtil.compare(aFileType, "all")) {
+					return true;
+				} else if (AppUtil.compare(aFileType, "none")) {
+					return aFile.isDirectory();
+				}
+
+				return aFile.isDirectory() || AppUtil.compare(aFileType, FileUtil.getFileExtn(aFile));
 			}
 		})).map(aFile -> {
 			boolean children = false;
 			if (aFile.isDirectory()) {
-				if (!aFoldersOnly) {
+				if (AppUtil.compare(aFileType, "all")) {
 					children = !ObjectUtils.isEmpty(aFile.listFiles());
 				} else {
 					children = !ObjectUtils.isEmpty(aFile.listFiles(new FileFilter() {
 						@Override
 						public boolean accept(File aInnerFile) {
-							return aInnerFile.isDirectory();
+							return aInnerFile.isDirectory() || (AppUtil.compare(aFileType, "none") ? false
+									: AppUtil.compare(aFileType, FileUtil.getFileExtn(aInnerFile)));
 						}
 					}));
 				}
 			}
 
-			return DataMap.buildMap("text", aFile.getName(), "data", targetDir.getPath(), "children", children);
+			return DataMap.buildMap("text", aFile.getName(), "data",
+					DataMap.buildMap("path", targetDir.getPath(), "type",
+							(aFile.isDirectory()) ? "folder" : FileUtil.getFileExtn(aFile)),
+					"children", children, "icon", (aFile.isDirectory()) ? null : "fa fa-file-audio-o");
 		}).collect(Collectors.toList());
 
 		DataMap dataMap = new DataMap();

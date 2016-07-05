@@ -26,10 +26,10 @@
 			class="col-xs-12 col-sm-12 col-md-12 col-lg-12 datatable-cta-bar text-right"
 			style="display: none">
 			<button id="_addToLibraryBtn" class="btn apollo-btn wrap"
-				data-ng-click="addToLibrary()" data-ng-show="!addedToLibrary">Add
-				to Library</button>
+				data-ng-click="addToLibrary()" data-ng-show="!addedToLibrary">Relocate</button>
 			<button id="_addToPlaylistBtn" class="btn apollo-btn wrap"
-				data-ng-click="addToPlaylist()">Add to Playlist</button>
+				data-ng-click="addToPlaylist()" data-ng-show="addedToLibrary">Add
+				to Playlist</button>
 		</div>
 	</div>
 </div>
@@ -99,7 +99,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 id="_editTrackTagLabel" class="modal-title">
-						Edit Track Tag<span class="glyphicon glyphicon-remove"
+						Edit Track(s) Tag<span class="glyphicon glyphicon-remove"
 							style="float: right; cursor: pointer;" data-dismiss="modal"
 							aria-hidden="true"></span>
 					</h4>
@@ -195,7 +195,7 @@
 				</div>
 				<div class="modal-footer">
 					<button class="btn apollo-btn" data-dismiss="modal"
-						data-ng-click="saveTrackTag()">Save</button>
+						data-ng-click="saveTracksTag()">Save</button>
 				</div>
 			</div>
 		</div>

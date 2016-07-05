@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -67,7 +68,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	/**
 	 * {@link Map} containing standard frame names
 	 */
-	public static List<FieldKey> standardFields = new ArrayList<>();
+	private static List<FieldKey> standardFields = new ArrayList<>();
 
 	/**
 	 * {@link Map} containing standard frame names
@@ -162,7 +163,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	/**
 	 * Erros in the tag
 	 */
-	private List<String> tagErrors = null;
+	private List<String> tagErrors = Collections.EMPTY_LIST;
 
 	/**
 	 * default constructor to allow empty instances
@@ -184,27 +185,27 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		this.fileName = FileUtil.getFileName(aTrack);
 		this.filePath = FileUtil.getFilePath(aTrack);
 
-		MP3File aMp3File = Mp3TagUtil.getMP3File(aTrack);
-		Tag aTag = aMp3File.getTag();
-		AudioHeader aAudioHeader = aMp3File.getAudioHeader();
+		MP3File mp3File = Mp3TagUtil.getMP3File(aTrack);
+		Tag tag = mp3File.getTag();
+		AudioHeader audioHeader = mp3File.getAudioHeader();
 
-		this.header = new Header(aAudioHeader, aTrack.length());
+		this.header = new Header(audioHeader, aTrack.length());
 
-		this.id = aTag.getFirst(FieldKey.KEY);
-		this.language = aTag.getFirst(FieldKey.LANGUAGE);
-		this.genre = aTag.getFirst(FieldKey.GENRE);
-		this.mood = aTag.getFirst(FieldKey.MOOD);
-		this.album = aTag.getFirst(FieldKey.ALBUM);
-		this.year = aTag.getFirst(FieldKey.YEAR);
-		this.albumArtist = aTag.getFirst(FieldKey.ALBUM_ARTIST);
-		this.composer = aTag.getFirst(FieldKey.COMPOSER);
-		this.artist = aTag.getFirst(FieldKey.ARTIST);
-		this.trackNbr = aTag.getFirst(FieldKey.TRACK);
-		this.title = aTag.getFirst(FieldKey.TITLE);
-		this.lyrics = aTag.getFirst(FieldKey.LYRICS);
-		this.tags = aTag.getFirst(FieldKey.TAGS);
+		this.id = tag.getFirst(FieldKey.KEY);
+		this.language = tag.getFirst(FieldKey.LANGUAGE);
+		this.genre = tag.getFirst(FieldKey.GENRE);
+		this.mood = tag.getFirst(FieldKey.MOOD);
+		this.album = tag.getFirst(FieldKey.ALBUM);
+		this.year = tag.getFirst(FieldKey.YEAR);
+		this.albumArtist = tag.getFirst(FieldKey.ALBUM_ARTIST);
+		this.composer = tag.getFirst(FieldKey.COMPOSER);
+		this.artist = tag.getFirst(FieldKey.ARTIST);
+		this.trackNbr = tag.getFirst(FieldKey.TRACK);
+		this.title = tag.getFirst(FieldKey.TITLE);
+		this.lyrics = tag.getFirst(FieldKey.LYRICS);
+		this.tags = tag.getFirst(FieldKey.TAGS);
 
-		Artwork _artwork = aTag.getFirstArtwork();
+		Artwork _artwork = tag.getFirstArtwork();
 		if (_artwork != null) {
 			this.artwork = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(_artwork.getBinaryData());
 		}
@@ -214,7 +215,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		}
 
 		for (FieldKey key : standardFields) {
-			List<TagField> fieldList = aTag.getFields(key);
+			List<TagField> fieldList = tag.getFields(key);
 			if (ObjectUtils.isEmpty(fieldList) || (fieldList.size() > 1)) {
 				addError("Invalid value for [" + key + "]  [" + JSONUtil.serialize(fieldList) + "]");
 			}
@@ -431,7 +432,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	 * @param aError
 	 */
 	public void addError(String aError) {
-		if (this.tagErrors == null) {
+		if (this.tagErrors == Collections.EMPTY_LIST) {
 			this.tagErrors = new ArrayList<>();
 		}
 
@@ -1025,10 +1026,10 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	 * static block to initialize metadata
 	 */
 	static {
-		standardFields.add(FieldKey.KEY);
+		// standardFields.add(FieldKey.KEY);
 		standardFields.add(FieldKey.LANGUAGE);
 		standardFields.add(FieldKey.GENRE);
-		standardFields.add(FieldKey.MOOD);
+		// standardFields.add(FieldKey.MOOD);
 		standardFields.add(FieldKey.ALBUM);
 		standardFields.add(FieldKey.YEAR);
 		standardFields.add(FieldKey.ALBUM_ARTIST);
@@ -1036,8 +1037,8 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		standardFields.add(FieldKey.ARTIST);
 		standardFields.add(FieldKey.TITLE);
 		standardFields.add(FieldKey.TRACK);
-		standardFields.add(FieldKey.LYRICS);
-		standardFields.add(FieldKey.TAGS);
+		// standardFields.add(FieldKey.LYRICS);
+		// standardFields.add(FieldKey.TAGS);
 		standardFields.add(FieldKey.COVER_ART);
 
 		standardFrames.put(ID3v24Frames.FRAME_ID_INITIAL_KEY, FieldKey.KEY);

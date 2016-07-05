@@ -137,12 +137,6 @@ div.panel.apollo-panel div.panel-heading, div.panel.apollo-panel div.panel-body
 	display: block;
 }
 
-@media ( min-width : 992px) {
-	.artworkImage {
-		margin-top: 10px;
-	}
-}
-
 #_standardTokens a.label {
 	display: block;
 	margin-top: 5px;

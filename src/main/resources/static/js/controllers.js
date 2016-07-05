@@ -104,10 +104,13 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	/**
 	 * Function to open the file browser to select an album
 	 */
-	$scope.selectAlbum = function() {
+	$scope.selectAlbum = function(aCustomPath) {
 		$scope.albumSelected = false;
-		apollo.plugins.FileSystemUtil.showModal(fileSystemService, true,
-				function(aAlbumPath) {
+		if (aCustomPath) {
+			$("#_fileTreeRoot").val(aCustomPath);
+		}
+		apollo.plugins.FileSystemUtil.showModal(fileSystemService, "none",
+				"all", function(aAlbumPath) {
 					$scope.loadTracks(aAlbumPath);
 				});
 	};
@@ -242,8 +245,6 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 
 		var _updatedTag = $scope.updatedAlbumTag;
 		_updatedTag.filePath = $scope.albumTag.filePath;
-		var _albumTag = $scope.albumTag;
-		var _tmpAlbumTag = $scope.tmpAlbumTag;
 		albumService.saveAlbumTag(_updatedTag).then(
 				function(aResponse) {
 					$.each(_updatedTag, function(aKey, aValue) {
@@ -297,7 +298,7 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	/**
 	 * Function to save track tag
 	 */
-	$scope.saveTrackTag = function() {
+	$scope.saveTracksTag = function() {
 		if (jQuery.isEmptyObject($scope.updatedTrackTag)) {
 			return;
 		}
@@ -331,7 +332,14 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	 * Function to add album to library
 	 */
 	$scope.addToLibrary = function() {
-		albumService.addToLibrary($scope.albumTag).then(
+		var tmpAlbumTag = {};
+		tmpAlbumTag.language = $scope.albumTag.language;
+		tmpAlbumTag.genre = $scope.albumTag.genre;
+		tmpAlbumTag.album = $scope.albumTag.album;
+		tmpAlbumTag.albumArtist = $scope.albumTag.albumArtist;
+		tmpAlbumTag.filePath = $scope.albumTag.filePath;
+
+		albumService.addToLibrary(tmpAlbumTag).then(
 				function(aResponse) {
 					$scope.loadAlbumTracksDT(aResponse);
 
@@ -351,7 +359,7 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	 * Initial call
 	 */
 	setTimeout(function() {
-		$scope.selectAlbum();
+		$scope.selectAlbum("C:/Temp/");
 		// $scope.loadTracks("C:/Temp/Traffic-320Kbps-2016(Songspk.SITE)");
 		// $scope.loadTracks("/Users/rohitnarayanan/Music/Unorganized/"
 		// + "Bollywood/Azhar-320Kbps-2016(Songspk.LINK)");
@@ -383,10 +391,14 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 	/**
 	 * Function to open the file browser to select an album
 	 */
-	$scope.selectSong = function() {
+	$scope.selectSong = function(aCustomPath) {
 		$scope.songSelected = false;
-		apollo.plugins.FileSystemUtil.showModal(fileSystemService, false,
-				function(aSongPath) {
+		if (aCustomPath) {
+			$("#_fileTreeRoot").val(aCustomPath);
+		}
+		apollo.plugins.FileSystemUtil.showModal(fileSystemService,
+				apollo.context.configProps.fileExtn, "anyFile", function(
+						aSongPath) {
 					$scope.loadTag(aSongPath);
 				});
 	};
@@ -472,7 +484,7 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 	 * Function to delete artwork
 	 */
 	$scope.deleteArtwork = function() {
-		$scope.tmpTag.artwork = "|~|";
+		$scope.tmpTag.artwork = null;
 		$scope.captureTagUpdate("artwork");
 	};
 
@@ -485,15 +497,16 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 		}
 
 		var _updatedTag = $scope.updatedTag;
-		_updatedTag.filePath = $scope.trackTag.filePath;
-		tagService.saveTag(_updatedTag).then(
+		_updatedTag.filePath = $scope.songTag.filePath;
+		songService.saveTag(_updatedTag).then(
 				function(aResponse) {
-					$.each(_updatedTag, function(aKey, aValue) {
-						$scope.trackTag[aKey] = (aValue === "|~|") ? ""
-								: aValue;
-						$scope.tmpTag = angular.copy($scope.trackTag);
-					});
+					$.each(_updatedTag,
+							function(aKey, aValue) {
+								$scope.songTag[aKey] = (aValue === "|~|") ? ""
+										: aValue;
+							});
 
+					$scope.tmpTag = angular.copy($scope.songTag);
 					apollo.plugins.AlertUtil.showPageAlert(
 							"Tag saved successfully", "success");
 				});
@@ -503,17 +516,21 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 	 * Function to add album to library
 	 */
 	$scope.addToLibrary = function() {
-		tagService.addToLibrary($scope.trackTag).then(
+		songService.addToLibrary($scope.songTag.filePath).then(
 				function(aResponse) {
-					$scope.loadAlbumTracksDT(aResponse);
+					$scope.songTag = aResponse.songTag;
+					$scope.addedToLibrary = aResponse.addedToLibrary;
+					$scope.tmpTag = angular.copy(aResponse.songTag);
+					$scope.updatedTag = {};
+
+					$scope.songSelected = true;
 
 					if (aResponse.resultFlag) {
 						apollo.plugins.AlertUtil.showPageAlert(
-								"Track processed and added to Library",
-								"success");
+								"Song added to Library", "success");
 					} else {
 						apollo.plugins.AlertUtil.showPageAlert(
-								"Failed to processed and add album to Library - "
+								"Failed to process and add song to Library - "
 										+ aResponse.msgBuffer, "error");
 					}
 				});
@@ -523,7 +540,7 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 	 * Initial call
 	 */
 	setTimeout(function() {
-		$scope.selectSong();
+		$scope.selectSong("C:/Temp");
 		// $scope.loadTag("C:/Temp/Traffic-320Kbps-2016(Songspk.SITE)");
 		// $scope.loadTag("/Users/rohitnarayanan/Music/Unorganized/"
 		// + "Bollywood/Azhar-320Kbps-2016(Songspk.LINK)/"

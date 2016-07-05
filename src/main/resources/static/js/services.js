@@ -13,14 +13,14 @@ apollo.services.fileSystemService = function($http, $q) {
 		"getFileTree" : getFileTree
 	});
 
-	function getFileTree(aDirPath, aDirName, aFoldersOnly) {
+	function getFileTree(aDirPath, aDirName, aFileType) {
 		var request = $http({
 			method : "get",
 			url : apollo.context.path + "/fileSystem/fileTree",
 			params : {
 				"dirPath" : aDirPath,
 				"dirName" : aDirName,
-				"foldersOnly" : aFoldersOnly
+				"fileType" : aFileType
 			}
 		});
 
@@ -79,12 +79,12 @@ apollo.services.songService = function($http, $q) {
 				apollo.plugins.AngularUtil.httpError));
 	}
 
-	function parseTags(aAlbumPath, aParseTagTokens) {
+	function parseTags(aSongPath, aParseTagTokens) {
 		var request = $http({
 			method : "get",
 			url : apollo.context.path + "/song/parseTags",
 			params : {
-				"songPath" : aAlbumPath,
+				"songPath" : aSongPath,
 				"parseTagTokens" : aParseTagTokens
 			}
 		});
@@ -93,12 +93,12 @@ apollo.services.songService = function($http, $q) {
 				apollo.plugins.AngularUtil.httpError));
 	}
 
-	function saveParsedTags(aAlbumPath, aParseTagTokens) {
+	function saveParsedTags(aSongPath, aParseTagTokens) {
 		var request = $http({
 			method : "post",
 			url : apollo.context.path + "/song/saveParsedTags",
 			params : {
-				"songPath" : aAlbumPath,
+				"songPath" : aSongPath,
 				"parseTagTokens" : aParseTagTokens
 			}
 		});
@@ -119,12 +119,13 @@ apollo.services.songService = function($http, $q) {
 				apollo.plugins.AngularUtil.httpError));
 	}
 
-	function addToLibrary(aAlbumTag) {
+	function addToLibrary(aSongPath) {
 		var request = $http({
 			method : "post",
 			url : apollo.context.path + "/song/addToLibrary",
-			data : aAlbumTag,
-			datatype : "json"
+			params : {
+				"songPath" : aSongPath
+			}
 		});
 
 		return (request.then(apollo.plugins.AngularUtil.httpSuccess,

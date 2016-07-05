@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import accelerate.cache.PropertyCache;
 import accelerate.databean.DataMap;
 import accelerate.logging.Auditable;
 import accelerate.util.AppUtil;
 import accelerate.util.FileUtil;
+import apollo.config.ApolloConfigProps;
 import apollo.model.Mp3Tag;
 import apollo.util.Mp3TagUtil;
 
@@ -40,7 +40,7 @@ public class SongService {
 	 * 
 	 */
 	@Autowired
-	private PropertyCache apolloProps = null;
+	private ApolloConfigProps apolloConfigProps = null;
 
 	/**
 	 * @param aSongPath
@@ -50,7 +50,7 @@ public class SongService {
 	public DataMap getTag(String aSongPath) {
 		LOGGER.debug("Reading tag [{}]", aSongPath);
 		Mp3Tag songTag = new Mp3Tag(new File(aSongPath));
-		String songLibraryPath = StringUtils.join(this.apolloProps.get("apollo.library.root"), UNIX_PATH_CHAR,
+		String songLibraryPath = StringUtils.join(this.apolloConfigProps.getLibraryRoot(), UNIX_PATH_CHAR,
 				songTag.getLanguage(), UNIX_PATH_CHAR, songTag.getGenre(), UNIX_PATH_CHAR, songTag.getAlbumArtist(),
 				UNIX_PATH_CHAR, songTag.getAlbum());
 		boolean addedToLibrary = AppUtil.compare(songLibraryPath, aSongPath);
@@ -69,7 +69,7 @@ public class SongService {
 	 */
 	@Auditable
 	public Mp3Tag parseSongTags(String aSongPath, String aParseTagTokens, boolean aWriteFlag) {
-		final String fileExtn = this.apolloProps.get("apollo.targetExtn");
+		final String fileExtn = this.apolloConfigProps.getFileExtn();
 		LOGGER.debug("Parsing tag tokens [{}] for tracks with extn [{}] under [{}]", aParseTagTokens, fileExtn,
 				aSongPath);
 
@@ -93,52 +93,64 @@ public class SongService {
 	}
 
 	/**
-	 * @param aSongTag
+	 * @param aSongPath
 	 * @return
 	 */
 	@Auditable
-	public DataMap addToLibrary(Mp3Tag aSongTag) {
-		final String fileExtn = this.apolloProps.get("apollo.targetExtn");
-		LOGGER.debug("Adding song [{}] at path [{}] to library", aSongTag.getTitle(), aSongTag.getFilePath());
+	public DataMap addToLibrary(String aSongPath) {
+		final String fileExtn = this.apolloConfigProps.getFileExtn();
+		LOGGER.debug("Adding song [{}] to library", aSongPath);
+
+		Mp3Tag songTag = new Mp3Tag(new File(aSongPath));
+		if (!songTag.getTagErrors().isEmpty()) {
+			DataMap dataMap = new DataMap();
+			dataMap.put("songPath", aSongPath);
+			dataMap.put("msgBuffer", songTag.getTagErrors());
+			dataMap.put("resultFlag", false);
+			return dataMap;
+		}
 
 		StringBuilder msgBuffer = new StringBuilder();
-		String currentSongPath = aSongTag.getFilePath();
+		String currentSongPath = songTag.getFilePath();
 		File currentSongFile = new File(currentSongPath);
 
 		/*
 		 * rename track to <title>.<extn>
 		 */
-		if (!AppUtil.compare(FileUtil.getFileName(currentSongFile), aSongTag.getTitle())) {
-			File renamedFile = FileUtil.renameFile(currentSongFile, aSongTag.getTitle());
+		if (!AppUtil.compare(FileUtil.getFileName(currentSongFile), songTag.getTitle())) {
+			File renamedFile = FileUtil.renameFile(currentSongFile, songTag.getTitle());
 			if (!renamedFile.exists()) {
-				LOGGER.warn("Unable to rename song [{}] to [{}]", currentSongFile, aSongTag.getTitle());
+				LOGGER.warn("Unable to rename song [{}] to [{}]", currentSongFile, songTag.getTitle());
 				msgBuffer.append(
-						String.format("Unable to rename track [%s] to [%s]", currentSongFile, aSongTag.getTitle()));
+						String.format("Unable to rename track [%s] to [%s]", currentSongFile, songTag.getTitle()));
+			} else {
+				currentSongFile = renamedFile;
+				currentSongPath = FileUtil.getFilePath(currentSongFile);
 			}
 		}
 
 		/*
 		 * Move song to correct location under the library
 		 */
-		String songPath = StringUtils.join(this.apolloProps.get("apollo.library.root"), UNIX_PATH_CHAR,
-				aSongTag.getLanguage(), UNIX_PATH_CHAR, aSongTag.getGenre(), UNIX_PATH_CHAR, aSongTag.getAlbumArtist(),
-				UNIX_PATH_CHAR, aSongTag.getAlbum(), UNIX_PATH_CHAR, aSongTag.getTitle(), DOT_CHAR, fileExtn);
+		String songPath = StringUtils.join(this.apolloConfigProps.getLibraryRoot(), UNIX_PATH_CHAR,
+				songTag.getLanguage(), UNIX_PATH_CHAR, songTag.getGenre(), UNIX_PATH_CHAR, songTag.getAlbumArtist(),
+				UNIX_PATH_CHAR, songTag.getAlbum(), UNIX_PATH_CHAR, songTag.getTitle(), DOT_CHAR, fileExtn);
 		if (!AppUtil.compare(songPath, currentSongPath)) {
 			File destination = new File(songPath).getParentFile();
 			try {
 				destination.mkdirs();
 				FileUtils.moveFileToDirectory(currentSongFile, destination, false);
 			} catch (IOException error) {
-				LOGGER.warn("Unable to move album from [{}] to [{}]", aSongTag.getFilePath(), destination, error);
+				LOGGER.warn("Unable to move album from [{}] to [{}]", songTag.getFilePath(), destination, error);
 				msgBuffer.append(String.format("Unable to move album from [%s] to [%s] due to error [%s]",
-						aSongTag.getFilePath(), destination, error.getMessage()));
+						songTag.getFilePath(), destination, error.getMessage()));
 			}
 		}
 
 		DataMap dataMap = new DataMap();
 		dataMap.put("songPath", songPath);
 		dataMap.put("msgBuffer", msgBuffer.toString());
-		dataMap.put("resultFlags", (msgBuffer.length() == 0));
+		dataMap.put("resultFlag", (msgBuffer.length() == 0));
 		return dataMap;
 	}
 }

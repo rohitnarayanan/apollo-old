@@ -1,10 +1,11 @@
 package test.apollo;
 
 import java.io.File;
-import java.util.List;
+import java.io.FileFilter;
+import java.util.Arrays;
 
-import apollo.model.Mp3Tag;
-import apollo.util.Mp3TagUtil;
+import accelerate.util.AppUtil;
+import accelerate.util.FileUtil;
 
 /**
  * Junit test for accelerate spring context
@@ -21,13 +22,22 @@ public class QuickApolloTest {
 	 */
 	public static void main(String[] args) {
 		try {
-			// File file = new File();
-			String tokens = "<artist> - <title>";
-			List<String> parseTokens = Mp3TagUtil.parseTagExpression(tokens);
-			Mp3Tag songTag = new Mp3Tag(
-					new File("/Users/rohitnarayanan/Music/Unorganized/Assorted Indi Pop/Jal - Kash Yeh Pal.mp3"),
-					parseTokens);
-			System.out.println(songTag);
+			final String aFileType = "none";
+			File[] fileList = new File("C:\\Sites\\todo").listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File aInnerFile) {
+					boolean flag = aInnerFile.isDirectory();
+					System.out.println(aInnerFile + "<1>" + flag);
+					flag = AppUtil.compare(aFileType, "none") ? false
+							: AppUtil.compare(aFileType, FileUtil.getFileExtn(aInnerFile));
+					System.out.println(aInnerFile + "<2>" + flag);
+					flag = aInnerFile.isDirectory() || (AppUtil.compare(aFileType, "none") ? false
+							: AppUtil.compare(aFileType, FileUtil.getFileExtn(aInnerFile)));
+					System.out.println(aInnerFile + "<3>" + flag);
+					return flag;
+				}
+			});
+			Arrays.stream(fileList).forEach(aFile -> System.out.println(aFile));
 		} catch (Exception error) {
 			error.printStackTrace();
 		}

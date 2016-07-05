@@ -105,22 +105,41 @@ apollo.plugins.AlertUtil = {
  * Alert helper functions object
  */
 apollo.plugins.FileSystemUtil = {
-	"showModal" : function(aFileSystemService, aFoldersOnly, aSelectCallback) {
+	"showModal" : function(aFileSystemService, aFileType, aSelectTypes,
+			aSelectCallback) {
+		var _old = $("#_fileTree").jstree(true);
+		if (_old) {
+			_old.destroy();
+		}
+
 		$("#_fileTree")
 				.jstree(
 						{
+							"conditionalselect" : function(node, event) {
+								if (aSelectTypes === "all") {
+									return true;
+								}
+
+								if (aSelectTypes === "anyFile"
+										&& node.data.type !== "folder") {
+									return true;
+								}
+
+								return aSelectTypes.indexOf(node.data.type) !== -1;
+							},
+							"plugins" : [ "conditionalselect" ],
 							"core" : {
 								"multiple" : false,
 								"data" : function(aNode, aCallback) {
 									var customRoot = $("#_fileTreeRoot").val();
 									var dirPath = (aNode.id === "#") ? (customRoot ? customRoot
 											: "")
-											: aNode.data;
+											: aNode.data.path;
 									var dirName = (aNode.id === "#") ? ""
 											: aNode.text;
 
 									aFileSystemService.getFileTree(dirPath,
-											dirName, aFoldersOnly).then(
+											dirName, aFileType).then(
 											function(aResponse) {
 												aCallback(aResponse.fileTree);
 											},
@@ -140,16 +159,18 @@ apollo.plugins.FileSystemUtil = {
 		$('#_fileTree').jstree(true).refresh();
 	},
 
-	"selectFolder" : function() {
+	"selectItem" : function() {
 		var _jstree = $('#_fileTree').jstree(true);
 		if (_jstree.selectCallback) {
 			var _selectedNode = _jstree.get_selected(true)[0];
-			_jstree.selectCallback(_selectedNode.data + "/"
+			if (!_selectedNode) {
+				return;
+			}
+
+			_jstree.selectCallback(_selectedNode.data.path + "/"
 					+ _selectedNode.text);
 			_jstree.selectCallback = null;
 		}
-
-		$("#_fileSystemModal").modal("hide");
 	},
 
 	"selectArtwork" : function(aSuccessCallback, aFailureCallback) {

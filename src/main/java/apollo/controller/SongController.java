@@ -62,7 +62,7 @@ public class SongController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveParsedTags")
 	@HandleError
-	public AccelerateWebResponse saveParsedTags(@RequestParam(name = "albumPath") String aSongPath,
+	public AccelerateWebResponse saveParsedTags(@RequestParam(name = "songPath") String aSongPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
 		this.songService.parseSongTags(aSongPath, aParseTagTokens, true);
 		return getTag(aSongPath);
@@ -78,13 +78,13 @@ public class SongController {
 	}
 
 	/**
-	 * @param aAlbumTag
+	 * @param aSongPath
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/addToLibrary")
 	@HandleError
-	public AccelerateWebResponse addToLibrary(@RequestBody Mp3Tag aAlbumTag) {
-		DataMap attributes = this.songService.addToLibrary(aAlbumTag);
+	public AccelerateWebResponse addToLibrary(@RequestParam(name = "songPath") String aSongPath) {
+		DataMap attributes = this.songService.addToLibrary(aSongPath);
 		AccelerateWebResponse model = getTag(attributes.getString("songPath"));
 		model.putAll(attributes);
 		return model;
