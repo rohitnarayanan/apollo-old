@@ -39,7 +39,7 @@ apollo.controllers.mainController = function($rootScope, $scope, $http,
 	apollo.angularSvc.q = $q;
 	apollo.angularSvc.compile = $compile;
 
-	$scope.logout = function() {
+	$rootScope.logout = function() {
 		$("#_logoutForm").submit();
 	}
 
@@ -167,7 +167,7 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	/**
 	 * Function to parse the tags and display the result
 	 */
-	$scope.parseTags = function() {
+	$rootScope.parseTags = function() {
 		$scope.parseTokenList = apollo.plugins.ParseTagsUtil.getTokens();
 		if (!$scope.parseTokenList) {
 			return;
@@ -252,6 +252,9 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 								: aValue;
 					});
 
+					$scope.addedToLibrary = tagService
+							.checkAlbumLocation($scope.albumTag);
+
 					apollo.plugins.AlertUtil.showPageAlert(
 							"Tags saved successfully for album tracks",
 							"success");
@@ -262,20 +265,25 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	 * Function to open modal for editing track tag
 	 */
 	$scope.showEditTrackTag = function(aRow) {
-		$scope.selectedRows = $scope.albumTracksDT.rows({
+		var _selectedRows = $scope.albumTracksDT.rows({
 			selected : true
 		});
+		var rowCount = _selectedRows.ids().length;
+		if (rowCount == 0) {
+			return;
+		}
 
+		$scope.selectedRows = _selectedRows;
 		$scope.selectedTags = $scope.albumTracksDT.rows({
 			selected : true
 		}).data();
 
-		if ($scope.selectedTags.length == 1) {
+		if (rowCount == 1) {
 			$scope.tmpTrackTag = $scope.selectedTags[0];
 		} else {
 			$scope.tmpTrackTag = {};
 			$.each($scope.selectedTags, function(aIdx, aTag) {
-				tagService.extractCommonTag($scope.tmpTrackTag,
+				tagService.getCommonTag($scope.tmpTrackTag,
 						$scope.trackTagMap[aTag.filePath]);
 			});
 		}
@@ -367,19 +375,10 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 };
 
 /**
- * addPlaylistController
- */
-apollo.controllers.addPlaylistController = function($rootScope, $scope) {
-	$rootScope.pageTitle = "Add Playlist";
-	$rootScope.pageDescription = "Add a new playlist to the library";
-	$rootScope.showPageControl = false;
-};
-
-/**
  * addSongController
  */
 apollo.controllers.addSongController = function($rootScope, $scope,
-		fileSystemService, songService) {
+		fileSystemService, songService, tagService) {
 	$rootScope.pageTitle = "Add Song";
 	$rootScope.pageDescription = "Add a new song to the library";
 	$rootScope.showPageControl = true;
@@ -506,6 +505,9 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 										: aValue;
 							});
 
+					$scope.addedToLibrary = tagService
+							.checkSongLocation($scope.songTag);
+
 					$scope.tmpTag = angular.copy($scope.songTag);
 					apollo.plugins.AlertUtil.showPageAlert(
 							"Tag saved successfully", "success");
@@ -546,6 +548,15 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 		// + "Bollywood/Azhar-320Kbps-2016(Songspk.LINK)/"
 		// + "01 - Bol Do Na Zara [Songspk.LINK].mp3");
 	}, 200);
+};
+
+/**
+ * addPlaylistController
+ */
+apollo.controllers.addPlaylistController = function($rootScope, $scope) {
+	$rootScope.pageTitle = "Add Playlist";
+	$rootScope.pageDescription = "Add a new playlist to the library";
+	$rootScope.showPageControl = false;
 };
 
 /**

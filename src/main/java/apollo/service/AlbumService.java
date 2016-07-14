@@ -1,5 +1,6 @@
 package apollo.service;
 
+import static accelerate.util.AccelerateConstants.DOT_CHAR;
 import static accelerate.util.AccelerateConstants.UNIX_PATH_CHAR;
 
 import java.io.File;
@@ -153,55 +154,38 @@ public class AlbumService {
 	 * @return
 	 */
 	@Auditable
-	public DataMap addToLibrary(Mp3Tag aAlbumTag) {
-		final String fileExtn = this.apolloConfigProps.getFileExtn();
-		LOGGER.debug("Adding album [{}] at path [{}] to library", aAlbumTag.getAlbum(), aAlbumTag.getFilePath());
+	public DataMap correctFileNames(Mp3Tag aAlbumTag) {
+		LOGGER.debug("Correcting files names for album [{}] at path [{}]", aAlbumTag.getAlbum(),
+				aAlbumTag.getFilePath());
 
+		DataMap dataMap = validateTagsBeforeFileChange(aAlbumTag);
+		if (!dataMap.is("resultFlags")) {
+			return dataMap;
+		}
+
+		Map<String, Mp3Tag> tagMap = dataMap.remove("tagMap");
 		StringBuilder msgBuffer = new StringBuilder();
 		String currentAlbumPath = aAlbumTag.getFilePath();
 		File currentAlbumFolder = new File(currentAlbumPath);
 
 		/*
-		 * Validate tags first
-		 */
-		if (AppUtil.isEmptyAny(aAlbumTag.getLanguage(), aAlbumTag.getGenre(), aAlbumTag.getAlbum(),
-				aAlbumTag.getAlbumArtist())) {
-			DataMap dataMap = new DataMap();
-			dataMap.put("albumPath", currentAlbumPath);
-			dataMap.put("msgBuffer", "Album tag is not complete");
-			dataMap.put("resultFlags", false);
-			return dataMap;
-		}
-
-		Set<String> tagErrors = new HashSet<>();
-		Map<String, Mp3Tag> tagMap = FileUtil.findFilesByExtn(currentAlbumPath, fileExtn).parallelStream()
-				.map(aFile -> {
-					Mp3Tag mp3Tag = new Mp3Tag(aFile);
-					tagErrors.addAll(mp3Tag.getTagErrors());
-					return mp3Tag;
-				}).collect(Collectors.toMap(aTag -> aTag.getFileName(), aTag -> aTag));
-
-		if (!tagErrors.isEmpty()) {
-			DataMap dataMap = new DataMap();
-			dataMap.put("albumPath", currentAlbumPath);
-			dataMap.put("msgBuffer", tagErrors);
-			dataMap.put("resultFlags", false);
-			return dataMap;
-		}
-
-		/*
 		 * rename tracks to <title>.<extn>
 		 */
-		tagMap.values().parallelStream().forEach(aMp3Tag -> {
-			File trackFile = new File(aMp3Tag.getFilePath());
-			if (AppUtil.compare(FileUtil.getFileName(trackFile), aMp3Tag.getTitle())) {
+		final String fileExtn = this.apolloConfigProps.getFileExtn();
+		tagMap.values().parallelStream().forEach(aTrackTag -> {
+			if (AppUtil.compare(aTrackTag.getFileName(), aTrackTag.getTitle())) {
 				return;
 			}
 
-			File renamedFile = FileUtil.renameFile(trackFile, aMp3Tag.getTitle());
-			if (!renamedFile.exists()) {
-				LOGGER.warn("Unable to rename track [{}] to [{}]", trackFile, aAlbumTag.getTitle());
-				msgBuffer.append(String.format("Unable to rename track [%s] to [%s]", trackFile, aAlbumTag.getTitle()));
+			File trackFile = new File(aTrackTag.getFilePath());
+			File renamedFile = new File(trackFile.getParent(), aTrackTag.getTitle() + DOT_CHAR + fileExtn);
+
+			try {
+				FileUtils.moveFile(trackFile, renamedFile);
+			} catch (IOException error) {
+				LOGGER.warn("Unable to rename track [{}] to [{}]", trackFile, renamedFile, error);
+				msgBuffer.append(String.format("Unable to rename track [%s] to [%s] due to error [%s]", trackFile,
+						renamedFile, error.getMessage()));
 			}
 		});
 
@@ -209,16 +193,42 @@ public class AlbumService {
 		 * rename album folder to <album>
 		 */
 		if (!AppUtil.compare(currentAlbumFolder.getName(), aAlbumTag.getAlbum())) {
-			File renamedFile = FileUtil.renameFile(currentAlbumFolder, aAlbumTag.getAlbum());
-			if (!renamedFile.exists()) {
-				LOGGER.warn("Unable to rename album [{}] to [{}]", aAlbumTag.getFilePath(), aAlbumTag.getAlbum());
-				msgBuffer.append(String.format("Unable to rename album [%s] to [%s]", aAlbumTag.getFilePath(),
-						aAlbumTag.getAlbum()));
-			} else {
-				currentAlbumFolder = renamedFile;
+			File renamedFolder = new File(currentAlbumFolder.getParent(), aAlbumTag.getAlbum());
+
+			try {
+				FileUtils.moveDirectory(currentAlbumFolder, renamedFolder);
+				currentAlbumFolder = renamedFolder;
 				currentAlbumPath = FileUtil.getFilePath(currentAlbumFolder);
+			} catch (IOException error) {
+				LOGGER.warn("Unable to rename album folder [{}] to [{}]", currentAlbumFolder, renamedFolder, error);
+				msgBuffer.append(String.format("Unable to rename album folder [%s] to [%s] due to error [%s]",
+						currentAlbumFolder, renamedFolder, error.getMessage()));
 			}
 		}
+
+		dataMap = new DataMap();
+		dataMap.put("albumPath", currentAlbumPath);
+		dataMap.put("msgBuffer", msgBuffer.toString());
+		dataMap.put("resultFlags", (msgBuffer.length() == 0));
+		return dataMap;
+	}
+
+	/**
+	 * @param aAlbumTag
+	 * @return
+	 */
+	@Auditable
+	public DataMap addToLibrary(Mp3Tag aAlbumTag) {
+		LOGGER.debug("Adding album [{}] at path [{}] to library", aAlbumTag.getAlbum(), aAlbumTag.getFilePath());
+
+		DataMap dataMap = validateTagsBeforeFileChange(aAlbumTag);
+		if (dataMap != null) {
+			return dataMap;
+		}
+
+		StringBuilder msgBuffer = new StringBuilder();
+		String currentAlbumPath = aAlbumTag.getFilePath();
+		File currentAlbumFolder = new File(currentAlbumPath);
 
 		/*
 		 * Move album folder to correct location under the library
@@ -238,10 +248,51 @@ public class AlbumService {
 			}
 		}
 
-		DataMap dataMap = new DataMap();
+		dataMap = new DataMap();
 		dataMap.put("albumPath", albumPath);
 		dataMap.put("msgBuffer", msgBuffer.toString());
 		dataMap.put("resultFlags", (msgBuffer.length() == 0));
+		return dataMap;
+	}
+
+	/**
+	 * @param aAlbumTag
+	 * @return
+	 */
+	@Auditable
+	public DataMap validateTagsBeforeFileChange(Mp3Tag aAlbumTag) {
+		final String fileExtn = this.apolloConfigProps.getFileExtn();
+		LOGGER.debug("Adding album [{}] at path [{}] to library", aAlbumTag.getAlbum(), aAlbumTag.getFilePath());
+
+		String currentAlbumPath = aAlbumTag.getFilePath();
+		DataMap dataMap = new DataMap();
+		dataMap.put("albumPath", currentAlbumPath);
+		dataMap.put("resultFlags", false);
+
+		/*
+		 * Validate tags first
+		 */
+		if (AppUtil.isEmptyAny(aAlbumTag.getLanguage(), aAlbumTag.getGenre(), aAlbumTag.getAlbum(),
+				aAlbumTag.getAlbumArtist())) {
+			dataMap.put("msgBuffer", "Album tag is not complete");
+			return dataMap;
+		}
+
+		Set<String> tagErrors = new HashSet<>();
+		Map<String, Mp3Tag> tagMap = FileUtil.findFilesByExtn(currentAlbumPath, fileExtn).parallelStream()
+				.map(aFile -> {
+					Mp3Tag mp3Tag = new Mp3Tag(aFile);
+					tagErrors.addAll(mp3Tag.getTagErrors());
+					return mp3Tag;
+				}).collect(Collectors.toMap(aTag -> aTag.getFilePath(), aTag -> aTag));
+
+		if (!tagErrors.isEmpty()) {
+			dataMap.put("msgBuffer", tagErrors);
+			return dataMap;
+		}
+
+		dataMap.put("tagMap", tagMap);
+		dataMap.put("resultFlags", true);
 		return dataMap;
 	}
 }

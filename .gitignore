@@ -5,6 +5,7 @@ bin/
 build/
 gradle/
 logs/
+node_modules/
 target/
 gradlew
 gradlew.bat

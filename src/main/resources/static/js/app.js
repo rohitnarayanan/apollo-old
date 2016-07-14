@@ -38,7 +38,7 @@ apollo.config = {
 			aHttpProvider.defaults.headers.get = {};
 		}
 
-		aHttpProvider.interceptors.push(function($q, $location, $window) {
+		aHttpProvider.interceptors.push(function($q, $location, $rootScope) {
 			return {
 				"request" : function(config) {
 					config.headers["AJAX-REQUEST"] = "true";
@@ -51,7 +51,12 @@ apollo.config = {
 					return aResponse;
 				},
 				"responseError" : function(aResponse) {
-					$location.path("/error/" + aResponse.status);
+					if (aResponse.status == 401 || aResponse.status == -1) {
+						$rootScope.logout();
+					} else {
+						$location.path("/error/" + aResponse.status);
+					}
+
 					return $q.reject(aResponse);
 				}
 			}

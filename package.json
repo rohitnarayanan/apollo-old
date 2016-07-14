@@ -1,0 +1,23 @@
+{
+  "name": "apollo",
+  "version": "1.0.0",
+  "description": "Apollo Project",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "gulp": "^3.9.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"works\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rohitnarayanan/apollo.git"
+  },
+  "author": "Rohit Narayanan",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/rohitnarayanan/apollo/issues"
+  },
+  "homepage": "https://github.com/rohitnarayanan/apollo#readme"
+}

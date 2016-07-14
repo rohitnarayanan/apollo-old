@@ -34,10 +34,12 @@ apollo.services.fileSystemService = function($http, $q) {
  */
 apollo.services.tagService = function($http, $q) {
 	return ({
-		"extractCommonTag" : extractCommonTag
+		"getCommonTag" : getCommonTag,
+		"checkAlbumLocation" : checkAlbumLocation,
+		"checkSongLocation" : checkSongLocation
 	});
 
-	function extractCommonTag(aCommonTag, aMp3Tag) {
+	function getCommonTag(aCommonTag, aMp3Tag) {
 		if (aCommonTag.initialized !== "true") {
 			aCommonTag.composer = aMp3Tag.composer;
 			aCommonTag.artist = aMp3Tag.artist;
@@ -51,6 +53,23 @@ apollo.services.tagService = function($http, $q) {
 				delete aCommonTag[aKey];
 			}
 		});
+	}
+
+	function checkAlbumLocation(aAlbumTag) {
+		var albumPath = apollo.context.configProps.libraryRoot + "/"
+				+ aAlbumTag.language + "/" + aAlbumTag.genre + "/"
+				+ aAlbumTag.albumArtist + "/" + aAlbumTag.album;
+
+		return (albumPath === aAlbumTag.filePath);
+	}
+
+	function checkSongLocation(aSongTag) {
+		var songPath = apollo.context.configProps.libraryRoot + "/"
+				+ aSongTag.language + "/" + aSongTag.genre + "/"
+				+ aSongTag.albumArtist + "/" + aSongTag.album + "/"
+				+ aSongTag.title + "." + apollo.context.configProps.fileExtn;
+
+		return (songPath === aSongTag.filePath);
 	}
 };
 

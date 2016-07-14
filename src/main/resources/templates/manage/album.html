@@ -25,11 +25,14 @@
 		<div id="albumTracksDTActions"
 			class="col-xs-12 col-sm-12 col-md-12 col-lg-12 datatable-cta-bar text-right"
 			style="display: none">
+			<button id="_renameTracksBtn" class="btn apollo-btn wrap"
+				data-ng-click="renameTracks()">Rename Tracks</button>
 			<button id="_addToLibraryBtn" class="btn apollo-btn wrap"
-				data-ng-click="addToLibrary()" data-ng-show="!addedToLibrary">Relocate</button>
-			<button id="_addToPlaylistBtn" class="btn apollo-btn wrap"
+				data-ng-click="addToLibrary()" data-ng-show="!addedToLibrary">Add
+				to Library</button>
+			<!-- <button id="_addToPlaylistBtn" class="btn apollo-btn wrap"
 				data-ng-click="addToPlaylist()" data-ng-show="addedToLibrary">Add
-				to Playlist</button>
+				to Playlist</button> -->
 		</div>
 	</div>
 </div>

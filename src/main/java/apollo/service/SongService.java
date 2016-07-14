@@ -52,7 +52,8 @@ public class SongService {
 		Mp3Tag songTag = new Mp3Tag(new File(aSongPath));
 		String songLibraryPath = StringUtils.join(this.apolloConfigProps.getLibraryRoot(), UNIX_PATH_CHAR,
 				songTag.getLanguage(), UNIX_PATH_CHAR, songTag.getGenre(), UNIX_PATH_CHAR, songTag.getAlbumArtist(),
-				UNIX_PATH_CHAR, songTag.getAlbum());
+				UNIX_PATH_CHAR, songTag.getAlbum(), UNIX_PATH_CHAR, songTag.getTitle(), DOT_CHAR,
+				this.apolloConfigProps.getFileExtn());
 		boolean addedToLibrary = AppUtil.compare(songLibraryPath, aSongPath);
 
 		DataMap dataMap = new DataMap();

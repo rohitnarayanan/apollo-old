@@ -86,7 +86,7 @@ public class FileSystemService {
 			}
 
 			return DataMap.buildMap("text", aFile.getName(), "data",
-					DataMap.buildMap("path", targetDir.getPath(), "type",
+					DataMap.buildMap("path", FileUtil.getFilePath(targetDir), "type",
 							(aFile.isDirectory()) ? "folder" : FileUtil.getFileExtn(aFile)),
 					"children", children, "icon", (aFile.isDirectory()) ? null : "fa fa-file-audio-o");
 		}).collect(Collectors.toList());
