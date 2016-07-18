@@ -12,6 +12,8 @@ apollo.datatables.utils = {
 };
 
 apollo.datatables.albumTracksDT = function(aRowDataMap) {
+	var rowDataMap = {};
+
 	var dtConfig = {
 		"order" : [ [ 4, "asc" ] ],
 		"pageLength" : 6,
@@ -19,7 +21,7 @@ apollo.datatables.albumTracksDT = function(aRowDataMap) {
 		"select" : true,
 		"rowId" : "filePath",
 		"createdRow" : function(aRow, aData, aDataIndex) {
-			aRowDataMap[aData.filePath] = aData;
+			rowDataMap[aData.filePath] = aData;
 		},
 		"columns" : [ {
 			"title" : "File Name",
@@ -50,5 +52,6 @@ apollo.datatables.albumTracksDT = function(aRowDataMap) {
 	}
 
 	var albumTracksDT = $("#albumTracksDT").DataTable(dtConfig);
+	albumTracksDT.rowDataMap = rowDataMap;
 	return albumTracksDT;
 };

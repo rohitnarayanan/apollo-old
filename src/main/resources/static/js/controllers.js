@@ -284,7 +284,7 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 			$scope.tmpTrackTag = {};
 			$.each($scope.selectedTags, function(aIdx, aTag) {
 				tagService.getCommonTag($scope.tmpTrackTag,
-						$scope.trackTagMap[aTag.filePath]);
+						$scope.albumTracksDT.rowDataMap[aTag.filePath]);
 			});
 		}
 
@@ -337,9 +337,43 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	};
 
 	/**
+	 * Function to rename tracks within the album to their title
+	 */
+	$scope.renameTracks = function() {
+		/*
+		 * basic copy of album tag to avoid sending artwork data when not
+		 * required
+		 */
+		var tmpAlbumTag = {};
+		tmpAlbumTag.language = $scope.albumTag.language;
+		tmpAlbumTag.genre = $scope.albumTag.genre;
+		tmpAlbumTag.album = $scope.albumTag.album;
+		tmpAlbumTag.albumArtist = $scope.albumTag.albumArtist;
+		tmpAlbumTag.filePath = $scope.albumTag.filePath;
+
+		albumService.renameTracks(tmpAlbumTag).then(
+				function(aResponse) {
+					$scope.loadAlbumTracksDT(aResponse);
+
+					if (aResponse.resultFlags) {
+						apollo.plugins.AlertUtil.showPageAlert(
+								"Tracks renamed to title", "success");
+					} else {
+						apollo.plugins.AlertUtil.showPageAlert(
+								"Failed to rename tracks - "
+										+ aResponse.msgBuffer, "error");
+					}
+				});
+	}
+
+	/**
 	 * Function to add album to library
 	 */
 	$scope.addToLibrary = function() {
+		/*
+		 * basic copy of album tag to avoid sending artwork data when not
+		 * required
+		 */
 		var tmpAlbumTag = {};
 		tmpAlbumTag.language = $scope.albumTag.language;
 		tmpAlbumTag.genre = $scope.albumTag.genre;
@@ -353,11 +387,10 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 
 					if (aResponse.resultFlags) {
 						apollo.plugins.AlertUtil.showPageAlert(
-								"Album processed and added to Library",
-								"success");
+								"Album added to Library path", "success");
 					} else {
 						apollo.plugins.AlertUtil.showPageAlert(
-								"Failed to processed and add album to Library - "
+								"Failed to add album to Library path - "
 										+ aResponse.msgBuffer, "error");
 					}
 				});
@@ -366,12 +399,11 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 	/*
 	 * Initial call
 	 */
-	setTimeout(function() {
-		$scope.selectAlbum("C:/Temp/");
-		// $scope.loadTracks("C:/Temp/Traffic-320Kbps-2016(Songspk.SITE)");
-		// $scope.loadTracks("/Users/rohitnarayanan/Music/Unorganized/"
-		// + "Bollywood/Azhar-320Kbps-2016(Songspk.LINK)");
-	}, 200);
+	setTimeout(
+			function() {
+				$scope
+						.selectAlbum("/Users/rohitnarayanan/Music/Unorganized/Bollywood");
+			}, 200);
 };
 
 /**
@@ -542,11 +574,7 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 	 * Initial call
 	 */
 	setTimeout(function() {
-		$scope.selectSong("C:/Temp");
-		// $scope.loadTag("C:/Temp/Traffic-320Kbps-2016(Songspk.SITE)");
-		// $scope.loadTag("/Users/rohitnarayanan/Music/Unorganized/"
-		// + "Bollywood/Azhar-320Kbps-2016(Songspk.LINK)/"
-		// + "01 - Bol Do Na Zara [Songspk.LINK].mp3");
+		$scope.selectSong("/Users/rohitnarayanan/Music/Unorganized");
 	}, 200);
 };
 

@@ -76,85 +76,6 @@ apollo.services.tagService = function($http, $q) {
 /**
  * 
  */
-apollo.services.songService = function($http, $q) {
-	return ({
-		"getTag" : getTag,
-		"parseTags" : parseTags,
-		"saveParsedTags" : saveParsedTags,
-		"saveTag" : saveTag,
-		"addToLibrary" : addToLibrary
-	});
-
-	function getTag(aSongPath) {
-		var request = $http({
-			method : "get",
-			url : apollo.context.path + "/song/getTag",
-			params : {
-				"songPath" : aSongPath
-			}
-		});
-
-		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
-				apollo.plugins.AngularUtil.httpError));
-	}
-
-	function parseTags(aSongPath, aParseTagTokens) {
-		var request = $http({
-			method : "get",
-			url : apollo.context.path + "/song/parseTags",
-			params : {
-				"songPath" : aSongPath,
-				"parseTagTokens" : aParseTagTokens
-			}
-		});
-
-		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
-				apollo.plugins.AngularUtil.httpError));
-	}
-
-	function saveParsedTags(aSongPath, aParseTagTokens) {
-		var request = $http({
-			method : "post",
-			url : apollo.context.path + "/song/saveParsedTags",
-			params : {
-				"songPath" : aSongPath,
-				"parseTagTokens" : aParseTagTokens
-			}
-		});
-
-		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
-				apollo.plugins.AngularUtil.httpError));
-	}
-
-	function saveTag(aTrackTag) {
-		var request = $http({
-			method : "post",
-			url : apollo.context.path + "/song/saveTag",
-			data : aTrackTag,
-			datatype : "json"
-		});
-
-		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
-				apollo.plugins.AngularUtil.httpError));
-	}
-
-	function addToLibrary(aSongPath) {
-		var request = $http({
-			method : "post",
-			url : apollo.context.path + "/song/addToLibrary",
-			params : {
-				"songPath" : aSongPath
-			}
-		});
-
-		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
-				apollo.plugins.AngularUtil.httpError));
-	}
-};
-
-/**
- * 
- */
 apollo.services.albumService = function($http, $q) {
 	return ({
 		"getTracks" : getTracks,
@@ -163,6 +84,7 @@ apollo.services.albumService = function($http, $q) {
 		"saveAlbumTag" : saveAlbumTag,
 		"saveTrackTag" : saveTrackTag,
 		"saveTrackTags" : saveTrackTags,
+		"renameTracks" : renameTracks,
 		"addToLibrary" : addToLibrary
 	});
 
@@ -243,12 +165,103 @@ apollo.services.albumService = function($http, $q) {
 				apollo.plugins.AngularUtil.httpError));
 	}
 
+	function renameTracks(aAlbumTag) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/album/renameTracks",
+			data : aAlbumTag,
+			datatype : "json"
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
 	function addToLibrary(aAlbumTag) {
 		var request = $http({
 			method : "post",
 			url : apollo.context.path + "/album/addToLibrary",
 			data : aAlbumTag,
 			datatype : "json"
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+};
+
+/**
+ * 
+ */
+apollo.services.songService = function($http, $q) {
+	return ({
+		"getTag" : getTag,
+		"parseTags" : parseTags,
+		"saveParsedTags" : saveParsedTags,
+		"saveTag" : saveTag,
+		"addToLibrary" : addToLibrary
+	});
+
+	function getTag(aSongPath) {
+		var request = $http({
+			method : "get",
+			url : apollo.context.path + "/song/getTag",
+			params : {
+				"songPath" : aSongPath
+			}
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function parseTags(aSongPath, aParseTagTokens) {
+		var request = $http({
+			method : "get",
+			url : apollo.context.path + "/song/parseTags",
+			params : {
+				"songPath" : aSongPath,
+				"parseTagTokens" : aParseTagTokens
+			}
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function saveParsedTags(aSongPath, aParseTagTokens) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/song/saveParsedTags",
+			params : {
+				"songPath" : aSongPath,
+				"parseTagTokens" : aParseTagTokens
+			}
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function saveTag(aTrackTag) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/song/saveTag",
+			data : aTrackTag,
+			datatype : "json"
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function addToLibrary(aSongPath) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/song/addToLibrary",
+			params : {
+				"songPath" : aSongPath
+			}
 		});
 
 		return (request.then(apollo.plugins.AngularUtil.httpSuccess,

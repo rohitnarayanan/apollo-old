@@ -92,6 +92,19 @@ public class AlbumController {
 	 * @param aAlbumTag
 	 * @return
 	 */
+	@RequestMapping(method = RequestMethod.POST, path = "/renameTracks")
+	@HandleError
+	public AccelerateWebResponse renameTracks(@RequestBody Mp3Tag aAlbumTag) {
+		DataMap attributes = this.albumService.renameTracks(aAlbumTag);
+		AccelerateWebResponse model = listTracks(attributes.get("albumPath").toString());
+		model.putAll(attributes);
+		return model;
+	}
+
+	/**
+	 * @param aAlbumTag
+	 * @return
+	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/addToLibrary")
 	@HandleError
 	public AccelerateWebResponse addToLibrary(@RequestBody Mp3Tag aAlbumTag) {
