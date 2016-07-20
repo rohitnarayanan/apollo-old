@@ -132,11 +132,9 @@ apollo.controllers.addAlbumController = function($rootScope, $scope,
 		$scope.albumTag = aResponse.albumTag;
 		$scope.trackTags = aResponse.trackTags;
 		$scope.addedToLibrary = aResponse.addedToLibrary;
-		$scope.trackTagMap = {};
 
 		if (!$.fn.DataTable.isDataTable("#albumTracksDT")) {
-			$scope.albumTracksDT = apollo.datatables
-					.albumTracksDT($scope.trackTagMap);
+			$scope.albumTracksDT = apollo.datatables.albumTracksDT();
 
 			$("#albumTracksDTOptions").prependTo(
 					$("#albumTracksDT_wrapper div.top")).show();
@@ -621,4 +619,220 @@ apollo.controllers.browseSongsController = function($rootScope, $scope) {
 	$rootScope.pageTitle = "Songs";
 	$rootScope.pageDescription = "Browse all songs in the library";
 	$rootScope.showPageControl = false;
+};
+
+/**
+ * syncFoldersController
+ */
+apollo.controllers.syncFoldersController = function($rootScope, $scope,
+		fileSystemService) {
+	$rootScope.pageTitle = "Sync Folders";
+	$rootScope.pageDescription = "Synchronize Folders";
+	$rootScope.showPageControl = true;
+	$rootScope.pageControlName = "Input";
+
+	$scope.albumSelected = false;
+	$scope.tagsParsed = false;
+
+	$scope.resetAll = function(aCustomPath) {
+		$scope.syncFoldersInputValid = false;
+		$scope.syncFoldersInput = {};
+	};
+	$rootScope.handlePageControl = $scope.resetAll;
+
+	$scope.choosePath = function(aPathType) {
+		$("#_fileTreeRoot").val("C:/Temp");
+		apollo.plugins.FileSystemUtil.showModal(fileSystemService, "none",
+				"all", function(aPath) {
+					if (aPathType === 'source') {
+						$scope.syncFoldersInput.sourcePath = aPath;
+					} else {
+						$scope.syncFoldersInput.targetPath = aPath;
+					}
+
+					$scope.$apply();
+				});
+	};
+
+	$scope.compareFolders = function(aCallback) {
+		if (!$scope.syncFoldersInput.sourcePath
+				|| !$scope.syncFoldersInput.targetPath) {
+			apollo.plugins.AlertUtil.showPageAlert(
+					"Source and Target cannot be empty", "error");
+			return;
+		}
+
+		fileSystemService.compareFolders($scope.syncFoldersInput).then(
+				function(aResponse) {
+					$scope.processResponse(aResponse);
+					if (aCallback) {
+						aCallback(aResponse);
+					}
+				});
+	};
+
+	$scope.processResponse = function(aResponse) {
+		if (aResponse.errorFlag) {
+			apollo.plugins.AlertUtil.showPageAlert(aResponse.message, "error");
+			return;
+		}
+
+		if (!$.fn.DataTable.isDataTable("#missingInTargetDT")) {
+			$scope.missingInTargetDT = apollo.datatables
+					.missingFilesDT("missingInTargetDT");
+			$("#missingInTargetDTActions").appendTo(
+					$("#missingInTargetDT_wrapper div.bottom")).show();
+		}
+		$scope.missingInTargetDT.clear();
+		$scope.missingInTargetDT.rows.add(aResponse.missingInTarget);
+
+		if (!$.fn.DataTable.isDataTable("#missingInSourceDT")) {
+			$scope.missingInSourceDT = apollo.datatables
+					.missingFilesDT("missingInSourceDT");
+			$("#missingInSourceDTActions").appendTo(
+					$("#missingInSourceDT_wrapper div.bottom")).show();
+		}
+		$scope.missingInSourceDT.clear();
+		$scope.missingInSourceDT.rows.add(aResponse.missingInSource);
+
+		if (!$.fn.DataTable.isDataTable("#conflictingFilesDT")) {
+			$scope.conflictingFilesDT = apollo.datatables
+					.conflictingFilesDT("conflictingFilesDT");
+			$("#conflictingFilesDTActions").appendTo(
+					$("#conflictingFilesDT_wrapper div.bottom")).show();
+		}
+		$scope.conflictingFilesDT.clear();
+		$scope.conflictingFilesDT.rows.add(aResponse.conflictingFiles);
+
+		$scope.missingInTargetEmpty = aResponse.missingInTarget.length < 1;
+		$scope.missingInSourceEmpty = aResponse.missingInSource.length < 1;
+		$scope.conflictingFilesEmpty = aResponse.conflictingFiles.length < 1;
+		$scope.syncFoldersInputValid = true;
+
+		if (!$scope.missingInTargetEmpty) {
+			$scope.missingInTargetDT.columns.adjust().draw();
+			$scope.missingInTargetDT.responsive.rebuild();
+			$scope.missingInTargetDT.responsive.recalc();
+		}
+
+		if (!$scope.missingInSourceEmpty) {
+			$scope.missingInSourceDT.columns.adjust().draw();
+			$scope.missingInSourceDT.responsive.rebuild();
+			$scope.missingInSourceDT.responsive.recalc();
+		}
+
+		if (!$scope.conflictingFilesEmpty) {
+			$scope.conflictingFilesDT.columns.adjust().draw();
+			$scope.conflictingFilesDT.responsive.rebuild();
+			$scope.conflictingFilesDT.responsive.recalc();
+		}
+
+		apollo.plugins.AlertUtil.hidePageAlert();
+		$scope.showTab('_missingInTarget');
+	};
+
+	$scope.showTab = function(aIdPrefix) {
+		$("#_compareTabs li").removeClass("active");
+		$("#" + aIdPrefix + "Link").addClass("active");
+
+		$("div.compareTabDiv").hide();
+		$("#" + aIdPrefix + "Div").show();
+	};
+
+	$scope.copyToTarget = function() {
+		if (!$scope.checkSelectCount($scope.missingInTargetDT)) {
+			return;
+		}
+
+		$scope.copyFiles($scope.missingInTargetDT, false, false);
+	};
+
+	$scope.copyToSource = function() {
+		if (!$scope.checkSelectCount($scope.missingInSourceDT)) {
+			return;
+		}
+
+		$scope.copyFiles($scope.missingInSourceDT, true, false);
+	};
+
+	$scope.overwriteTarget = function() {
+		if (!$scope.checkSelectCount($scope.conflictingFilesDT)) {
+			return;
+		}
+
+		$scope.copyFiles($scope.conflictingFilesDT, false, true);
+	};
+
+	$scope.overwriteSource = function() {
+		if (!$scope.checkSelectCount($scope.conflictingFilesDT)) {
+			return;
+		}
+
+		$scope.copyFiles($scope.conflictingFilesDT, true, true);
+	};
+
+	$scope.checkSelectCount = function(aDataTable) {
+		var _selectedRows = aDataTable.rows({
+			selected : true
+		});
+
+		var rowCount = _selectedRows.ids().length;
+		return (rowCount != 0);
+	};
+
+	$scope.copyFiles = function(aDataTable, aSrcToggle, aOverwrite) {
+		var fileCopyParams = {};
+		if (aSrcToggle) {
+			fileCopyParams.sourceRoot = $scope.syncFoldersInput.targetPath;
+			fileCopyParams.targetRoot = $scope.syncFoldersInput.sourcePath;
+		} else {
+			fileCopyParams.sourceRoot = $scope.syncFoldersInput.sourcePath;
+			fileCopyParams.targetRoot = $scope.syncFoldersInput.targetPath;
+		}
+
+		fileCopyParams.overwrite = aOverwrite;
+		fileCopyParams.keyList = [];
+
+		var _selectedFiles = aDataTable.rows({
+			selected : true
+		}).data();
+
+		$.each(_selectedFiles, function(aIdx, aFileProps) {
+			fileCopyParams.keyList.push(aFileProps.key);
+		});
+
+		fileSystemService
+				.copyFiles(fileCopyParams)
+				.then(
+						function(aResponse) {
+							if (aResponse.errorMessage) {
+								var message = ((aResponse.copyCount == 0) ? "No"
+										: "Only " + aResponse.copyCount)
+										+ " files copied, Errors - "
+										+ aResponse.errorMessage;
+
+								$scope
+										.compareFolders(function(
+												aCompareResponse) {
+											apollo.plugins.AlertUtil
+													.showPageAlert(message,
+															"warn");
+										});
+							} else {
+								apollo.plugins.AlertUtil.showPageAlert(
+										"Files copied successfully", "success");
+								aDataTable.row('.selected').remove()
+										.draw(false);
+
+								$scope.missingInTargetEmpty = $scope.missingInTargetDT
+										.rows().count() < 1;
+								$scope.missingInSourceEmpty = $scope.missingInSourceDT
+										.rows().count() < 1;
+								$scope.conflictingFilesEmpty = $scope.conflictingFilesDT
+										.rows().count() < 1;
+							}
+						});
+	};
+
+	$scope.resetAll();
 };

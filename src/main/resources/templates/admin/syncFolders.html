@@ -1,0 +1,135 @@
+<!-- Model for editing tags for selected track(s) -->
+<form id="_editTrackTagForm" name="syncFoldersInputForm"
+	class="form-horizontal" data-ng-show="!syncFoldersInputValid">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+				<div class="form-group">
+					<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Source:</label>
+					<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+						<button class="btn btn-xs apollo-btn float-btn"
+							data-ng-click="choosePath('source')">...</button>
+						<p class="form-control-static float-left margin-left-5">{{syncFoldersInput.sourcePath}}</p>
+					</div>
+				</div>
+			</div>
+			<div class="clearfix visible-xs" />
+
+			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+				<div class="form-group">
+					<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Target:</label>
+					<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+						<button class="btn btn-xs apollo-btn float-btn"
+							data-ng-click="choosePath('target')">...</button>
+						<p class="form-control-static float-left margin-left-5">{{syncFoldersInput.targetPath}}</p>
+					</div>
+				</div>
+			</div>
+			<div class="clearfix visible-xs visible-sm" />
+
+			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+				<div class="form-group">
+					<label class="col-xs-4 col-sm-5 col-md-4 col-lg-4 control-label">Ignore
+						Extn:</label>
+					<div class="col-xs-8 col-sm-7 col-md-8 col-lg-8">
+						<input type="text" class="form-control"
+							data-ng-model="syncFoldersInput.ignoreExtnList"
+							placeholder="Comma Separated Extensions" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="text-right margin-top-10">
+		<button class="btn apollo-btn" data-ng-click="resetAll()">Reset</button>
+		<button class="btn apollo-btn" data-ng-click="compareFolders()">Compare</button>
+	</div>
+</form>
+
+<div class="text-center" data-ng-show="syncFoldersInputValid">
+	<ul id="_compareTabs" class="nav nav-tabs margin-bottom-5">
+		<li id="_missingInTargetLink" role="presentation"><a
+			data-ng-click="showTab('_missingInTarget')" href="">Missing in
+				Target</a></li>
+		<li id="_missingInSourceLink" role="presentation"><a
+			data-ng-click="showTab('_missingInSource')" href="">Missing in
+				Source</a></li>
+		<li id="_conflictingFilesLink" role="presentation"><a
+			data-ng-click="showTab('_conflictingFiles')" href="">Conflicted
+				Files</a></li>
+	</ul>
+
+	<div id="_missingInTargetDiv" class="compareTabDiv">
+		<!-- data table div -->
+		<div data-ng-show="!missingInTargetEmpty">
+			<table id="missingInTargetDT" style="width: 100%;"
+				class="table-bordered table-hover table-condensed apollo-table">
+			</table>
+
+			<!-- data table controls -->
+			<div id="missingInTargetDTActions"
+				class="col-xs-12 col-sm-12 col-md-12 col-lg-12 datatable-cta-bar text-right"
+				style="display: none">
+				<button id="_copyToTargetBtn" class="btn apollo-btn wrap"
+					data-ng-click="copyToTarget()">Copy To Target</button>
+			</div>
+		</div>
+
+		<!-- empty message -->
+		<em data-ng-show="missingInTargetEmpty"><br /> <br /> <i
+			class="fa fa-exclamation-triangle" aria-hidden="true"></i> No files
+			missing in target</em>
+	</div>
+
+	<div id="_missingInSourceDiv" class="compareTabDiv">
+		<!-- data table div -->
+		<div data-ng-show="!missingInSourceEmpty">
+			<table id="missingInSourceDT" style="width: 100%;"
+				class="table-bordered table-hover table-condensed apollo-table">
+			</table>
+
+			<!-- data table controls -->
+			<div id="missingInSourceDTActions"
+				class="col-xs-12 col-sm-12 col-md-12 col-lg-12 datatable-cta-bar text-right"
+				style="display: none">
+				<button id="_copyToSourceBtn" class="btn apollo-btn wrap"
+					data-ng-click="copyToSource()">Copy To Source</button>
+			</div>
+		</div>
+
+		<!-- empty message -->
+		<em data-ng-show="missingInSourceEmpty"><br /> <br /> <i
+			class="fa fa-exclamation-triangle" aria-hidden="true"></i> No files
+			missing in source</em>
+	</div>
+
+	<div id="_conflictingFilesDiv" class="compareTabDiv">
+		<!-- data table div -->
+		<div data-ng-show="!conflictingFilesEmpty">
+			<table id="conflictingFilesDT" style="width: 100%;"
+				class="table-bordered table-hover table-condensed apollo-table">
+			</table>
+
+			<!-- data table controls -->
+			<div id="conflictingFilesDTActions"
+				class="col-xs-12 col-sm-12 col-md-12 col-lg-12 datatable-cta-bar text-right"
+				style="display: none">
+				<button id="_overwriteTargetBtn" class="btn apollo-btn wrap"
+					data-ng-click="overwriteTarget()">Overwrite Target</button>
+				<button id="_overwriteSourceBtn" class="btn apollo-btn wrap"
+					data-ng-click="overwriteSource()">Overwrite Source</button>
+			</div>
+		</div>
+
+		<!-- empty message -->
+		<em data-ng-show="conflictingFilesEmpty"><br /> <br /> <i
+			class="fa fa-exclamation-triangle" aria-hidden="true"></i> No
+			conflicting files</em>
+	</div>
+
+	<div class="text-right margin-10">
+		<button class="btn apollo-btn"
+			data-ng-click="syncFoldersInputValid = false">Modify Input</button>
+	</div>
+</div>

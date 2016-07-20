@@ -93,6 +93,9 @@ apollo.config = {
 		}).when('/browseSongs', {
 			templateUrl : context_path + "/view/browseSongs",
 			controller : 'browseSongsController'
+		}).when('/syncFolders', {
+			templateUrl : context_path + "/view/syncFolders",
+			controller : 'syncFoldersController'
 		}).otherwise({
 			redirectTo : '/main'
 		});

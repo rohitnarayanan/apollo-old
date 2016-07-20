@@ -1,11 +1,15 @@
 package apollo.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import accelerate.databean.DataMap;
 import accelerate.web.AccelerateWebResponse;
 import apollo.service.FileSystemService;
 import apollo.util.HandleError;
@@ -39,6 +43,30 @@ public class FileSystemController {
 			@RequestParam(name = "fileType", defaultValue = "") String aFileType) {
 		AccelerateWebResponse model = new AccelerateWebResponse();
 		model.putAll(this.fileSystemService.getFileTree(aDirPath, aDirName, aFileType));
+		return model;
+	}
+
+	/**
+	 * @param aRequestParams
+	 * @return
+	 */
+	@RequestMapping(method = RequestMethod.GET, path = "/compareFolders")
+	@HandleError
+	public AccelerateWebResponse compareFolders(@RequestParam Map<String, String> aRequestParams) {
+		AccelerateWebResponse model = new AccelerateWebResponse();
+		model.putAll(this.fileSystemService.compareFolders(aRequestParams));
+		return model;
+	}
+
+	/**
+	 * @param aFileCopyParams
+	 * @return
+	 */
+	@RequestMapping(method = RequestMethod.POST, path = "/copyFile")
+	@HandleError
+	public AccelerateWebResponse compareFolders(@RequestBody DataMap aFileCopyParams) {
+		AccelerateWebResponse model = new AccelerateWebResponse();
+		model.putAll(this.fileSystemService.copyFiles(aFileCopyParams));
 		return model;
 	}
 }

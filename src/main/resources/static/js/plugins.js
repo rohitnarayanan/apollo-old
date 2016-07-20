@@ -138,15 +138,27 @@ apollo.plugins.FileSystemUtil = {
 									var dirName = (aNode.id === "#") ? ""
 											: aNode.text;
 
-									aFileSystemService.getFileTree(dirPath,
-											dirName, aFileType).then(
-											function(aResponse) {
-												aCallback(aResponse.fileTree);
-											},
-											function(aResponse) {
-												$("#_fileSystemModal").modal(
-														"hide");
-											});
+									aFileSystemService
+											.getFileTree(dirPath, dirName,
+													aFileType)
+											.then(
+													function(aResponse) {
+														if (aResponse.message) {
+															apollo.plugins.AlertUtil
+																	.showModalAlert(
+																			"_fileSystemModal",
+																			aResponse.message,
+																			"error");
+														} else {
+															aCallback(aResponse.fileTree);
+															apollo.plugins.AlertUtil
+																	.hideModalAlert("_fileSystemModal");
+														}
+													},
+													function(aResponse) {
+														$("#_fileSystemModal")
+																.modal("hide");
+													});
 								}
 							}
 						});

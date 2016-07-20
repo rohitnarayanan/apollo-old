@@ -10,7 +10,9 @@ apollo.services = {};
  */
 apollo.services.fileSystemService = function($http, $q) {
 	return ({
-		"getFileTree" : getFileTree
+		"getFileTree" : getFileTree,
+		"compareFolders" : compareFolders,
+		"copyFiles" : copyFiles
 	});
 
 	function getFileTree(aDirPath, aDirName, aFileType) {
@@ -22,6 +24,29 @@ apollo.services.fileSystemService = function($http, $q) {
 				"dirName" : aDirName,
 				"fileType" : aFileType
 			}
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function compareFolders(aSyncFoldersInput) {
+		var request = $http({
+			method : "get",
+			url : apollo.context.path + "/fileSystem/compareFolders",
+			params : aSyncFoldersInput
+		});
+
+		return (request.then(apollo.plugins.AngularUtil.httpSuccess,
+				apollo.plugins.AngularUtil.httpError));
+	}
+
+	function copyFiles(aFileCopyParams) {
+		var request = $http({
+			method : "post",
+			url : apollo.context.path + "/fileSystem/copyFile",
+			data : aFileCopyParams,
+			datatype : "json"
 		});
 
 		return (request.then(apollo.plugins.AngularUtil.httpSuccess,

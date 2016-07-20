@@ -24,7 +24,11 @@
 		<appender-ref ref="SysoutAppender" />
 	</logger>
 
-	<logger name="apollo.util" level="debug" additivity="false">
+	<logger name="accelerate" level="debug" additivity="false">
+		<appender-ref ref="SysoutAppender" />
+	</logger>
+
+	<logger name="apollo" level="debug" additivity="false">
 		<appender-ref ref="SysoutAppender" />
 	</logger>
 

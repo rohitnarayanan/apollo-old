@@ -107,6 +107,13 @@ div.panel.apollo-panel div.panel-heading, div.panel.apollo-panel div.panel-body
 	outline: 0;
 	box-shadow: inset 0 1px 1px #96c346, 0 0 8px #96c346;
 }
+
+@media ( max-width : 768px) {
+	p.form-control-static {
+		padding: 0px;
+	}
+}
+
 /* form styles:end */
 
 /* button styles:start */
@@ -125,6 +132,16 @@ div.panel.apollo-panel div.panel-heading, div.panel.apollo-panel div.panel-body
 @media ( max-width : 768px) {
 	.apollo-btn.wrap {
 		margin-top: 10px;
+	}
+}
+
+button.float-btn {
+	float: left;
+}
+
+@media ( min-width : 768px) {
+	button.float-btn {
+		margin-top: 7px;
 	}
 }
 /* button styles:end */
