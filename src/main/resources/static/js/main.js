@@ -43,6 +43,18 @@ apollo.utils = {
 		return false;
 	},
 
+	"getValue" : function(aObject, aKey, aDefaultValue) {
+		var _val = null
+		if (!aObject) {
+			_val = aObject[aKey];
+		}
+
+		if (!_val || _val === "") {
+			return aDefaultValue
+		}
+		return _val;
+	},
+
 	"getSelectedText" : function() {
 		var text = "";
 		if (window.getSelection) {

@@ -72,20 +72,28 @@ public class AlbumController {
 
 	/**
 	 * @param aAlbumTag
+	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveAlbumTag")
 	@HandleError
-	public void saveAlbumTag(@RequestBody Mp3Tag aAlbumTag) {
+	public AccelerateWebResponse saveAlbumTag(@RequestBody Mp3Tag aAlbumTag) {
 		this.albumService.saveAlbumTag(aAlbumTag, aAlbumTag.getFilePath());
+		AccelerateWebResponse model = new AccelerateWebResponse();
+		model.put("saveFlag", true);
+		return model;
 	}
 
 	/**
 	 * @param aTrackTags
+	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveTrackTags")
 	@HandleError
-	public void saveTrackTags(@RequestBody List<Mp3Tag> aTrackTags) {
+	public AccelerateWebResponse saveTrackTags(@RequestBody List<Mp3Tag> aTrackTags) {
 		this.albumService.saveTrackTags(aTrackTags);
+		AccelerateWebResponse model = new AccelerateWebResponse();
+		model.put("saveFlag", true);
+		return model;
 	}
 
 	/**

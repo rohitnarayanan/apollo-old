@@ -42,6 +42,11 @@ public class User implements Serializable {
 	/**
 	 * 
 	 */
+	private String name = null;
+
+	/**
+	 * 
+	 */
 	private String email = null;
 
 	/**
@@ -114,6 +119,24 @@ public class User implements Serializable {
 	 */
 	public void setRoles(List<String> aRoles) {
 		this.roles = aRoles;
+	}
+
+	/**
+	 * Getter method for "name" property
+	 * 
+	 * @return name
+	 */
+	public String getName() {
+		return this.name;
+	}
+
+	/**
+	 * Setter method for "name" property
+	 * 
+	 * @param aName
+	 */
+	public void setName(String aName) {
+		this.name = aName;
 	}
 
 	/**

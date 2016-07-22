@@ -185,27 +185,36 @@
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
-					<button id="_parseTagsBtn" class="btn apollo-btn wrap"
-						data-ng-click="showParseTags(true)">Parse Tags</button>
-					<button class="btn apollo-btn wrap" data-dismiss="modal"
-						data-ng-click="saveTag()">Save</button>
-					<button id="_addToLibraryBtn" class="btn apollo-btn wrap"
-						data-ng-click="addToLibrary()" data-ng-show="!addedToLibrary">Add
-						to Library</button>
-					<button id="_addToPlaylistBtn" class="btn apollo-btn wrap"
-						data-ng-click="addToPlaylist()" data-ng-show="addedToLibrary">Add
-						to Playlist</button>
-				</div>
-			</div>
+		</div>
+	</div>
+	<div class="panel-footer">
+		<div class="text-right" data-ng-show="copyTagReview">
+			<button id="_parseTagsBtn" class="btn apollo-btn wrap"
+				data-ng-click="discardCopyTag()">Discard</button>
+			<button class="btn apollo-btn wrap" data-dismiss="modal"
+				data-ng-click="saveCopyTag()">Save</button>
+		</div>
+		<div class="text-right" data-ng-show="!copyTagReview">
+			<button id="_parseTagsBtn" class="btn apollo-btn wrap"
+				data-ng-click="showCopyTag()">Copy Tags</button>
+			<button id="_parseTagsBtn" class="btn apollo-btn wrap"
+				data-ng-click="showParseTags(true)">Parse Tags</button>
+			<button class="btn apollo-btn wrap" data-dismiss="modal"
+				data-ng-click="saveTag()">Save</button>
+			<button id="_addToLibraryBtn" class="btn apollo-btn wrap"
+				data-ng-click="addToLibrary()" data-ng-show="!addedToLibrary">Add
+				to Library</button>
+			<button id="_addToPlaylistBtn" class="btn apollo-btn wrap"
+				data-ng-click="addToPlaylist()" data-ng-show="addedToLibrary">Add
+				to Playlist</button>
 		</div>
 	</div>
 </div>
 
+
 <div id="_tmpPanel" class="panel panel-primary"
 	data-ng-show="tagsParsed">
-	<div class="panel-heading">Tag Parse Result</div>
+	<div class="panel-heading">Review Tag</div>
 	<div class="panel-body">
 		<table class="table stripe hover display compact apollo-table">
 			<thead>

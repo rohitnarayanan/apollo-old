@@ -70,11 +70,15 @@ public class SongController {
 
 	/**
 	 * @param aSongTag
+	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveTag")
 	@HandleError
-	public void saveSongTag(@RequestBody Mp3Tag aSongTag) {
+	public AccelerateWebResponse saveSongTag(@RequestBody Mp3Tag aSongTag) {
 		this.songService.saveSongTag(aSongTag);
+		AccelerateWebResponse model = new AccelerateWebResponse();
+		model.put("saveFlag", true);
+		return model;
 	}
 
 	/**

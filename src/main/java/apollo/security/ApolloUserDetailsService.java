@@ -63,8 +63,9 @@ public class ApolloUserDetailsService implements UserDetailsService {
 		user.setUsername("q");
 		user.setPassword("q");
 		user.setId("1");
-		user.setEmail("rohit.nn@gmail.com");
 		user.setRoles(Arrays.asList("user"));
+		user.setName("Rohit");
+		user.setEmail("rohit.nn@gmail.com");
 
 		ApolloSession apolloSession = new ApolloSession(user);
 		return apolloSession;

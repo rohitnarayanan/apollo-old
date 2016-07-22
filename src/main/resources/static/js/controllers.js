@@ -440,12 +440,78 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 		songService.getTag(aSongPath).then(function(aResponse) {
 			$scope.songTag = aResponse.songTag;
 			$scope.addedToLibrary = aResponse.addedToLibrary;
-			$scope.tmpTag = angular.copy(aResponse.songTag);
+			$scope.tmpTag = angular.copy($scope.songTag);
 			$scope.updatedTag = {};
 
 			$scope.songSelected = true;
 			apollo.plugins.AlertUtil.hidePageAlert();
 		}, apollo.plugins.AngularUtil.serverError);
+	};
+
+	/**
+	 * Function to show modal to select song for copying tag
+	 */
+	$scope.showCopyTag = function() {
+		apollo.plugins.FileSystemUtil.showModal(fileSystemService,
+				apollo.context.configProps.fileExtn, "anyFile", function(
+						aSongPath) {
+					songService.getTag(aSongPath).then(function(aResponse) {
+						$scope.tmpTag = aResponse.songTag;
+						$scope.updatedTag = {
+							"language" : aResponse.songTag.language,
+							"genre" : aResponse.songTag.genre,
+							"mood" : aResponse.songTag.mood,
+							"album" : aResponse.songTag.album,
+							"albumArtist" : aResponse.songTag.albumArtist,
+							"year" : aResponse.songTag.year,
+							"composer" : aResponse.songTag.composer,
+							"artist" : aResponse.songTag.artist,
+							"title" : aResponse.songTag.title,
+							"trackNbr" : aResponse.songTag.trackNbr,
+							"lyrics" : aResponse.songTag.lyrics,
+							"tags" : aResponse.songTag.tags,
+						};
+
+						$scope.copyTagReview = true;
+						apollo.plugins.AlertUtil.hidePageAlert();
+					}, apollo.plugins.AngularUtil.serverError);
+				});
+	};
+
+	/**
+	 * Function to discard the tags copied/modified from song
+	 */
+	$scope.discardCopyTag = function() {
+		$scope.tmpTag = angular.copy($scope.songTag);
+		$scope.copyTagReview = false;
+	};
+
+	/**
+	 * Function to save the tags copied/modified from the song
+	 */
+	$scope.saveCopyTag = function() {
+		var _updatedCopyTag = {};
+		$.each($scope.updatedTag, function(aKey, aValue) {
+			if (aValue) {
+				_updatedCopyTag[aKey] = (aValue === "|~|") ? null : aValue;
+			}
+		});
+
+		_updatedCopyTag.filePath = $scope.songTag.filePath;
+		songService.saveTag(_updatedCopyTag).then(
+				function(aResponse) {
+					$.each(_updatedCopyTag, function(aKey, aValue) {
+						if (aValue) {
+							$scope.songTag[aKey] = aValue;
+						}
+					});
+
+					$scope.tmpTag = angular.copy($scope.songTag);
+					$("#_mainPanel div.form-group").removeClass("bg-warning");
+					apollo.plugins.AlertUtil.showPageAlert(
+							"Tag saved successfully", "success");
+					$scope.copyTagReview = false;
+				});
 	};
 
 	/**
@@ -529,16 +595,16 @@ apollo.controllers.addSongController = function($rootScope, $scope,
 		_updatedTag.filePath = $scope.songTag.filePath;
 		songService.saveTag(_updatedTag).then(
 				function(aResponse) {
-					$.each(_updatedTag,
-							function(aKey, aValue) {
-								$scope.songTag[aKey] = (aValue === "|~|") ? ""
-										: aValue;
-							});
+					$.each(_updatedTag, function(aKey, aValue) {
+						$scope.songTag[aKey] = (aValue === "|~|") ? null
+								: aValue;
+					});
 
 					$scope.addedToLibrary = tagService
 							.checkSongLocation($scope.songTag);
 
 					$scope.tmpTag = angular.copy($scope.songTag);
+					$("#_mainPanel div.form-group").removeClass("bg-warning");
 					apollo.plugins.AlertUtil.showPageAlert(
 							"Tag saved successfully", "success");
 				});
