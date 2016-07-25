@@ -6,10 +6,10 @@ import static accelerate.util.AccelerateConstants.SEMICOLON_CHAR;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.FileVisitResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,12 +24,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import accelerate.databean.DataMap;
-import accelerate.exception.AccelerateException;
 import accelerate.logging.Auditable;
 import accelerate.util.AppUtil;
 import accelerate.util.FileUtil;
-import accelerate.util.file.DirectoryParser;
-import accelerate.util.file.DirectoryParser.FileHandler;
 import apollo.config.ApolloConfigProps;
 
 /**
@@ -155,48 +152,19 @@ public class FileSystemService {
 		 */
 		String[] ignoreExtensions = StringUtils.split(aInputParams.getOrDefault("ignoreExtnList", ""), COMMA_CHAR);
 
-		final int sourcePathLength = FileUtil.getFilePath(sourceFolder).length();
-		final int targetPathLength = FileUtil.getFilePath(targetFolder).length();
-		final int[] handlerMode = new int[] { 0 };
-		final Map<String, File> sourceFilesMap = new HashMap<>();
-		final Map<String, File> targetFilesMap = new HashMap<>();
+		// traverse source folder
+		Map<String, File> sourceFilesMap = FileUtil.walkFileTree(sourceFolder.getPath(),
+				(aFile -> new File(targetFolder, FileUtil.getPathKey(aFile.toPath(), targetFolder.toPath())).exists()
+						? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
+				null, null,
+				(aFile, aFileVisitResult) -> !AppUtil.compareAny(FileUtil.getFileExtn(aFile), ignoreExtensions));
 
-		FileHandler fileHandler = new FileHandler() {
-			@Override
-			public File handleDirectory(File aFolder) throws AccelerateException {
-				int pathIndex = (handlerMode[0] == 0) ? sourcePathLength : targetPathLength;
-				File checkRoot = (handlerMode[0] == 0) ? targetFolder : sourceFolder;
-				Map<String, File> filesMap = (handlerMode[0] == 0) ? sourceFilesMap : targetFilesMap;
-
-				String shortPath = FileUtil.getFilePath(aFolder).substring(pathIndex);
-				File chkFolder = new File(checkRoot, shortPath);
-				if (!chkFolder.exists()) {
-					filesMap.put(shortPath, aFolder);
-					return null;
-				}
-
-				return aFolder;
-			}
-
-			@Override
-			public File handleFile(File aFile) throws AccelerateException {
-				int pathIndex = (handlerMode[0] == 0) ? sourcePathLength : targetPathLength;
-				Map<String, File> filesMap = (handlerMode[0] == 0) ? sourceFilesMap : targetFilesMap;
-
-				filesMap.put(FileUtil.getFilePath(aFile).substring(pathIndex), aFile);
-				return aFile;
-			}
-		};
-
-		DirectoryParser.execute(sourceFolder,
-				aFile -> !AppUtil.compareAny(accelerate.util.FileUtil.getFileExtn(aFile), ignoreExtensions),
-				fileHandler);
-
-		// flip the mode
-		handlerMode[0] = 1;
-		DirectoryParser.execute(targetFolder,
-				aFile -> !AppUtil.compareAny(accelerate.util.FileUtil.getFileExtn(aFile), ignoreExtensions),
-				fileHandler);
+		// traverse target folder
+		Map<String, File> targetFilesMap = FileUtil.walkFileTree(targetFolder.getPath(),
+				(aFile -> new File(sourceFolder, FileUtil.getPathKey(aFile.toPath(), sourceFolder.toPath())).exists()
+						? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
+				null, null,
+				(aFile, aFileVisitResult) -> !AppUtil.compareAny(FileUtil.getFileExtn(aFile), ignoreExtensions));
 
 		List<DataMap> missingInTarget = new ArrayList<>();
 		List<DataMap> missingInSource = new ArrayList<>();
