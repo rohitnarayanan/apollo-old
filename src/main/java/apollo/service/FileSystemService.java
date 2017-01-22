@@ -188,9 +188,9 @@ public class FileSystemService {
 								sourceFile.length(), "lastModified",
 								DateFormatUtils.format(new Date(sourceFile.lastModified()), "MMM dd yy, HH:mm:SS")),
 						"target",
-						DataMap.buildMap("path", FileUtil.getFilePath(sourceFile), "name", sourceFile.getName(), "size",
-								sourceFile.length(), "lastModified", DateFormatUtils
-										.format(new Date(sourceFile.lastModified()), "MMM dd yy, HH:mm:SS"))));
+						DataMap.buildMap("path", FileUtil.getFilePath(targetFile), "name", targetFile.getName(), "size",
+								targetFile.length(), "lastModified", DateFormatUtils
+										.format(new Date(targetFile.lastModified()), "MMM dd yy, HH:mm:SS"))));
 			}
 		}
 
