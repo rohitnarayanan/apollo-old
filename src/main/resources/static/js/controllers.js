@@ -58,6 +58,10 @@ apollo.controllers.mainController = function($rootScope, $scope, $http,
 	// add a standard token on click
 	$("#_standardTokens a").click(function(aEvent) {
 		var token = $(this).data("token");
+//		if ($("#_token-" + token).is(":hidden")) {
+//			return;
+//		}
+
 		apollo.plugins.ParseTagsUtil.addToken(token);
 		$("#_token-" + token).hide();
 	});
@@ -707,7 +711,7 @@ apollo.controllers.syncFoldersController = function($rootScope, $scope,
 	$rootScope.handlePageControl = $scope.resetAll;
 
 	$scope.choosePath = function(aPathType) {
-		$("#_fileTreeRoot").val("C:/Temp");
+		$("#_fileTreeRoot").val("/Users/rohitnarayanan/Documents");
 		apollo.plugins.FileSystemUtil.showModal(fileSystemService, "none",
 				"all", function(aPath) {
 					if (aPathType === 'source') {

@@ -64,8 +64,8 @@ apollo.datatables.missingFilesDT = function(aTableId) {
 		"select" : true,
 		"rowId" : "filePath",
 		"columns" : [ {
-			"title" : "Name",
-			"data" : "name",
+			"title" : "Path",
+			"data" : "key",
 			"defaultContent" : ""
 		}, {
 			"title" : "Type",
