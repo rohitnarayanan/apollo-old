@@ -154,14 +154,14 @@ public class FileSystemService {
 
 		// traverse source folder
 		Map<String, File> sourceFilesMap = FileUtil.walkFileTree(sourceFolder.getPath(),
-				(aFile -> new File(targetFolder, FileUtil.getPathKey(aFile.toPath(), targetFolder.toPath())).exists()
+				(aFile -> new File(targetFolder, FileUtil.getPathKey(aFile.toPath(), sourceFolder.toPath())).exists()
 						? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
 				null, null,
 				(aFile, aFileVisitResult) -> !AppUtil.compareAny(FileUtil.getFileExtn(aFile), ignoreExtensions));
 
 		// traverse target folder
 		Map<String, File> targetFilesMap = FileUtil.walkFileTree(targetFolder.getPath(),
-				(aFile -> new File(sourceFolder, FileUtil.getPathKey(aFile.toPath(), sourceFolder.toPath())).exists()
+				(aFile -> new File(sourceFolder, FileUtil.getPathKey(aFile.toPath(), targetFolder.toPath())).exists()
 						? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
 				null, null,
 				(aFile, aFileVisitResult) -> !AppUtil.compareAny(FileUtil.getFileExtn(aFile), ignoreExtensions));
@@ -180,7 +180,7 @@ public class FileSystemService {
 						DateFormatUtils.format(new Date(sourceFile.lastModified()), "MMM dd yy, HH:mm:SS")));
 			} else if (sourceFile.length() == targetFile.length()) {
 				continue;
-			} else {
+			} else if (sourceFile.isFile()) {
 				// conflicted files
 				conflictingFiles.add(DataMap.buildMap("key", entry.getKey(), "type",
 						sourceFile.isFile() ? "file" : "directory", "source",
