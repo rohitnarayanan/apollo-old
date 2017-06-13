@@ -154,15 +154,15 @@ public class FileSystemService {
 
 		// traverse source folder
 		Map<String, File> sourceFilesMap = FileUtil.walkFileTree(sourceFolder.getPath(),
-				(aFile -> new File(targetFolder, FileUtil.getPathKey(aFile.toPath(), sourceFolder.toPath())).exists()
-						? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
+				(aFile -> new File(targetFolder, FileUtil.getRelativePath(aFile.toPath(), sourceFolder.toPath()))
+						.exists() ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
 				null, null,
 				(aFile, aFileVisitResult) -> !AppUtil.compareAny(FileUtil.getFileExtn(aFile), ignoreExtensions));
 
 		// traverse target folder
 		Map<String, File> targetFilesMap = FileUtil.walkFileTree(targetFolder.getPath(),
-				(aFile -> new File(sourceFolder, FileUtil.getPathKey(aFile.toPath(), targetFolder.toPath())).exists()
-						? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
+				(aFile -> new File(sourceFolder, FileUtil.getRelativePath(aFile.toPath(), targetFolder.toPath()))
+						.exists() ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
 				null, null,
 				(aFile, aFileVisitResult) -> !AppUtil.compareAny(FileUtil.getFileExtn(aFile), ignoreExtensions));
 
