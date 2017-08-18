@@ -41,7 +41,7 @@ group = "karma"
 version = "1.0"
 
 task wrapper(type: Wrapper) {
-	gradleVersion = "2.14"
+	gradleVersion = "4.0.1"
 }
 
 /*
