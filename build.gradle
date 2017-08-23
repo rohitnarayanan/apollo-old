@@ -4,11 +4,10 @@ buildscript {
 	repositories {
 		jcenter()
 	}
+	
 	dependencies {
 		classpath("io.spring.gradle:dependency-management-plugin:$springPlatformGradleVersion")
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootGradleVersion")
-		classpath("com.moowork.gradle:gradle-node-plugin:$gulpGradleVersion")
-		classpath("com.moowork.gradle:gradle-gulp-plugin:$gulpGradleVersion")
 	}
 }
 
@@ -29,7 +28,6 @@ repositories {
 }
 
 
-apply plugin: "com.moowork.gulp"
 apply plugin: "java"
 apply plugin: "war"
 apply plugin: "org.springframework.boot"
@@ -41,7 +39,7 @@ group = "karma"
 version = "1.0"
 
 task wrapper(type: Wrapper) {
-	gradleVersion = "4.0.1"
+	gradleVersion = gradleVersion
 }
 
 /*
@@ -114,6 +112,7 @@ eclipse {
 			}
 		}
 	}
+	
 	jdt {
 		sourceCompatibility = javaVersion
 		targetCompatibility = javaVersion
@@ -125,6 +124,7 @@ eclipse {
 			}
 		}
 	}
+	
 	wtp {
 		component {
 			contextPath = "apollo"
