@@ -163,7 +163,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	/**
 	 * Erros in the tag
 	 */
-	private List<String> tagErrors = Collections.EMPTY_LIST;
+	private List<String> tagErrors = Collections.emptyList();
 
 	/**
 	 * default constructor to allow empty instances
@@ -247,8 +247,8 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 				}
 
 				/*
-				 * If it is the empty token created at the end while parsing the
-				 * tokens, then set the field value to remaining string
+				 * If it is the empty token created at the end while parsing the tokens, then
+				 * set the field value to remaining string
 				 */
 				if (AppUtil.compare(token, AccelerateConstants.EMPTY_STRING) && index == 0) {
 					index = parseString.length();
@@ -440,8 +440,8 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	}
 
 	/**
-	 * This is the default method to write the tag to the given file. It calls
-	 * the {@link #save(int, File)} method with aSaveFlag argument as 0
+	 * This is the default method to write the tag to the given file. It calls the
+	 * {@link #save(int, File)} method with aSaveFlag argument as 0
 	 *
 	 * @throws AccelerateException
 	 */
@@ -457,10 +457,9 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	 *            <li>0: Write into available tag, create a new if no tag is
 	 *            present</li>
 	 *            <li>1: Write into available tag else ignore</li>
-	 *            <li>2: Write into available tag else throw an exeption is tag
-	 *            not available</li>
-	 *            <li>3: Write into a new tag, ignore if tag already
-	 *            present</li>
+	 *            <li>2: Write into available tag else throw an exeption is tag not
+	 *            available</li>
+	 *            <li>3: Write into a new tag, ignore if tag already present</li>
 	 *            <li>4: Write into a new tag, throw an exception if tag already
 	 *            present</li>
 	 *            <li>5: Always write into a new tag, delete if a tag is
