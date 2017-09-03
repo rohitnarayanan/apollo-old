@@ -96,21 +96,13 @@ bootRepackage {
  * Eclipse settings
  */
 eclipse {
+	project {
+		natures = ["org.eclipse.wst.common.project.facet.core.nature"]
+		buildCommand "org.eclipse.wst.common.project.facet.core.builder"
+	}
+	
 	classpath {
 		defaultOutputDir = file("build/classes")
-		
-		file {
-			whenMerged { classpath ->
-				classpath.entries.removeAll { entry -> entry.kind == "con" && entry.path == "org.eclipse.jst.j2ee.internal.web.container" }
-				classpath.entries.collect { entry ->
-					if (entry.kind == "con" && entry.path == "org.eclipse.jdt.launching.JRE_CONTAINER") {
-						entry.path = "org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-" + javaVersion
-					}
-					
-					entry
-				}
-			}
-		}
 	}
 	
 	jdt {
@@ -131,17 +123,12 @@ eclipse {
 			deployName = "apollo"
 			property name: "java-output-path", value: "/apollo/build/classes"
 		}
+		
 		facet {
 			facet name: "jst.java", version: javaVersion
-			facet name: "jst.web", version: servletVersion
+			facet name: "jst.web", version: webVersion
 			facet name: "wst.jsdt.web", version: "1.0"
 			
-			file {
-				whenMerged { wtpFacet -> 
-					wtpFacet.facets.removeAll { facetEntry -> facetEntry.name == "jst.java" && facetEntry.version != javaVersion }
-					wtpFacet.facets.removeAll { facetEntry -> facetEntry.name == "jst.web" && facetEntry.version != servletVersion }
-				}
-			}
 		}
 	}
 }

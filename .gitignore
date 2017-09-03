@@ -1,13 +1,6 @@
 .apt_generated/
 .gradle/
-.settings/
-bin/
 build/
 logs/
-node_modules/
-target/
-.classpath
-.factorypath
 src/main/resources/git.properties
 .DS_Store
-*.log
