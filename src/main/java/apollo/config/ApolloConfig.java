@@ -2,7 +2,6 @@ package apollo.config;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.SpringBootWebSecurityConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.web.servlet.ErrorPage;
@@ -28,8 +27,7 @@ import accelerate.util.JSONUtil;
  * @version 1.0 Initial Version
  * @since Jul 20, 2014
  */
-@SpringBootApplication(scanBasePackages = { "accelerate", "apollo" }, exclude = { DataSourceAutoConfiguration.class,
-		SpringBootWebSecurityConfiguration.class })
+@SpringBootApplication(scanBasePackages = { "accelerate", "apollo" }, exclude = { DataSourceAutoConfiguration.class })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableMongoRepositories(basePackages = { "apollo.data" })
 @EnableSpringDataWebSupport
