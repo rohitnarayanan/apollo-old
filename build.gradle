@@ -103,6 +103,18 @@ eclipse {
 	
 	classpath {
 		defaultOutputDir = file("build/classes")
+		
+		file {
+			whenMerged { classpath ->
+				classpath.entries.collect { entry ->
+					if (entry.kind == "con" && entry.path.startsWith("org.eclipse.jdt.launching.JRE_CONTAINER")) {
+						entry.path = "org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-" + javaVersion
+					}
+					
+					entry
+				}
+			}
+		}
 	}
 	
 	jdt {
