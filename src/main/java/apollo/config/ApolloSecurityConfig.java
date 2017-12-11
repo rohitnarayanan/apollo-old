@@ -13,8 +13,6 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import accelerate.web.security.AngularJSUtil;
-import accelerate.web.security.SecurityUtil;
 import apollo.security.ApolloUserDetailsService;
 
 /**

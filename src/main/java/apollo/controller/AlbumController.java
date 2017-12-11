@@ -1,5 +1,6 @@
 package apollo.controller;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import accelerate.databean.DataMap;
-import accelerate.web.AccelerateWebResponse;
+import accelerate.utils.bean.DataMap;
+import accelerate.web.Response;
 import apollo.model.Mp3Tag;
 import apollo.service.AlbumService;
 import apollo.util.HandleError;
@@ -37,9 +38,9 @@ public class AlbumController {
 	 */
 	@RequestMapping(method = RequestMethod.GET, path = "/listTracks")
 	@HandleError
-	public AccelerateWebResponse listTracks(@RequestParam(name = "albumPath") String aAlbumPath) {
-		AccelerateWebResponse model = new AccelerateWebResponse();
-		model.putAll(this.albumService.getAlbumTags(aAlbumPath));
+	public Response listTracks(@RequestParam(name = "albumPath") String aAlbumPath) {
+		Response model = new Response();
+		model.putAll(this.albumService.getAlbumTags(Paths.get(aAlbumPath)));
 		return model;
 	}
 
@@ -50,10 +51,10 @@ public class AlbumController {
 	 */
 	@RequestMapping(method = RequestMethod.GET, path = "/parseTags")
 	@HandleError
-	public AccelerateWebResponse parseTags(@RequestParam(name = "albumPath") String aAlbumPath,
+	public Response parseTags(@RequestParam(name = "albumPath") String aAlbumPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
-		AccelerateWebResponse model = new AccelerateWebResponse();
-		model.putAll(this.albumService.parseAlbumTags(aAlbumPath, aParseTagTokens, false));
+		Response model = new Response();
+		model.putAll(this.albumService.parseAlbumTags(Paths.get(aAlbumPath), aParseTagTokens, false));
 		return model;
 	}
 
@@ -64,9 +65,9 @@ public class AlbumController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveParsedTags")
 	@HandleError
-	public AccelerateWebResponse saveParsedTags(@RequestParam(name = "albumPath") String aAlbumPath,
+	public Response saveParsedTags(@RequestParam(name = "albumPath") String aAlbumPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
-		this.albumService.parseAlbumTags(aAlbumPath, aParseTagTokens, true);
+		this.albumService.parseAlbumTags(Paths.get(aAlbumPath), aParseTagTokens, true);
 		return listTracks(aAlbumPath);
 	}
 
@@ -76,9 +77,9 @@ public class AlbumController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveAlbumTag")
 	@HandleError
-	public AccelerateWebResponse saveAlbumTag(@RequestBody Mp3Tag aAlbumTag) {
+	public Response saveAlbumTag(@RequestBody Mp3Tag aAlbumTag) {
 		this.albumService.saveAlbumTag(aAlbumTag, aAlbumTag.getFilePath());
-		AccelerateWebResponse model = new AccelerateWebResponse();
+		Response model = new Response();
 		model.put("saveFlag", true);
 		return model;
 	}
@@ -89,9 +90,9 @@ public class AlbumController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveTrackTags")
 	@HandleError
-	public AccelerateWebResponse saveTrackTags(@RequestBody List<Mp3Tag> aTrackTags) {
+	public Response saveTrackTags(@RequestBody List<Mp3Tag> aTrackTags) {
 		this.albumService.saveTrackTags(aTrackTags);
-		AccelerateWebResponse model = new AccelerateWebResponse();
+		Response model = new Response();
 		model.put("saveFlag", true);
 		return model;
 	}
@@ -102,9 +103,9 @@ public class AlbumController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/renameTracks")
 	@HandleError
-	public AccelerateWebResponse renameTracks(@RequestBody Mp3Tag aAlbumTag) {
+	public Response renameTracks(@RequestBody Mp3Tag aAlbumTag) {
 		DataMap attributes = this.albumService.renameTracks(aAlbumTag);
-		AccelerateWebResponse model = listTracks(attributes.get("albumPath").toString());
+		Response model = listTracks(attributes.get("albumPath").toString());
 		model.putAll(attributes);
 		return model;
 	}
@@ -115,9 +116,9 @@ public class AlbumController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/addToLibrary")
 	@HandleError
-	public AccelerateWebResponse addToLibrary(@RequestBody Mp3Tag aAlbumTag) {
+	public Response addToLibrary(@RequestBody Mp3Tag aAlbumTag) {
 		DataMap attributes = this.albumService.addToLibrary(aAlbumTag);
-		AccelerateWebResponse model = listTracks(attributes.get("albumPath").toString());
+		Response model = listTracks(attributes.get("albumPath").toString());
 		model.putAll(attributes);
 		return model;
 	}

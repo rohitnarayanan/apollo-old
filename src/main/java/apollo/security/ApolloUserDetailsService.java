@@ -56,18 +56,15 @@ public class ApolloUserDetailsService implements UserDetailsService {
 		// }
 
 		/*
-		 * TODO: Remove the default user and throw appropriate exception to
-		 * display error on login page.
+		 * TODO: Remove the default user and throw appropriate exception to display
+		 * error on login page.
 		 */
-		User user = new User();
-		user.setUsername("q");
-		user.setPassword("q");
+		User user = new User("q", "q");
 		user.setId("1");
 		user.setRoles(Arrays.asList("user"));
 		user.setName("Rohit");
 		user.setEmail("rohit.nn@gmail.com");
 
-		ApolloSession apolloSession = new ApolloSession(user);
-		return apolloSession;
+		return user;
 	}
 }

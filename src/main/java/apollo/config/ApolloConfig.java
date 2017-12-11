@@ -17,8 +17,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import accelerate.cache.PropertyCache;
-import accelerate.util.JSONUtil;
+import accelerate.utils.JSONUtil;
+import accelerate.utils.cache.PropertyCache;
 
 /**
  * Main {@link Configuration} class for accelerate

@@ -1,12 +1,15 @@
 package apollo.service;
 
-import static accelerate.util.AccelerateConstants.COMMA_CHAR;
-import static accelerate.util.AccelerateConstants.HYPHEN_CHAR;
-import static accelerate.util.AccelerateConstants.SEMICOLON_CHAR;
+import static accelerate.utils.CommonConstants.COMMA_CHAR;
+import static accelerate.utils.CommonConstants.HYPHEN_CHAR;
+import static accelerate.utils.CommonConstants.SEMICOLON_CHAR;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -23,10 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import accelerate.databean.DataMap;
-import accelerate.logging.Auditable;
-import accelerate.util.AppUtil;
-import accelerate.util.FileUtil;
+import accelerate.utils.CommonUtils;
+import accelerate.utils.NIOUtil;
+import accelerate.utils.bean.DataMap;
+import accelerate.utils.logging.Log;
 import apollo.config.ApolloConfigProps;
 
 /**
@@ -57,55 +60,55 @@ public class FileSystemService {
 	 *            file extension
 	 * @return
 	 */
-	@Auditable
+	@Log
 	public DataMap getFileTree(String aDirPath, String aDirName, final String aFileType) {
 		String dirPath = StringUtils.isEmpty(aDirPath) ? this.apolloConfigProps.getFileSelectorRoot() : aDirPath;
-		File targetDir = StringUtils.isEmpty(aDirName) ? new File(dirPath) : new File(dirPath, aDirName);
+		Path targetPath = StringUtils.isEmpty(aDirName) ? Paths.get(dirPath) : Paths.get(dirPath).resolve(aDirName);
 
-		LOGGER.debug("Fetching file tree for [{}]", targetDir);
+		LOGGER.debug("Fetching file tree for [{}]", targetPath);
 
 		DataMap dataMap = new DataMap();
-		dataMap.put("path", FileUtil.getFilePath(targetDir));
+		dataMap.put("path", targetPath);
 
-		if (!targetDir.isDirectory()) {
+		if (!targetPath.isDirectory()) {
 			dataMap.put("message", "Root not a valid directory");
 			return dataMap;
 		}
 
-		List<DataMap> fileTree = Arrays.stream(targetDir.listFiles(new FileFilter() {
+		List<DataMap> fileTree = Arrays.stream(targetPath.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File aFile) {
 				if (aFile.getName().startsWith(".")) {
 					return false;
 				}
 
-				if (AppUtil.compare(aFileType, "all")) {
+				if (CommonUtils.compare(aFileType, "all")) {
 					return true;
-				} else if (AppUtil.compare(aFileType, "none")) {
+				} else if (CommonUtils.compare(aFileType, "none")) {
 					return aFile.isDirectory();
 				}
 
-				return aFile.isDirectory() || AppUtil.compare(aFileType, FileUtil.getFileExtn(aFile));
+				return aFile.isDirectory() || CommonUtils.compare(aFileType, getFileExtn(aFile));
 			}
 		})).map(aFile -> {
 			boolean children = false;
 			if (aFile.isDirectory()) {
-				if (AppUtil.compare(aFileType, "all")) {
+				if (CommonUtils.compare(aFileType, "all")) {
 					children = !ObjectUtils.isEmpty(aFile.listFiles());
 				} else {
 					children = !ObjectUtils.isEmpty(aFile.listFiles(new FileFilter() {
 						@Override
 						public boolean accept(File aInnerFile) {
-							return aInnerFile.isDirectory() || (AppUtil.compare(aFileType, "none") ? false
-									: AppUtil.compare(aFileType, FileUtil.getFileExtn(aInnerFile)));
+							return aInnerFile.isDirectory() || (CommonUtils.compare(aFileType, "none") ? false
+									: CommonUtils.compare(aFileType, getFileExtn(aInnerFile)));
 						}
 					}));
 				}
 			}
 
 			return DataMap.buildMap("text", aFile.getName(), "data",
-					DataMap.buildMap("path", FileUtil.getFilePath(targetDir), "type",
-							(aFile.isDirectory()) ? "folder" : FileUtil.getFileExtn(aFile)),
+					DataMap.buildMap("path", getFilePath(targetDir), "type",
+							(aFile.isDirectory()) ? "folder" : getFileExtn(aFile)),
 					"children", children, "icon", (aFile.isDirectory()) ? null : "fa fa-file-audio-o");
 		}).collect(Collectors.toList());
 
@@ -117,7 +120,7 @@ public class FileSystemService {
 	 * @param aInputParams
 	 * @return
 	 */
-	@Auditable
+	@Log
 	@SuppressWarnings("static-method")
 	public DataMap compareFolders(Map<String, String> aInputParams) {
 		/*
@@ -125,17 +128,17 @@ public class FileSystemService {
 		 */
 		DataMap dataMap = new DataMap();
 		StringBuilder message = new StringBuilder();
-		File sourceFolder = new File(aInputParams.getOrDefault("sourcePath", "/INVALID_FOLDER_ROOT"));
-		File targetFolder = new File(aInputParams.getOrDefault("targetPath", "/INVALID_FOLDER_ROOT"));
+		Path sourceFolder = Paths.get(aInputParams.getOrDefault("sourcePath", "/INVALID_FOLDER_ROOT"));
+		Path targetFolder = Paths.get(aInputParams.getOrDefault("targetPath", "/INVALID_FOLDER_ROOT"));
 
-		if (!sourceFolder.exists() || !sourceFolder.isDirectory()) {
+		if (!Files.exists(sourceFolder) || !Files.isDirectory(sourceFolder)) {
 			message.append("Source is not a valid directory !!");
 			message.append(HYPHEN_CHAR);
 			message.append(aInputParams.get("sourcePath"));
 			dataMap.put("errorFlag", true);
 		}
 
-		if (!targetFolder.exists() || !targetFolder.isDirectory()) {
+		if (!Files.exists(targetFolder) || !Files.isDirectory(targetFolder)) {
 			message.append("Target is not a valid directory !!");
 			message.append(HYPHEN_CHAR);
 			message.append(aInputParams.get("targetPath"));
@@ -153,51 +156,55 @@ public class FileSystemService {
 		String[] ignoreExtensions = StringUtils.split(aInputParams.getOrDefault("ignoreExtnList", ""), COMMA_CHAR);
 
 		// traverse source folder
-		Map<String, File> sourceFilesMap = FileUtil.walkFileTree(sourceFolder.getPath(),
-				(aFile -> new File(targetFolder, FileUtil.getRelativePath(aFile.toPath(), sourceFolder.toPath()))
-						.exists() ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
+		Map<String, Path> sourceFilesMap = NIOUtil.walkFileTree(sourceFolder,
+				(aFolder -> Files.exists(targetFolder.resolve(sourceFolder.relativize(aFolder)))
+						? FileVisitResult.CONTINUE
+						: FileVisitResult.SKIP_SUBTREE),
 				null, null,
-				(aFile, aFileVisitResult) -> !AppUtil.compareAny(FileUtil.getFileExtn(aFile), ignoreExtensions));
+				(aFile, aFileVisitResult) -> !CommonUtils.compareAny(NIOUtil.getFileExtn(aFile), ignoreExtensions));
 
 		// traverse target folder
-		Map<String, File> targetFilesMap = FileUtil.walkFileTree(targetFolder.getPath(),
-				(aFile -> new File(sourceFolder, FileUtil.getRelativePath(aFile.toPath(), targetFolder.toPath()))
-						.exists() ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE),
+		Map<String, Path> targetFilesMap = NIOUtil.walkFileTree(targetFolder,
+				(aFolder -> Files.exists(sourceFolder.resolve(targetFolder.relativize(aFolder)))
+						? FileVisitResult.CONTINUE
+						: FileVisitResult.SKIP_SUBTREE),
 				null, null,
-				(aFile, aFileVisitResult) -> !AppUtil.compareAny(FileUtil.getFileExtn(aFile), ignoreExtensions));
+				(aFile, aFileVisitResult) -> !CommonUtils.compareAny(NIOUtil.getFileExtn(aFile), ignoreExtensions));
 
 		List<DataMap> missingInTarget = new ArrayList<>();
 		List<DataMap> missingInSource = new ArrayList<>();
 		List<DataMap> conflictingFiles = new ArrayList<>();
 
-		for (Entry<String, File> entry : sourceFilesMap.entrySet()) {
-			File sourceFile = entry.getValue();
-			File targetFile = targetFilesMap.get(entry.getKey());
+		for (Entry<String, Path> entry : sourceFilesMap.entrySet()) {
+			Path sourceFile = entry.getValue();
+			Path targetFile = targetFilesMap.get(entry.getKey());
 			if (targetFile == null) {
-				missingInTarget.add(DataMap.buildMap("path", FileUtil.getFilePath(sourceFile), "key", entry.getKey(),
-						"name", sourceFile.getName(), "type", sourceFile.isFile() ? "file" : "directory", "size",
-						sourceFile.length(), "lastModified",
-						DateFormatUtils.format(new Date(sourceFile.lastModified()), "MMM dd yy, HH:mm:SS")));
-			} else if (sourceFile.length() == targetFile.length()) {
+				missingInTarget.add(DataMap.buildMap("path", sourceFile, "key", entry.getKey(), "name",
+						NIOUtil.getFileName(sourceFile), "type", Files.isDirectory(sourceFile) ? "directory" : "file",
+						"size", Files.size(sourceFile), "lastModified", DateFormatUtils
+								.format(Files.getLastModifiedTime(sourceFile).toMillis(), "MMM dd yy, HH:mm:SS")));
+
+			} else if (Files.size(sourceFile) == Files.size(targetFile)) {
 				continue;
-			} else if (sourceFile.isFile()) {
+			} else if (!Files.isDirectory(sourceFile)) {
 				// conflicted files
 				conflictingFiles.add(DataMap.buildMap("key", entry.getKey(), "type",
-						sourceFile.isFile() ? "file" : "directory", "source",
-						DataMap.buildMap("path", FileUtil.getFilePath(sourceFile), "name", sourceFile.getName(), "size",
-								sourceFile.length(), "lastModified",
-								DateFormatUtils.format(new Date(sourceFile.lastModified()), "MMM dd yy, HH:mm:SS")),
+						Files.isDirectory(sourceFile) ? "directory" : "file", "source",
+						DataMap.buildMap("path", sourceFile, "name", NIOUtil.getFileName(sourceFile), "size",
+								Files.size(sourceFile), "lastModified",
+								DateFormatUtils.format(
+										Files.getLastModifiedTime(sourceFile).toMillis(), "MMM dd yy, HH:mm:SS")),
 						"target",
-						DataMap.buildMap("path", FileUtil.getFilePath(targetFile), "name", targetFile.getName(), "size",
-								targetFile.length(), "lastModified", DateFormatUtils
-										.format(new Date(targetFile.lastModified()), "MMM dd yy, HH:mm:SS"))));
+						DataMap.buildMap("path", targetFile, "name", NIOUtil.getFileName(targetFile), "size",
+								Files.size(targetFile), "lastModified", DateFormatUtils.format(
+										Files.getLastModifiedTime(targetFile).toMillis(), "MMM dd yy, HH:mm:SS"))));
 			}
 		}
 
-		for (Entry<String, File> entry : targetFilesMap.entrySet()) {
+		for (Entry<String, Path> entry : targetFilesMap.entrySet()) {
 			if (sourceFilesMap.get(entry.getKey()) == null) {
 				File file = entry.getValue();
-				missingInSource.add(DataMap.buildMap("path", FileUtil.getFilePath(file), "key", entry.getKey(), "name",
+				missingInSource.add(DataMap.buildMap("path", getFilePath(file), "key", entry.getKey(), "name",
 						file.getName(), "type", file.isFile() ? "file" : "directory", "size", file.length(),
 						"lastModified", DateFormatUtils.format(new Date(file.lastModified()), "MMM dd yy, HH:mm:SS")));
 			}
@@ -213,18 +220,18 @@ public class FileSystemService {
 	 * @param aFileCopyParams
 	 * @return
 	 */
-	@Auditable
+	@Log
 	@SuppressWarnings({ "static-method", "unchecked" })
 	public DataMap copyFiles(DataMap aFileCopyParams) {
-		File sourceRoot = new File(aFileCopyParams.getString("sourceRoot"));
-		File targetRoot = new File(aFileCopyParams.getString("targetRoot"));
+		Path sourceRoot = Paths.get(aFileCopyParams.getString("sourceRoot"));
+		Path targetRoot = new File(aFileCopyParams.getString("targetRoot"));
 		boolean overwrite = aFileCopyParams.is("overwrite");
 		StringBuilder errorMessage = new StringBuilder();
 		int copyCount = 0;
 
 		for (String key : (List<String>) aFileCopyParams.get("keyList")) {
-			File source = new File(sourceRoot, key);
-			File destination = new File(targetRoot, key);
+			Path source = new File(sourceRoot, key);
+			Path destination = new File(targetRoot, key);
 
 			if (!source.exists()) {
 				errorMessage.append(String.format("Source file [%s] is missing", source)).append(SEMICOLON_CHAR);
@@ -236,7 +243,7 @@ public class FileSystemService {
 				continue;
 			}
 
-			copyCount += FileUtil.copyViaOS(source, destination, overwrite) ? 1 : 0;
+			copyCount += Files.copy(source, destination, overwrite) ? 1 : 0;
 
 		}
 

@@ -7,7 +7,7 @@ buildscript {
 	
 	dependencies {
 		classpath("io.spring.gradle:dependency-management-plugin:$springPlatformGradleVersion")
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootGradleVersion")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
 	}
 }
 
@@ -46,35 +46,30 @@ task wrapper(type: Wrapper) {
  * Dependencies
  */
 dependencies {
-	compile("karma:accelerate:1.0")
-	compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+	implementation ("accelerate:accelerate-web-utils:1.0")
+	implementation ("net.jthink:jaudiotagger:2.2.5")
+	implementation ("org.springframework.boot:spring-boot-starter-data-mongodb")
 	
-	compile("net.jthink:jaudiotagger:2.2.5")
-	//compile("org.springframework.social:spring-social-security")
-	//compile("org.springframework.boot:spring-boot-starter-social-facebook")
-	//compile("org.springframework.social:spring-social-facebook-web")
-	//compile("org.springframework.boot:spring-boot-starter-social-linkedin")
-	//compile("org.springframework.boot:spring-boot-starter-social-twitter")
 	
 	// webjars
-	runtime("org.webjars:modernizr:2.8.3")
-	runtime("org.webjars:font-awesome:4.6.3")
-	runtime("org.webjars:jquery:2.2.4")
-	runtime("org.webjars:jquery-mobile:1.4.5")
-	runtime("org.webjars:jquery-ui:1.11.4")
-	runtime("org.webjars:bootstrap:3.3.6")
-	runtime("org.webjars:angularjs:1.5.5")
+	runtimeOnly ("org.webjars:modernizr:2.8.3")
+	runtimeOnly ("org.webjars:font-awesome:4.6.3")
+	runtimeOnly ("org.webjars:jquery:2.2.4")
+	runtimeOnly ("org.webjars:jquery-mobile:1.4.5")
+	runtimeOnly ("org.webjars:jquery-ui:1.11.4")
+	runtimeOnly ("org.webjars:bootstrap:3.3.6")
+	runtimeOnly ("org.webjars:angularjs:1.5.5")
 	// runtime("org.webjars:jstree:3.2.1") -- including latest from static folder
 	// runtime("org.webjars:datatables:1.10.11") -- including latest build from static folder
 	
 	// runtime dependencies
-	runtime("org.springframework.boot:spring-boot-starter-actuator")
-	runtime("org.springframework.boot:spring-boot-starter-tomcat")
-	runtime("org.springframework.boot:spring-boot-devtools")
-	runtime("org.jolokia:jolokia-core")
+	runtimeOnly ("org.springframework.boot:spring-boot-starter-actuator")
+	runtimeOnly ("org.springframework.boot:spring-boot-starter-tomcat")
+	runtimeOnly ("org.springframework.boot:spring-boot-devtools")
+	runtimeOnly ("org.jolokia:jolokia-core")
 	
 	// test dependencies
-	testCompile("org.springframework.boot:spring-boot-starter-test")
+	testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 
 /*
@@ -138,7 +133,7 @@ eclipse {
 		
 		facet {
 			facet name: "jst.java", version: javaVersion
-			facet name: "jst.web", version: webVersion
+			facet name: "jst.web", version: servletVersion
 			facet name: "wst.jsdt.web", version: "1.0"
 			
 		}

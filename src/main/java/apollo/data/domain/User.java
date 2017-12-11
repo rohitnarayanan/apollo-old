@@ -1,6 +1,5 @@
 package apollo.data.domain;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -12,7 +11,7 @@ import org.springframework.data.annotation.Id;
  * @author Rohit Narayanan
  * @since Apr 9, 2016
  */
-public class User implements Serializable {
+public class User extends org.springframework.security.core.userdetails.User {
 	/**
 	 * 
 	 */
@@ -23,16 +22,6 @@ public class User implements Serializable {
 	 */
 	@Id
 	private String id = null;
-
-	/**
-	 * 
-	 */
-	private String username = null;
-
-	/**
-	 * 
-	 */
-	private String password = null;
 
 	/**
 	 * 
@@ -50,6 +39,14 @@ public class User implements Serializable {
 	private String email = null;
 
 	/**
+	 * @param aUsername
+	 * @param aPassword
+	 */
+	public User(String aUsername, String aPassword) {
+		super(aUsername, aPassword, null);
+	}
+
+	/**
 	 * Getter method for "id" property
 	 * 
 	 * @return id
@@ -65,42 +62,6 @@ public class User implements Serializable {
 	 */
 	public void setId(String aId) {
 		this.id = aId;
-	}
-
-	/**
-	 * Getter method for "username" property
-	 * 
-	 * @return username
-	 */
-	public String getUsername() {
-		return this.username;
-	}
-
-	/**
-	 * Setter method for "username" property
-	 * 
-	 * @param aUsername
-	 */
-	public void setUsername(String aUsername) {
-		this.username = aUsername;
-	}
-
-	/**
-	 * Getter method for "password" property
-	 * 
-	 * @return password
-	 */
-	public String getPassword() {
-		return this.password;
-	}
-
-	/**
-	 * Setter method for "password" property
-	 * 
-	 * @param aPassword
-	 */
-	public void setPassword(String aPassword) {
-		this.password = aPassword;
 	}
 
 	/**

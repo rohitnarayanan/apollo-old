@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 
 import accelerate.exception.AccelerateException;
@@ -58,8 +59,8 @@ public class Mp3TagUtil {
 	}
 
 	/**
-	 * Function to validate the track. It checks if the file name and location
-	 * match the tag values
+	 * Function to validate the track. It checks if the file name and location match
+	 * the tag values
 	 * 
 	 * @param aTrack
 	 * @return {@link Set} containing all errors in the track
@@ -124,4 +125,29 @@ public class Mp3TagUtil {
 					return Stream.of(token.substring(0, index + 1), token.substring(index + 1));
 				}).collect(Collectors.toList());
 	}
+
+	/**
+	 * This method deletes the given tag from the Mp3 file
+	 *
+	 * @param aTrack
+	 * @return Mp3Tag instance
+	 * @throws AccelerateException
+	 */
+	public static Mp3Tag deleteV1Tag(File aTrack) throws AccelerateException {
+		try {
+			MP3File mp3File = getMP3File(aTrack);
+			Tag tag = mp3File.getID3v1Tag();
+
+			if (tag != null) {
+				mp3File.delete(mp3File.getID3v1Tag());
+				mp3File.commit();
+				mp3File.save();
+			}
+		} catch (Exception error) {
+			AccelerateException.checkAndThrow(error);
+		}
+
+		return new Mp3Tag(aTrack);
+	}
+
 }

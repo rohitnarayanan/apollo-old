@@ -1,13 +1,13 @@
 package apollo.model;
 
-import static accelerate.util.AccelerateConstants.EMPTY_STRING;
-import static accelerate.util.AppUtil.compare;
+import static accelerate.utils.CommonConstants.EMPTY_STRING;
+import static accelerate.utils.CommonUtils.compare;
 import static apollo.util.ApolloConstants.DELETE_FIELD_CONSTANT;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -39,12 +39,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
 
-import accelerate.databean.AccelerateDataBean;
-import accelerate.exception.AccelerateException;
-import accelerate.util.AccelerateConstants;
-import accelerate.util.AppUtil;
-import accelerate.util.FileUtil;
-import accelerate.util.JSONUtil;
+import accelerate.utils.CommonConstants;
+import accelerate.utils.CommonUtils;
+import accelerate.utils.JSONUtil;
+import accelerate.utils.NIOUtil;
+import accelerate.utils.bean.DataBean;
+import accelerate.utils.exception.AccelerateException;
 import apollo.util.Mp3TagUtil;
 
 /**
@@ -54,7 +54,7 @@ import apollo.util.Mp3TagUtil;
  * @author Rohit Narayanan
  * @since December 13, 2010
  */
-public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
+public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 	/**
 	 * {@link Logger} instance
 	 */
@@ -158,7 +158,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	/**
 	 * Path of the file
 	 */
-	private String filePath = null;
+	private Path filePath = null;
 
 	/**
 	 * Erros in the tag
@@ -175,21 +175,21 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	/**
 	 * primary constructor for reading tag information
 	 * 
-	 * @param aTrack
+	 * @param aTrackPath
 	 */
-	public Mp3Tag(File aTrack) {
+	public Mp3Tag(Path aTrackPath) {
 		this();
 
-		LOGGER.debug("Loading tag from [{}]", aTrack);
+		LOGGER.debug("Loading tag from [{}]", aTrackPath);
 
-		this.fileName = FileUtil.getFileName(aTrack);
-		this.filePath = FileUtil.getFilePath(aTrack);
+		this.fileName = NIOUtil.getBaseName(aTrackPath);
+		this.filePath = aTrackPath;
 
-		MP3File mp3File = Mp3TagUtil.getMP3File(aTrack);
+		MP3File mp3File = Mp3TagUtil.getMP3File(aTrackPath.toFile());
 		Tag tag = mp3File.getTag();
 		AudioHeader audioHeader = mp3File.getAudioHeader();
 
-		this.header = new Header(audioHeader, aTrack.length());
+		this.header = new Header(audioHeader, aTrackPath.toFile().length());
 
 		this.id = tag.getFirst(FieldKey.KEY);
 		this.language = tag.getFirst(FieldKey.LANGUAGE);
@@ -211,7 +211,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		}
 
 		if (StringUtils.isEmpty(this.id)) {
-			this.id = String.valueOf(aTrack.getPath().hashCode());
+			this.id = String.valueOf(aTrackPath.toString().hashCode());
 		}
 
 		for (FieldKey key : standardFields) {
@@ -223,16 +223,16 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	}
 
 	/**
-	 * @param aTrack
+	 * @param aTrackPath
 	 * @param aTokens
 	 */
-	public Mp3Tag(File aTrack, List<String> aTokens) {
+	public Mp3Tag(Path aTrackPath, List<String> aTokens) {
 		this();
 
-		LOGGER.debug("Parsing tag from [{}]", aTrack);
+		LOGGER.debug("Parsing tag from [{}]", aTrackPath);
 
-		this.fileName = FileUtil.getFileName(aTrack);
-		this.filePath = FileUtil.getFilePath(aTrack);
+		this.fileName = NIOUtil.getBaseName(aTrackPath);
+		this.filePath = aTrackPath;
 
 		String parseString = this.fileName;
 		Queue<String> fieldQueue = new ArrayDeque<>(8);
@@ -250,7 +250,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 				 * If it is the empty token created at the end while parsing the tokens, then
 				 * set the field value to remaining string
 				 */
-				if (AppUtil.compare(token, AccelerateConstants.EMPTY_STRING) && index == 0) {
+				if (CommonUtils.compare(token, CommonConstants.EMPTY_STRING) && index == 0) {
 					index = parseString.length();
 				}
 
@@ -316,7 +316,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 				"artist", "tags", "artwork" };
 
 		for (String field : fieldList) {
-			if (!AppUtil.compare(get("initialized"), "true")) {
+			if (!CommonUtils.compare(get("initialized"), "true")) {
 				setField(field, aMp3Tag.getField(field));
 				continue;
 			}
@@ -420,9 +420,6 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		case "artwork":
 			this.artwork = _value;
 			break;
-		case "filePath":
-			this.filePath = _value;
-			break;
 		default:
 			throw new AccelerateException("unknown field [%s]", aFieldName);
 		}
@@ -440,13 +437,22 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	}
 
 	/**
+	 * Setter method for "filePath" property
+	 * 
+	 * @param aFilePath
+	 */
+	public void setFilePath(Path aFilePath) {
+		this.filePath = aFilePath;
+	}
+
+	/**
 	 * This is the default method to write the tag to the given file. It calls the
-	 * {@link #save(int, File)} method with aSaveFlag argument as 0
+	 * {@link #save(int, Path)} method with aSaveFlag argument as 0
 	 *
 	 * @throws AccelerateException
 	 */
 	public void save() throws AccelerateException {
-		save(0, new File(this.filePath));
+		save(0, this.filePath);
 	}
 
 	/**
@@ -466,18 +472,18 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	 *            present</li>
 	 *            <li>6: Do not do anything. Test mode</li>
 	 *            </ul>
-	 * @param aTrackFile
-	 *            File to which the track has to be written to
+	 * @param aTrackPath
+	 *            Path of the mp3 file to which the track has to be written to
 	 * @throws AccelerateException
 	 */
-	public void save(int aSaveFlag, File aTrackFile) throws AccelerateException {
+	public void save(int aSaveFlag, Path aTrackPath) throws AccelerateException {
 		try {
 			if (aSaveFlag == 6) {
 				LOGGER.info("Test mode active. Logging tag [{}]", this);
 				return;
 			}
 
-			MP3File mp3File = Mp3TagUtil.getMP3File(aTrackFile);
+			MP3File mp3File = Mp3TagUtil.getMP3File(aTrackPath.toFile());
 			Tag tag = mp3File.getTag();
 
 			if (aSaveFlag == 5) {
@@ -525,7 +531,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			 * Start writing the tag
 			 */
 			if (this.id != null) {
-				if (AppUtil.compare(this.id, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.id, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.KEY);
 				} else {
 					tag.setField(FieldKey.KEY, this.id);
@@ -533,7 +539,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.language != null) {
-				if (AppUtil.compare(this.language, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.language, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.LANGUAGE);
 				} else {
 					tag.setField(FieldKey.LANGUAGE, this.language);
@@ -541,7 +547,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.genre != null) {
-				if (AppUtil.compare(this.genre, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.genre, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.GENRE);
 				} else {
 					tag.setField(FieldKey.GENRE, this.genre);
@@ -549,7 +555,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.mood != null) {
-				if (AppUtil.compare(this.mood, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.mood, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.MOOD);
 				} else {
 					tag.setField(FieldKey.MOOD, this.mood);
@@ -557,7 +563,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.album != null) {
-				if (AppUtil.compare(this.album, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.album, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.ALBUM);
 				} else {
 					tag.setField(FieldKey.ALBUM, this.album);
@@ -565,7 +571,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.year != null) {
-				if (AppUtil.compare(this.year, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.year, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.YEAR);
 				} else {
 					tag.setField(FieldKey.YEAR, this.year);
@@ -573,7 +579,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.albumArtist != null) {
-				if (AppUtil.compare(this.albumArtist, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.albumArtist, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.ALBUM_ARTIST);
 				} else {
 					tag.setField(FieldKey.ALBUM_ARTIST, this.albumArtist);
@@ -581,7 +587,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.composer != null) {
-				if (AppUtil.compare(this.composer, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.composer, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.COMPOSER);
 				} else {
 					tag.setField(FieldKey.COMPOSER, this.composer);
@@ -589,7 +595,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.artist != null) {
-				if (AppUtil.compare(this.artist, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.artist, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.ARTIST);
 				} else {
 					tag.setField(FieldKey.ARTIST, this.artist);
@@ -597,7 +603,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.trackNbr != null) {
-				if (AppUtil.compare(this.trackNbr, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.trackNbr, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.TRACK);
 				} else {
 					tag.setField(FieldKey.TRACK, this.trackNbr);
@@ -605,7 +611,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.title != null) {
-				if (AppUtil.compare(this.title, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.title, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.TITLE);
 				} else {
 					tag.setField(FieldKey.TITLE, this.title);
@@ -613,7 +619,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.lyrics != null) {
-				if (AppUtil.compare(this.lyrics, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.lyrics, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.LYRICS);
 				} else {
 					tag.setField(FieldKey.LYRICS, this.lyrics);
@@ -621,7 +627,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			}
 
 			if (this.tags != null) {
-				if (AppUtil.compare(this.tags, DELETE_FIELD_CONSTANT)) {
+				if (CommonUtils.compare(this.tags, DELETE_FIELD_CONSTANT)) {
 					tag.deleteField(FieldKey.TAGS);
 				} else {
 					tag.setField(FieldKey.TAGS, this.tags);
@@ -631,9 +637,8 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 			if (this.artwork != null) {
 				tag.deleteArtworkField();
 
-				if (!AppUtil.compare(this.artwork, DELETE_FIELD_CONSTANT)) {
-					byte[] imageData = Base64.getDecoder()
-							.decode(this.artwork.split(AccelerateConstants.COMMA_CHAR)[1]);
+				if (!CommonUtils.compare(this.artwork, DELETE_FIELD_CONSTANT)) {
+					byte[] imageData = Base64.getDecoder().decode(this.artwork.split(CommonConstants.COMMA_CHAR)[1]);
 
 					Artwork _artwork = new StandardArtwork();
 					_artwork.setBinaryData(imageData);
@@ -897,7 +902,7 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 	 * 
 	 * @return filePath
 	 */
-	public String getFilePath() {
+	public Path getFilePath() {
 		return this.filePath;
 	}
 
@@ -1056,4 +1061,61 @@ public class Mp3Tag extends AccelerateDataBean implements Comparable<Mp3Tag> {
 		standardFrames.put(ID3v24Frames.FRAME_ID_USER_DEFINED_INFO, FieldKey.TAGS);
 		standardFrames.put(ID3v24Frames.FRAME_ID_ATTACHED_PICTURE, FieldKey.COVER_ART);
 	}
+
+	/**
+	 * 
+	 */
+	public static final String ID = "id";
+	/**
+	 * 
+	 */
+	public static final String LANGUAGE = "language";
+	/**
+	 * 
+	 */
+	public static final String GENRE = "genre";
+	/**
+	 * 
+	 */
+	public static final String MOOD = "mood";
+	/**
+	 * 
+	 */
+	public static final String ALBUM = "album";
+	/**
+	 * 
+	 */
+	public static final String YEAR = "year";
+	/**
+	 * 
+	 */
+	public static final String ALBUM_ARTIST = "albumArtist";
+	/**
+	 * 
+	 */
+	public static final String COMPOSER = "composer";
+	/**
+	 * 
+	 */
+	public static final String ARTIST = "artist";
+	/**
+	 * 
+	 */
+	public static final String TITLE = "title";
+	/**
+	 * 
+	 */
+	public static final String TRACK_NBR = "trackNbr";
+	/**
+	 * 
+	 */
+	public static final String TAGS = "tags";
+	/**
+	 * 
+	 */
+	public static final String LYRICS = "lyrics";
+	/**
+	 * 
+	 */
+	public static final String ARTWORK = "artwork";
 }
