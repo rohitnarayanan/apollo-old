@@ -1,7 +1,7 @@
+.DS_Store
 .apt_generated/
 .gradle/
 bin/
 build/
 logs/
-src/main/resources/git.properties
-.DS_Store
+node_modules

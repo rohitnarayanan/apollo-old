@@ -1,0 +1,27 @@
+{
+	"compileOnSave": false,
+	"compilerOptions": {
+		"declaration": false,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"module": "es6",
+		"moduleResolution": "node",
+		"noImplicitAny": false,
+		"removeComments": false,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"suppressImplicitAnyIndexErrors": true,
+		"target": "es5",
+		"lib": [
+			"es6",
+			"dom"
+		],
+		"typeRoots": [
+			"node_modules/@types"
+		]
+	},
+	"include": [
+		"src/main/webapp"
+	],
+	"exclude": []
+}
