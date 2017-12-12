@@ -54,7 +54,6 @@ dependencies {
 	// compile dependencies
 	implementation ("accelerate:accelerate-web-utils:1.0")
 	implementation ("net.jthink:jaudiotagger:2.2.5")
-	implementation ("org.springframework.boot:spring-boot-starter-data-mongodb")
 	
 	// webjars
 	runtimeOnly ("org.webjars:modernizr:2.8.3")
@@ -98,15 +97,18 @@ build.finalizedBy install
  */
 eclipse {
 	project {
-		natures = ["org.eclipse.wst.common.project.facet.core.nature", 
-			"org.eclipse.buildship.core.gradleprojectnature", "org.eclipse.jdt.core.javanature", 
-			"org.springframework.ide.eclipse.core.springnature"]
+		natures = ["org.eclipse.buildship.core.gradleprojectnature", "org.eclipse.ajdt.ui.ajnature", 
+			"org.springframework.ide.eclipse.core.springnature", "org.eclipse.wst.common.project.facet.core.nature", 
+			"org.eclipse.jdt.core.javanature", "org.eclipse.jem.workbench.JavaEMFNature", 
+			"org.eclipse.wst.common.modulecore.ModuleCoreNature", "org.eclipse.wst.jsdt.core.jsNature"]
 		
-		buildCommand "org.eclipse.wst.common.project.facet.core.builder" 
 		buildCommand "org.eclipse.buildship.core.gradleprojectbuilder"
-		buildCommand "org.eclipse.jdt.core.javabuilder"
+		buildCommand "org.eclipse.ajdt.core.ajbuilder"
 		buildCommand "org.springframework.ide.eclipse.core.springbuilder"
 		buildCommand "org.springframework.ide.eclipse.boot.validation.springbootbuilder"
+		buildCommand "org.eclipse.wst.common.project.facet.core.builder"
+		buildCommand "org.eclipse.wst.validation.validationbuilder"
+		buildCommand "org.eclipse.jdt.core.javabuilder"
 	}
 	
 	classpath {
@@ -145,6 +147,11 @@ eclipse {
 			facet name: "jst.java", version: javaVersion
 			facet name: "jst.web", version: servletVersion
 			facet name: "wst.jsdt.web", version: "1.0"
+			
+			def oldJstWebFacets = facets.findAll {
+                it.name == 'jst.web' && it.version != servletVersion
+            }
+            facets.removeAll(oldJstWebFacets);
 		}
 	}
 }
