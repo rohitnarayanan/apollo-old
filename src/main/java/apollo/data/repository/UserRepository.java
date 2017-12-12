@@ -1,6 +1,6 @@
 package apollo.data.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+//import org.springframework.data.mongodb.repository.MongoRepository;
 
 import apollo.data.domain.User;
 
@@ -11,7 +11,7 @@ import apollo.data.domain.User;
  * @author Rohit Narayanan
  * @since Apr 9, 2016
  */
-public interface UserRepository extends MongoRepository<User, String> {
+public interface UserRepository { // extends MongoRepository<User, String> {
 	/**
 	 * @param aUsername
 	 * @return

@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -29,8 +27,6 @@ import accelerate.utils.cache.PropertyCache;
  */
 @SpringBootApplication(scanBasePackages = { "accelerate", "apollo" }, exclude = { DataSourceAutoConfiguration.class })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@EnableMongoRepositories(basePackages = { "apollo.data" })
-@EnableSpringDataWebSupport
 public class ApolloConfig extends SpringBootServletInitializer {
 	/*
 	 * (non-Javadoc)

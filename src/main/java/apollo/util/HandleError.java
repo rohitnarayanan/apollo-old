@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * PUT DESCRIPTION HERE
+ * Marker annotation to tag methods
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan

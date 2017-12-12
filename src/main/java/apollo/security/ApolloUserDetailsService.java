@@ -47,18 +47,6 @@ public class ApolloUserDetailsService implements UserDetailsService {
 	 */
 	@Override
 	public UserDetails loadUserByUsername(String aUsername) throws UsernameNotFoundException {
-		/*
-		 * TODO: Uncomment the following code when backend is ready.
-		 */
-		// User user = this.userRepository.findByUsername(aUsername);
-		// if (user == null) {
-		// throw new UsernameNotFoundException("Unknown User: " + aUsername);
-		// }
-
-		/*
-		 * TODO: Remove the default user and throw appropriate exception to display
-		 * error on login page.
-		 */
 		User user = new User("q", "q");
 		user.setId("1");
 		user.setRoles(Arrays.asList("user"));

@@ -4,15 +4,12 @@ import static accelerate.utils.CommonConstants.COMMA_CHAR;
 import static accelerate.utils.CommonConstants.HYPHEN_CHAR;
 import static accelerate.utils.CommonConstants.SEMICOLON_CHAR;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.nio.file.FileVisitResult;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,11 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 
 import accelerate.utils.CommonUtils;
 import accelerate.utils.NIOUtil;
 import accelerate.utils.bean.DataMap;
+import accelerate.utils.exception.AccelerateException;
 import accelerate.utils.logging.Log;
 import apollo.config.ApolloConfigProps;
 
@@ -59,57 +56,57 @@ public class FileSystemService {
 	 *            - 'all' for all files, 'none' for folders only, 'xyz' to match
 	 *            file extension
 	 * @return
+	 * @throws IOException
 	 */
 	@Log
-	public DataMap getFileTree(String aDirPath, String aDirName, final String aFileType) {
-		String dirPath = StringUtils.isEmpty(aDirPath) ? this.apolloConfigProps.getFileSelectorRoot() : aDirPath;
-		Path targetPath = StringUtils.isEmpty(aDirName) ? Paths.get(dirPath) : Paths.get(dirPath).resolve(aDirName);
+	public DataMap getFileTree(String aDirPath, String aDirName, final String aFileType) throws IOException {
+		Path dirPath = StringUtils.isEmpty(aDirPath) ? Paths.get(this.apolloConfigProps.getFileSelectorRoot())
+				: Paths.get(aDirPath);
+		Path targetPath = StringUtils.isEmpty(aDirName) ? dirPath : dirPath.resolve(aDirName);
 
 		LOGGER.debug("Fetching file tree for [{}]", targetPath);
 
 		DataMap dataMap = new DataMap();
 		dataMap.put("path", targetPath);
 
-		if (!targetPath.isDirectory()) {
+		if (!Files.isDirectory(targetPath)) {
 			dataMap.put("message", "Root not a valid directory");
 			return dataMap;
 		}
 
-		List<DataMap> fileTree = Arrays.stream(targetPath.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File aFile) {
-				if (aFile.getName().startsWith(".")) {
-					return false;
-				}
-
-				if (CommonUtils.compare(aFileType, "all")) {
-					return true;
-				} else if (CommonUtils.compare(aFileType, "none")) {
-					return aFile.isDirectory();
-				}
-
-				return aFile.isDirectory() || CommonUtils.compare(aFileType, getFileExtn(aFile));
+		List<DataMap> fileTree = Files.list(targetPath).filter(aPath -> {
+			if (aPath.getFileName().startsWith(".")) {
+				return false;
 			}
-		})).map(aFile -> {
+
+			if (CommonUtils.compare(aFileType, "all")) {
+				return true;
+			} else if (CommonUtils.compare(aFileType, "none")) {
+				return Files.isDirectory(aPath);
+			}
+
+			return Files.isDirectory(aPath) || CommonUtils.compare(aFileType, NIOUtil.getFileExtn(aPath));
+		}).parallel().map(aPath -> {
 			boolean children = false;
-			if (aFile.isDirectory()) {
-				if (CommonUtils.compare(aFileType, "all")) {
-					children = !ObjectUtils.isEmpty(aFile.listFiles());
-				} else {
-					children = !ObjectUtils.isEmpty(aFile.listFiles(new FileFilter() {
-						@Override
-						public boolean accept(File aInnerFile) {
-							return aInnerFile.isDirectory() || (CommonUtils.compare(aFileType, "none") ? false
-									: CommonUtils.compare(aFileType, getFileExtn(aInnerFile)));
-						}
-					}));
+			if (Files.isDirectory(aPath)) {
+				try {
+					if (CommonUtils.compare(aFileType, "all")) {
+						children = Files.list(aPath).count() > 0;
+					} else {
+						children = Files.list(aPath).parallel().filter(aInnerPath -> {
+							return Files.isDirectory(aInnerPath) || (CommonUtils.compare(aFileType, "none") ? false
+									: CommonUtils.compare(aFileType, NIOUtil.getFileExtn(aInnerPath)));
+						}).count() > 0;
+					}
+				} catch (IOException error) {
+					throw new AccelerateException(error);
 				}
 			}
 
-			return DataMap.buildMap("text", aFile.getName(), "data",
-					DataMap.buildMap("path", getFilePath(targetDir), "type",
-							(aFile.isDirectory()) ? "folder" : getFileExtn(aFile)),
-					"children", children, "icon", (aFile.isDirectory()) ? null : "fa fa-file-audio-o");
+			return DataMap.buildMap("text", aPath.getFileName(), "data",
+					DataMap.buildMap("path", NIOUtil.getPathString(aPath), "type",
+							Files.isDirectory(aPath) ? "folder" : NIOUtil.getFileExtn(aPath)),
+					"children", children, "icon", Files.isDirectory(aPath) ? null : "fa fa-file-audio-o");
 		}).collect(Collectors.toList());
 
 		dataMap.put("fileTree", fileTree);
@@ -119,10 +116,11 @@ public class FileSystemService {
 	/**
 	 * @param aInputParams
 	 * @return
+	 * @throws IOException
 	 */
 	@Log
 	@SuppressWarnings("static-method")
-	public DataMap compareFolders(Map<String, String> aInputParams) {
+	public DataMap compareFolders(Map<String, String> aInputParams) throws IOException {
 		/*
 		 * Validate Input
 		 */
@@ -157,56 +155,55 @@ public class FileSystemService {
 
 		// traverse source folder
 		Map<String, Path> sourceFilesMap = NIOUtil.walkFileTree(sourceFolder,
-				(aFolder -> Files.exists(targetFolder.resolve(sourceFolder.relativize(aFolder)))
-						? FileVisitResult.CONTINUE
-						: FileVisitResult.SKIP_SUBTREE),
-				null, null,
+				(aDirPath -> Files.exists(targetFolder.resolve(NIOUtil.getRelativePath(sourceFolder, aDirPath)))), null,
+				null, null, null,
 				(aFile, aFileVisitResult) -> !CommonUtils.compareAny(NIOUtil.getFileExtn(aFile), ignoreExtensions));
 
 		// traverse target folder
 		Map<String, Path> targetFilesMap = NIOUtil.walkFileTree(targetFolder,
-				(aFolder -> Files.exists(sourceFolder.resolve(targetFolder.relativize(aFolder)))
-						? FileVisitResult.CONTINUE
-						: FileVisitResult.SKIP_SUBTREE),
-				null, null,
+				(aDirPath -> Files.exists(sourceFolder.resolve(NIOUtil.getRelativePath(targetFolder, aDirPath)))), null,
+				null, null, null,
 				(aFile, aFileVisitResult) -> !CommonUtils.compareAny(NIOUtil.getFileExtn(aFile), ignoreExtensions));
 
 		List<DataMap> missingInTarget = new ArrayList<>();
 		List<DataMap> missingInSource = new ArrayList<>();
 		List<DataMap> conflictingFiles = new ArrayList<>();
 
+		// check source files
 		for (Entry<String, Path> entry : sourceFilesMap.entrySet()) {
-			Path sourceFile = entry.getValue();
-			Path targetFile = targetFilesMap.get(entry.getKey());
-			if (targetFile == null) {
-				missingInTarget.add(DataMap.buildMap("path", sourceFile, "key", entry.getKey(), "name",
-						NIOUtil.getFileName(sourceFile), "type", Files.isDirectory(sourceFile) ? "directory" : "file",
-						"size", Files.size(sourceFile), "lastModified", DateFormatUtils
-								.format(Files.getLastModifiedTime(sourceFile).toMillis(), "MMM dd yy, HH:mm:SS")));
+			Path sourcePath = entry.getValue();
+			Path targetPath = targetFilesMap.get(entry.getKey());
+			if (targetPath == null) {
+				missingInTarget.add(DataMap.buildMap("path", sourcePath, "key", entry.getKey(), "name",
+						sourcePath.getFileName(), "type", Files.isDirectory(sourcePath) ? "directory" : "file", "size",
+						Files.size(sourcePath), "lastModified", DateFormatUtils
+								.format(Files.getLastModifiedTime(sourcePath).toMillis(), "MMM dd yy, HH:mm:SS")));
 
-			} else if (Files.size(sourceFile) == Files.size(targetFile)) {
+			} else if (Files.size(sourcePath) == Files.size(targetPath)) {
 				continue;
-			} else if (!Files.isDirectory(sourceFile)) {
+			} else if (!Files.isDirectory(sourcePath)) {
 				// conflicted files
 				conflictingFiles.add(DataMap.buildMap("key", entry.getKey(), "type",
-						Files.isDirectory(sourceFile) ? "directory" : "file", "source",
-						DataMap.buildMap("path", sourceFile, "name", NIOUtil.getFileName(sourceFile), "size",
-								Files.size(sourceFile), "lastModified",
+						Files.isDirectory(sourcePath) ? "directory" : "file", "source",
+						DataMap.buildMap("path", sourcePath, "name", sourcePath.getFileName(), "size",
+								Files.size(sourcePath), "lastModified",
 								DateFormatUtils.format(
-										Files.getLastModifiedTime(sourceFile).toMillis(), "MMM dd yy, HH:mm:SS")),
+										Files.getLastModifiedTime(sourcePath).toMillis(), "MMM dd yy, HH:mm:SS")),
 						"target",
-						DataMap.buildMap("path", targetFile, "name", NIOUtil.getFileName(targetFile), "size",
-								Files.size(targetFile), "lastModified", DateFormatUtils.format(
-										Files.getLastModifiedTime(targetFile).toMillis(), "MMM dd yy, HH:mm:SS"))));
+						DataMap.buildMap("path", targetPath, "name", targetPath.getFileName(), "size",
+								Files.size(targetPath), "lastModified", DateFormatUtils.format(
+										Files.getLastModifiedTime(targetPath).toMillis(), "MMM dd yy, HH:mm:SS"))));
 			}
 		}
 
+		// check target files
 		for (Entry<String, Path> entry : targetFilesMap.entrySet()) {
 			if (sourceFilesMap.get(entry.getKey()) == null) {
-				File file = entry.getValue();
-				missingInSource.add(DataMap.buildMap("path", getFilePath(file), "key", entry.getKey(), "name",
-						file.getName(), "type", file.isFile() ? "file" : "directory", "size", file.length(),
-						"lastModified", DateFormatUtils.format(new Date(file.lastModified()), "MMM dd yy, HH:mm:SS")));
+				Path targetPath = entry.getValue();
+				missingInSource.add(DataMap.buildMap("path", targetPath, "key", entry.getKey(), "name",
+						targetPath.getFileName(), "type", Files.isDirectory(targetPath) ? "directory" : "file", "size",
+						Files.size(targetPath), "lastModified", DateFormatUtils
+								.format(Files.getLastModifiedTime(targetPath).toMillis(), "MMM dd yy, HH:mm:SS")));
 			}
 		}
 
@@ -219,32 +216,32 @@ public class FileSystemService {
 	/**
 	 * @param aFileCopyParams
 	 * @return
+	 * @throws IOException
 	 */
 	@Log
 	@SuppressWarnings({ "static-method", "unchecked" })
-	public DataMap copyFiles(DataMap aFileCopyParams) {
+	public DataMap copyFiles(DataMap aFileCopyParams) throws IOException {
 		Path sourceRoot = Paths.get(aFileCopyParams.getString("sourceRoot"));
-		Path targetRoot = new File(aFileCopyParams.getString("targetRoot"));
+		Path targetRoot = Paths.get(aFileCopyParams.getString("targetRoot"));
 		boolean overwrite = aFileCopyParams.is("overwrite");
 		StringBuilder errorMessage = new StringBuilder();
 		int copyCount = 0;
 
 		for (String key : (List<String>) aFileCopyParams.get("keyList")) {
-			Path source = new File(sourceRoot, key);
-			Path destination = new File(targetRoot, key);
+			Path source = sourceRoot.resolve(key);
+			Path destination = targetRoot.resolve(key);
 
-			if (!source.exists()) {
+			if (!Files.exists(source)) {
 				errorMessage.append(String.format("Source file [%s] is missing", source)).append(SEMICOLON_CHAR);
 				continue;
 			}
 
-			if (destination.exists() && !overwrite) {
+			if (Files.exists(destination) && !overwrite) {
 				errorMessage.append(String.format("Destination file [%s] exists", destination)).append(SEMICOLON_CHAR);
 				continue;
 			}
 
-			copyCount += Files.copy(source, destination, overwrite) ? 1 : 0;
-
+			copyCount += Files.exists(Files.copy(source, destination, StandardCopyOption.ATOMIC_MOVE)) ? 1 : 0;
 		}
 
 		DataMap dataMap = new DataMap();

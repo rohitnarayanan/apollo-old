@@ -1,9 +1,12 @@
 package apollo.util;
 
-import accelerate.databean.AccelerateMessage;
-import accelerate.databean.AccelerateMessage.MessageType;
-import accelerate.util.AppUtil;
-import accelerate.web.AccelerateWebResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import accelerate.utils.CommonUtils;
+import accelerate.web.Message;
+import accelerate.web.Message.MessageType;
+import accelerate.web.Response;
 
 /**
  * PUT DESCRIPTION HERE
@@ -14,7 +17,12 @@ import accelerate.web.AccelerateWebResponse;
  */
 public class ApolloUtil {
 	/**
-	 * 
+	 * {@link Logger} instance
+	 */
+	private static final Logger _LOGGER = LoggerFactory.getLogger(ApolloUtil.class);
+
+	/**
+	 * hidden constructor
 	 */
 	private ApolloUtil() {
 	}
@@ -24,17 +32,17 @@ public class ApolloUtil {
 	 * @param aError
 	 * @return
 	 */
-	public static final AccelerateWebResponse prepareResponse(int aReturnCode, Exception aError) {
-		AccelerateWebResponse response = new AccelerateWebResponse();
+	public static final Response prepareResponse(int aReturnCode, Exception aError) {
+		Response response = new Response();
 		response.setReturnCode(aReturnCode);
 		response.setServerError(true);
 		// response.setError(aError);
 
 		if (aError != null) {
-			response.setMessage(new AccelerateMessage(MessageType.ERROR, "serverError",
+			response.setMessage(new Message(MessageType.ERROR, "serverError",
 					"Server encountered an error while completing the operation."));
 			response.put("errorMessage", aError.getMessage());
-			response.put("errorDetails", AppUtil.getErrorLog(aError));
+			response.put("errorDetails", CommonUtils.getErrorLog(aError));
 		}
 
 		return response;

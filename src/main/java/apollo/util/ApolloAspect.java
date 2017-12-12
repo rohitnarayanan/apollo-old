@@ -17,9 +17,9 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import accelerate.exception.AccelerateException;
-import accelerate.util.JSONUtil;
-import accelerate.web.AccelerateWebResponse;
+import accelerate.utils.JSONUtil;
+import accelerate.utils.exception.AccelerateException;
+import accelerate.web.Response;
 
 /**
  * This class contains aop configuration for logging purpose
@@ -48,7 +48,7 @@ public class ApolloAspect {
 	 */
 	@Around("execution(* apollo.controller.*.*(..)) and @annotation(apollo.util.HandleError)")
 	public static Object handleError(ProceedingJoinPoint aJoinPoint) {
-		AccelerateWebResponse response = null;
+		Response response = null;
 
 		List<Object> requestArgs = new ArrayList<>();
 		for (Object arg : aJoinPoint.getArgs()) {
@@ -61,7 +61,7 @@ public class ApolloAspect {
 		requestLogger.debug("Request:{}", JSONUtil.serialize(requestArgs));
 
 		try {
-			response = (AccelerateWebResponse) aJoinPoint.proceed();
+			response = (Response) aJoinPoint.proceed();
 		} catch (Throwable error) {
 			if (error instanceof Error) {
 				throw new AccelerateException(error);

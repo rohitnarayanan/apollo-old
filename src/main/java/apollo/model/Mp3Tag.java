@@ -185,7 +185,7 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 		this.fileName = NIOUtil.getBaseName(aTrackPath);
 		this.filePath = aTrackPath;
 
-		MP3File mp3File = Mp3TagUtil.getMP3File(aTrackPath.toFile());
+		MP3File mp3File = Mp3TagUtil.getMP3File(aTrackPath);
 		Tag tag = mp3File.getTag();
 		AudioHeader audioHeader = mp3File.getAudioHeader();
 
@@ -456,6 +456,16 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 	}
 
 	/**
+	 * This method is provide the save flag argument on {@link #save(int, Path)}
+	 *
+	 * @param aSaveFlag
+	 * @throws AccelerateException
+	 */
+	public void save(int aSaveFlag) throws AccelerateException {
+		save(aSaveFlag, this.filePath);
+	}
+
+	/**
 	 * This method writes the tag to the given file
 	 *
 	 * @param aSaveFlag
@@ -463,7 +473,7 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 	 *            <li>0: Write into available tag, create a new if no tag is
 	 *            present</li>
 	 *            <li>1: Write into available tag else ignore</li>
-	 *            <li>2: Write into available tag else throw an exeption is tag not
+	 *            <li>2: Write into available tag else throw an exception if tag not
 	 *            available</li>
 	 *            <li>3: Write into a new tag, ignore if tag already present</li>
 	 *            <li>4: Write into a new tag, throw an exception if tag already
@@ -483,7 +493,7 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 				return;
 			}
 
-			MP3File mp3File = Mp3TagUtil.getMP3File(aTrackPath.toFile());
+			MP3File mp3File = Mp3TagUtil.getMP3File(aTrackPath);
 			Tag tag = mp3File.getTag();
 
 			if (aSaveFlag == 5) {

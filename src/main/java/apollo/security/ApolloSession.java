@@ -17,7 +17,7 @@ import apollo.data.domain.User;
  */
 public class ApolloSession  {
 	/**
-	 * 
+	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 1L;
 

@@ -3,6 +3,7 @@ package apollo.controller;
 import java.nio.file.Paths;
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,23 +12,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import accelerate.utils.bean.DataMap;
+import accelerate.utils.logging.AutowireLogger;
 import accelerate.web.Response;
 import apollo.model.Mp3Tag;
 import apollo.service.AlbumService;
 import apollo.util.HandleError;
 
 /**
- * PUT DESCRIPTION HERE
+ * Controller mapped for Album operations
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since Apr 15, 2016
+ * @since December 11, 2017
  */
 @RestController
 @RequestMapping("/album")
 public class AlbumController {
 	/**
-	 * 
+	 * {@link Logger} instance
+	 */
+	@AutowireLogger
+	private Logger _logger = null;
+
+	/**
+	 * {@link AlbumService} instance
 	 */
 	@Autowired
 	private AlbumService albumService = null;
@@ -36,9 +44,9 @@ public class AlbumController {
 	 * @param aAlbumPath
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, path = "/listTracks")
+	@RequestMapping(method = RequestMethod.GET, path = "/songs")
 	@HandleError
-	public Response listTracks(@RequestParam(name = "albumPath") String aAlbumPath) {
+	public Response albumSongs(@RequestParam(name = "albumPath") String aAlbumPath) {
 		Response model = new Response();
 		model.putAll(this.albumService.getAlbumTags(Paths.get(aAlbumPath)));
 		return model;
@@ -68,7 +76,7 @@ public class AlbumController {
 	public Response saveParsedTags(@RequestParam(name = "albumPath") String aAlbumPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
 		this.albumService.parseAlbumTags(Paths.get(aAlbumPath), aParseTagTokens, true);
-		return listTracks(aAlbumPath);
+		return albumSongs(aAlbumPath);
 	}
 
 	/**
@@ -78,20 +86,20 @@ public class AlbumController {
 	@RequestMapping(method = RequestMethod.POST, path = "/saveAlbumTag")
 	@HandleError
 	public Response saveAlbumTag(@RequestBody Mp3Tag aAlbumTag) {
-		this.albumService.saveAlbumTag(aAlbumTag, aAlbumTag.getFilePath());
+		this.albumService.saveAlbumTag(aAlbumTag);
 		Response model = new Response();
 		model.put("saveFlag", true);
 		return model;
 	}
 
 	/**
-	 * @param aTrackTags
+	 * @param aSongTags
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.POST, path = "/saveTrackTags")
+	@RequestMapping(method = RequestMethod.POST, path = "/saveSongTags")
 	@HandleError
-	public Response saveTrackTags(@RequestBody List<Mp3Tag> aTrackTags) {
-		this.albumService.saveTrackTags(aTrackTags);
+	public Response saveTrackTags(@RequestBody List<Mp3Tag> aSongTags) {
+		this.albumService.saveAlbumTags(aSongTags);
 		Response model = new Response();
 		model.put("saveFlag", true);
 		return model;
@@ -104,8 +112,8 @@ public class AlbumController {
 	@RequestMapping(method = RequestMethod.POST, path = "/renameTracks")
 	@HandleError
 	public Response renameTracks(@RequestBody Mp3Tag aAlbumTag) {
-		DataMap attributes = this.albumService.renameTracks(aAlbumTag);
-		Response model = listTracks(attributes.get("albumPath").toString());
+		DataMap attributes = this.albumService.renameAlbumSongs(aAlbumTag);
+		Response model = albumSongs(attributes.get("albumPath").toString());
 		model.putAll(attributes);
 		return model;
 	}
@@ -118,7 +126,7 @@ public class AlbumController {
 	@HandleError
 	public Response addToLibrary(@RequestBody Mp3Tag aAlbumTag) {
 		DataMap attributes = this.albumService.addToLibrary(aAlbumTag);
-		Response model = listTracks(attributes.get("albumPath").toString());
+		Response model = albumSongs(attributes.get("albumPath").toString());
 		model.putAll(attributes);
 		return model;
 	}

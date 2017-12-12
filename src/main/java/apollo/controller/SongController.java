@@ -1,5 +1,9 @@
 package apollo.controller;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,89 +11,97 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import accelerate.databean.DataMap;
-import accelerate.web.AccelerateWebResponse;
+import accelerate.utils.bean.DataMap;
+import accelerate.utils.logging.AutowireLogger;
+import accelerate.web.Response;
 import apollo.model.Mp3Tag;
 import apollo.service.SongService;
 import apollo.util.HandleError;
 
 /**
- * PUT DESCRIPTION HERE
+ * Controller mapped for Song operations
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since Apr 15, 2016
+ * @since December 11, 2017
  */
 @RestController
-@RequestMapping("/song")
+@RequestMapping("/track")
 public class SongController {
 	/**
-	 * 
+	 * {@link Logger} instance
+	 */
+	@AutowireLogger
+	private Logger _logger = null;
+
+	/**
+	 * {@link SongService} instance
 	 */
 	@Autowired
 	private SongService songService = null;
 
 	/**
-	 * @param aSongPath
+	 * @param aTrackPath
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, path = "/getTag")
 	@HandleError
-	public AccelerateWebResponse getTag(@RequestParam(name = "songPath") String aSongPath) {
-		AccelerateWebResponse model = new AccelerateWebResponse();
-		model.putAll(this.songService.getTag(aSongPath));
+	public Response getTag(@RequestParam(name = "trackPath") String aTrackPath) {
+		Response model = new Response();
+		model.putAll(this.songService.getTag(Paths.get(aTrackPath)));
 		return model;
 	}
 
 	/**
-	 * @param aSongPath
+	 * @param aTrackPath
 	 * @param aParseTagTokens
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, path = "/parseTags")
 	@HandleError
-	public AccelerateWebResponse parseTags(@RequestParam(name = "songPath") String aSongPath,
+	public Response parseTags(@RequestParam(name = "trackPath") String aTrackPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
-		AccelerateWebResponse model = new AccelerateWebResponse();
-		model.put("parsedTag", this.songService.parseSongTags(aSongPath, aParseTagTokens, false));
+		Response model = new Response();
+		model.put("parsedTag", this.songService.parseTags(Paths.get(aTrackPath), aParseTagTokens, false));
 		return model;
 	}
 
 	/**
-	 * @param aSongPath
+	 * @param aTrackPath
 	 * @param aParseTagTokens
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveParsedTags")
 	@HandleError
-	public AccelerateWebResponse saveParsedTags(@RequestParam(name = "songPath") String aSongPath,
+	public Response saveParsedTags(@RequestParam(name = "trackPath") String aTrackPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
-		this.songService.parseSongTags(aSongPath, aParseTagTokens, true);
-		return getTag(aSongPath);
+		this.songService.parseTags(Paths.get(aTrackPath), aParseTagTokens, true);
+		return getTag(aTrackPath);
 	}
 
 	/**
-	 * @param aSongTag
+	 * @param aTrackTag
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveTag")
 	@HandleError
-	public AccelerateWebResponse saveSongTag(@RequestBody Mp3Tag aSongTag) {
-		this.songService.saveSongTag(aSongTag);
-		AccelerateWebResponse model = new AccelerateWebResponse();
+	public Response saveTag(@RequestBody Mp3Tag aTrackTag) {
+		this.songService.saveTag(aTrackTag);
+		Response model = new Response();
 		model.put("saveFlag", true);
 		return model;
 	}
 
 	/**
-	 * @param aSongPath
+	 * @param aTrackPath
 	 * @return
+	 * @throws IOException
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/addToLibrary")
 	@HandleError
-	public AccelerateWebResponse addToLibrary(@RequestParam(name = "songPath") String aSongPath) {
-		DataMap attributes = this.songService.addToLibrary(aSongPath);
-		AccelerateWebResponse model = getTag(attributes.getString("songPath"));
+	public Response addToLibrary(@RequestParam(name = "trackPath") String aTrackPath) throws IOException {
+		DataMap attributes = this.songService.addToLibrary(Paths.get(aTrackPath));
+		Response model = getTag(attributes.getString("trackPath"));
 		model.putAll(attributes);
 		return model;
 	}
