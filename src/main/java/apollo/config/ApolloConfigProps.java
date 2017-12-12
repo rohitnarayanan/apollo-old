@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * PUT DESCRIPTION HERE
+ * Configuration properties class for Apollo
  * 
  * @version 1.0 Initial Version
  * @author TCS

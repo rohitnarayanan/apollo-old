@@ -45,6 +45,7 @@ public class ApolloUtil {
 			response.put("errorDetails", CommonUtils.getErrorLog(aError));
 		}
 
+		_LOGGER.trace("prepareResponse: [{}]", response);
 		return response;
 	}
 }

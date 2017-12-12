@@ -6,7 +6,7 @@
 <html lang="en" class="no-js" xmlns:th="http://www.thymeleaf.org">
 <!--<![endif]-->
 <head>
-<object th:remove="tag" th:include="templates :: head" />
+<object th:remove="tag" th:include="templates :: head"></object>
 </head>
 
 <body>
@@ -66,13 +66,13 @@
 		<!-- ./container -->
 
 		<!-- bottom bar -->
-		<object th:remove="tag" th:include="templates :: footer" />
+		<object th:remove="tag" th:include="templates :: footer"></object>
 	</div>
 
 	<!-- modal to show help message -->
-	<object th:remove="tag" th:include="templates :: help-msg" />
+	<object th:remove="tag" th:include="templates :: help-msg"></object>
 
 	<!-- include java scripts -->
-	<object th:remove="tag" th:include="templates :: scripts-external" />
+	<object th:remove="tag" th:include="templates :: scripts-external"></object>
 </body>
 </html>

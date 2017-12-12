@@ -9,14 +9,8 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Primary;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import accelerate.utils.JSONUtil;
-import accelerate.utils.cache.PropertyCache;
 
 /**
  * Main {@link Configuration} class for accelerate
@@ -47,25 +41,8 @@ public class ApolloConfig extends SpringBootServletInitializer {
 	 * @return
 	 */
 	@Bean
-	public static PropertyCache apolloConfigCache() {
-		return new PropertyCache("ApolloConfig", "classpath:config/application.properties");
-	}
-
-	/**
-	 * @return
-	 */
-	@Bean
-	@Primary
-	public static ObjectMapper objectMapper() {
-		return JSONUtil.objectMapper();
-	}
-
-	/**
-	 * @return
-	 */
-	@Bean
 	public static EmbeddedServletContainerCustomizer customizeEmbeddedContainer() {
-		return aContainer -> aContainer.addErrorPages(new ErrorPage("/acl/util/error"));
+		return aContainer -> aContainer.addErrorPages(new ErrorPage("/acl/web/api/basic/debug/error"));
 	}
 
 	/**

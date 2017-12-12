@@ -53,7 +53,7 @@ public class ApolloSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity aWebSecurity) throws Exception {
 		aWebSecurity.ignoring().antMatchers("/webjars/**", "/css/**", "/js/**", "/img/**", "/", "/index",
-				"/errorPage/**");
+				"/errorPage/**", "/acl/**");
 	}
 
 	/*

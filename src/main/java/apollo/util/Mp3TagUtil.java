@@ -45,37 +45,37 @@ public class Mp3TagUtil {
 	}
 
 	/**
-	 * @param aTrackPath
+	 * @param aMp3Path
 	 * @return
 	 */
-	public static MP3File getMP3File(Path aTrackPath) {
+	public static MP3File getMP3File(Path aMp3Path) {
 		try {
-			return new MP3File(aTrackPath.toFile());
+			return new MP3File(aMp3Path.toFile());
 		} catch (IOException | TagException | ReadOnlyFileException | InvalidAudioFrameException error) {
 			throw new AccelerateException(error);
 		}
 	}
 
 	/**
-	 * Function to validate the track. It checks if the file name and location match
-	 * the tag values
+	 * Function to validate the mp3 tag. It checks if the file name and location
+	 * match the tag values
 	 * 
-	 * @param aTrack
-	 * @return {@link Set} containing all errors in the track
+	 * @param aMp3Path
+	 * @return {@link Set} containing all errors in the tag
 	 */
-	public static Set<String> validateTrack(Path aTrack) {
+	public static Set<String> validateTag(Path aMp3Path) {
 		int parentIndex = 1;
-		Mp3Tag mp3Tag = new Mp3Tag(aTrack);
+		Mp3Tag mp3Tag = new Mp3Tag(aMp3Path);
 		Set<String> errorSet = new HashSet<>();
 
 		String tagTitle = mp3Tag.getTitle();
-		String fileTitle = NIOUtil.getBaseName(aTrack);
+		String fileTitle = NIOUtil.getBaseName(aMp3Path);
 		if (!compare(tagTitle, fileTitle)) {
 			errorSet.add("Mismatch Title:" + tagTitle + "|" + fileTitle);
 		}
 
 		String tagAlbum = mp3Tag.getAlbum();
-		Path albumPath = NIOUtil.getParent(aTrack, parentIndex++);
+		Path albumPath = NIOUtil.getParent(aMp3Path, parentIndex++);
 		if (!compare(tagAlbum, albumPath.getFileName())) {
 			String fileAlbumWithVolumeName = albumPath.getParent() + " " + albumPath.getFileName();
 
@@ -88,18 +88,18 @@ public class Mp3TagUtil {
 		}
 
 		String tagAlbumArtist = mp3Tag.getAlbumArtist();
-		Path albumArtistPath = NIOUtil.getParent(aTrack, parentIndex++);
+		Path albumArtistPath = NIOUtil.getParent(aMp3Path, parentIndex++);
 		if (!compare(tagAlbumArtist, albumArtistPath.getFileName())) {
 			errorSet.add("Mismatch AlbumArtist:" + tagAlbumArtist + "|" + albumArtistPath.getFileName());
 		}
 
 		String tagGenre = mp3Tag.getGenre();
-		Path genrePath = NIOUtil.getParent(aTrack, parentIndex++);
+		Path genrePath = NIOUtil.getParent(aMp3Path, parentIndex++);
 		if (!compare(tagGenre, genrePath.getFileName())) {
 			errorSet.add("Mismatch Genre:" + tagGenre + "|" + genrePath.getFileName());
 		}
 
-		_LOGGER.trace("validateTrack: [{}] [{}]", aTrack, errorSet);
+		_LOGGER.trace("validateTag: [{}] [{}]", aMp3Path, errorSet);
 		return errorSet;
 	}
 
@@ -125,17 +125,17 @@ public class Mp3TagUtil {
 	/**
 	 * This method deletes the given tag from the Mp3 file
 	 *
-	 * @param aTrackPath
+	 * @param aMp3Path
 	 * @return Mp3Tag instance
 	 * @throws AccelerateException
 	 */
-	public static Mp3Tag deleteV1Tag(Path aTrackPath) throws AccelerateException {
+	public static Mp3Tag deleteV1Tag(Path aMp3Path) throws AccelerateException {
 		try {
-			MP3File mp3File = getMP3File(aTrackPath);
+			MP3File mp3File = getMP3File(aMp3Path);
 			Tag tag = mp3File.getID3v1Tag();
 
 			if (tag != null) {
-				_LOGGER.trace("deleteV1Tag: deleting v1 tag from [{}]", aTrackPath);
+				_LOGGER.trace("deleteV1Tag: deleting v1 tag from [{}]", aMp3Path);
 				mp3File.delete(mp3File.getID3v1Tag());
 				mp3File.commit();
 				mp3File.save();
@@ -144,6 +144,6 @@ public class Mp3TagUtil {
 			throw new AccelerateException(error);
 		}
 
-		return new Mp3Tag(aTrackPath);
+		return new Mp3Tag(aMp3Path);
 	}
 }

@@ -2,8 +2,6 @@ package apollo.data.domain;
 
 import java.util.List;
 
-import org.springframework.data.annotation.Id;
-
 /**
  * PUT DESCRIPTION HERE
  * 
@@ -11,7 +9,7 @@ import org.springframework.data.annotation.Id;
  * @author Rohit Narayanan
  * @since Apr 9, 2016
  */
-public class User extends org.springframework.security.core.userdetails.User {
+public class User extends AbstractDomain {
 	/**
 	 * 
 	 */
@@ -20,7 +18,6 @@ public class User extends org.springframework.security.core.userdetails.User {
 	/**
 	 * 
 	 */
-	@Id
 	private String id = null;
 
 	/**
@@ -37,14 +34,6 @@ public class User extends org.springframework.security.core.userdetails.User {
 	 * 
 	 */
 	private String email = null;
-
-	/**
-	 * @param aUsername
-	 * @param aPassword
-	 */
-	public User(String aUsername, String aPassword) {
-		super(aUsername, aPassword, null);
-	}
 
 	/**
 	 * Getter method for "id" property

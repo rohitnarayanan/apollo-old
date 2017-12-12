@@ -1,0 +1,87 @@
+# Spring Config
+spring:
+    profiles:
+        active: none
+    
+    application:
+        name: Apollo
+        index: 1
+    
+    #Jackson Config
+    jackson:
+        generator:
+            escape-non-ascii: true
+            quote-field-names: true
+        mapper:
+            default-view-inclusion: true
+            propagate-transient-marker: true
+        serialization:
+            fail-on-empty-beans: false
+            indent-output: false
+        serialization-inclusion: non-null
+        parser:
+            allow-single-quotes: true
+    
+    # Thymeleaf Config
+    thymeleaf:
+        cache: false
+        check-template-location: true
+        content-type: text/html
+        enabled: true
+        encoding: UTF-8
+        mode: HTML5
+        prefix: classpath:/templates/
+        suffix: .html
+
+# Server Config
+server:
+    port: 8080
+    context-path: /apollo
+    servlet-path: /
+
+# Spring Security Config
+management:
+    security:
+        enabled: false
+    context-path: /manage
+
+# Accelerate Config
+accelerate:
+    utils:
+        logging:
+            enabled: true
+            audit: true
+            metrics: true
+            debug: true
+        staticListener:
+            enabled: true
+            scanBasePackages: apollo
+    web:
+        config: true
+        security:
+            enabled: false
+            loginURL: /login
+            logoutURL: /logout
+            homeURL: /
+            #userDetailsServiceName: XYZ
+            #authIgnorePatterns: /webjars/**;/css/**;/js/**;/img/**;/;/index/**;/errorPage/**
+            csrf: true
+            ajaxRequestHeader: AJAX-REQUEST
+            csrfCookieName: XSRF-TOKEN
+            csrfTokenHeader: X-XSRF-TOKEN
+        api:
+            basic:
+                debug: true
+                user: true
+            management:
+                auth: true
+                info: true
+                logs: true
+
+# Apollo Config
+apollo:
+    configProps:
+        fileExtn: mp3
+        fileSelectorRoot: /Users/rohitnarayanan/Music
+        libraryRoot: /Users/rohitnarayanan/Music/Library
+

@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE xml>
 <configuration debug="true">
+	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+		<resetJUL>true</resetJUL>
+	</contextListener>
+
 	<!-- To enable JMX Management -->
 	<jmxConfigurator />
 
 	<appender name="SysoutAppender" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- encoders are by default assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
 		<encoder>
-			<pattern>%d;%logger;%level;%msg|~|%throwable%n</pattern>
+			<pattern>
+				%d;%logger;%thread;%level;%X{customInfo};%m%n
+			</pattern>
 		</encoder>
 	</appender>
 
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>logs/apollo.log</file>
-		<append>true</append>
+	<appender name="SyserrAppender" class="ch.qos.logback.core.ConsoleAppender">
+		<target>System.err</target>
+		<!-- encoders are by default assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
 		<encoder>
-			<pattern>%d;%logger;%level;%msg|~|%throwable%n</pattern>
+			<pattern>
+				%d;%logger;%thread;%level;%X{customInfo};%m%n
+			</pattern>
 		</encoder>
 	</appender>
-
-	<logger name="org.springframework.boot.autoconfigure.security"
-		level="info" additivity="false">
-		<appender-ref ref="SysoutAppender" />
-	</logger>
 
 	<logger name="accelerate" level="debug" additivity="false">
 		<appender-ref ref="SysoutAppender" />
@@ -32,7 +35,12 @@
 		<appender-ref ref="SysoutAppender" />
 	</logger>
 
+	<logger name="org.springframework.boot.autoconfigure.security"
+		level="info" additivity="false">
+		<appender-ref ref="SyserrAppender" />
+	</logger>
+
 	<root level="info">
-		<appender-ref ref="FILE" />
+		<appender-ref ref="SysoutAppender" />
 	</root>
 </configuration>

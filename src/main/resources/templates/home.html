@@ -7,7 +7,7 @@
 	xmlns:th="http://www.thymeleaf.org">
 <!--<![endif]-->
 <head>
-<object th:remove="tag" th:include="templates :: head" />
+<object th:remove="tag" th:include="templates :: head"></object>
 
 <script th:inline="javascript">
 	/*<![CDATA[*/
@@ -44,15 +44,15 @@
 						class="collapse navbar-collapse">
 						<ul id="apolloHeaderNavbarNav" class="nav navbar-nav navbar-right">
 							<li class="menu-li"><a href=""><i
-									class="fa fa-search margin-right-5" aria-hidden="true" />Search</a></li>
+									class="fa fa-search margin-right-5" aria-hidden="true"></i>Search</a></li>
 							<li class="menu-li"><a href="" class="dropdown-toggle"
 								data-toggle="dropdown" role="button" aria-haspopup="true"
 								aria-expanded="false"><i class="fa fa-plus margin-right-5"
-									aria-hidden="true" />Add<span
+									aria-hidden="true"></i>Add<span
 									class="glyphicon glyphicon-menu-right visible-xs-block"
-									style="float: right;" aria-hidden="true" /><span
+									style="float: right;" aria-hidden="true"></span><span
 									class="glyphicon glyphicon-menu-down visible-xs-block"
-									style="float: right;" aria-hidden="true" /></a>
+									style="float: right;" aria-hidden="true"></span></a>
 								<ul class="dropdown-menu submenu-ul">
 									<li class="submenu-li"><a href="#addAlbum">Album</a></li>
 									<li class="submenu-li"><a href="#addPlaylist">Playlist</a></li>
@@ -61,11 +61,11 @@
 							<li class="menu-li"><a href="" class="dropdown-toggle"
 								data-toggle="dropdown" aria-haspopup="true"
 								aria-expanded="false"><i
-									class="fa fa-folder-open margin-right-5" aria-hidden="true" />Browse<span
+									class="fa fa-folder-open margin-right-5" aria-hidden="true"></i>Browse<span
 									class="glyphicon glyphicon-menu-right visible-xs-block"
-									style="float: right;" aria-hidden="true" /><span
+									style="float: right;" aria-hidden="true"></span><span
 									class="glyphicon glyphicon-menu-down visible-xs-block"
-									style="float: right;" aria-hidden="true" /></a>
+									style="float: right;" aria-hidden="true"></span></a>
 								<ul class="dropdown-menu submenu-ul">
 									<li class="submenu-li"><a href="#browseAlbums">Albums</a></li>
 									<li class="submenu-li"><a href="#browsePlaylists">Playlists</a></li>
@@ -75,11 +75,11 @@
 							<li class="menu-li"><a href="" class="dropdown-toggle"
 								data-toggle="dropdown" role="button" aria-haspopup="true"
 								aria-expanded="false"><i class="fa fa-cogs margin-right-5"
-									aria-hidden="true" />Admin<span
+									aria-hidden="true"></i>Admin<span
 									class="glyphicon glyphicon-menu-right visible-xs-block"
-									style="float: right;" aria-hidden="true" /><span
+									style="float: right;" aria-hidden="true"></span><span
 									class="glyphicon glyphicon-menu-down visible-xs-block"
-									style="float: right;" aria-hidden="true" /></a>
+									style="float: right;" aria-hidden="true"></span></a>
 								<ul class="dropdown-menu submenu-ul">
 									<li class="submenu-li"><a href="#syncFolders">Sync
 											Folders</a></li>
@@ -89,18 +89,18 @@
 							<li class="menu-li menu-li-last"><a href=""
 								class="dropdown-toggle" data-toggle="dropdown" role="button"
 								aria-haspopup="true" aria-expanded="false"><i
-									class="fa fa-user margin-right-5" aria-hidden="true" />{{context.session.user.name}}<span
+									class="fa fa-user margin-right-5" aria-hidden="true"></i>{{context.session.user.name}}<span
 									class="glyphicon glyphicon-menu-right visible-xs-block"
-									style="float: right;" aria-hidden="true" /><span
+									style="float: right;" aria-hidden="true"></span><span
 									class="glyphicon glyphicon-menu-down visible-xs-block"
-									style="float: right;" aria-hidden="true" /></a>
+									style="float: right;" aria-hidden="true"></span></a>
 								<ul class="dropdown-menu submenu-ul">
 									<li class="submenu-li"><a href="">{{context.session.user.roles}}</a></li>
 									<li class="submenu-li"><a ng-click="logout()" href="">Logout</a></li>
 								</ul></li>
 						</ul>
 						<form id="_logoutForm" th:action="@{/logout}" method="post"
-							style="display: none;" />
+							style="display: none;"></form>
 					</div>
 					<!-- /.navbar-collapse -->
 				</div>
@@ -129,7 +129,7 @@
 
 			<div class="apollo-msg" style="display: none;">
 				<span id="_pageAlertIcon" class="glyphicon">&nbsp;</span> <span
-					id="_pageAlertMsg" />
+					id="_pageAlertMsg"></span>
 			</div>
 
 			<!-- content div to load routing views -->
@@ -145,22 +145,22 @@
 			</form>
 
 			<!-- Include modal for file system operations -->
-			<object th:remove="tag" th:include="templates :: parse-tags-modal" />
+			<object th:remove="tag" th:include="templates :: parse-tags-modal"></object>
 
 			<!-- Include modal for file system operations -->
-			<object th:remove="tag" th:include="templates :: file-system-modal" />
+			<object th:remove="tag" th:include="templates :: file-system-modal"></object>
 		</section>
 		<!-- ./container -->
 
 		<!-- bottom bar -->
-		<object th:remove="tag" th:include="templates :: footer" />
+		<object th:remove="tag" th:include="templates :: footer"></object>
 	</div>
 
 	<!-- modal to show help message -->
-	<object th:remove="tag" th:include="templates :: help-msg" />
+	<object th:remove="tag" th:include="templates :: help-msg"></object>
 
 	<!-- include java scripts -->
-	<object th:remove="tag" th:include="templates :: scripts-external" />
-	<object th:remove="tag" th:include="templates :: scripts-custom" />
+	<object th:remove="tag" th:include="templates :: scripts-external"></object>
+	<object th:remove="tag" th:include="templates :: scripts-custom"></object>
 </body>
 </html>

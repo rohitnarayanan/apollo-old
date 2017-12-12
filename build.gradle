@@ -53,7 +53,9 @@ project.ext.buildDate = new Date().format("yyyyMMdd");
 dependencies {
 	// compile dependencies
 	implementation ("accelerate:accelerate-web-utils:1.0")
+	implementation ("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation ("net.jthink:jaudiotagger:2.2.5")
+	
 	
 	// webjars
 	runtimeOnly ("org.webjars:modernizr:2.8.3")

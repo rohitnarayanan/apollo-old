@@ -46,8 +46,9 @@ public class ApolloAspect {
 	 * @param aJoinPoint
 	 * @return
 	 */
-	@Around("execution(* apollo.controller.*.*(..)) and @annotation(apollo.util.HandleError)")
-	public static Object handleError(ProceedingJoinPoint aJoinPoint) {
+	@SuppressWarnings("static-method")
+	@Around("execution(* apollo.controller.*.*(..)) && @annotation(apollo.util.HandleError)")
+	public Object handleError(ProceedingJoinPoint aJoinPoint) {
 		Response response = null;
 
 		List<Object> requestArgs = new ArrayList<>();

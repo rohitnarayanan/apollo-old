@@ -116,12 +116,12 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 	private String albumArtist;
 
 	/**
-	 * Album Composer
+	 * Composer
 	 */
 	private String composer;
 
 	/**
-	 * Track Artist
+	 * Artist
 	 */
 	private String artist;
 
@@ -131,12 +131,12 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 	private String trackNbr;
 
 	/**
-	 * Track Title
+	 * Title
 	 */
 	private String title;
 
 	/**
-	 * Track Lyrics
+	 * Lyrics
 	 */
 	private String lyrics;
 
@@ -175,21 +175,21 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 	/**
 	 * primary constructor for reading tag information
 	 * 
-	 * @param aTrackPath
+	 * @param aMp3Path
 	 */
-	public Mp3Tag(Path aTrackPath) {
+	public Mp3Tag(Path aMp3Path) {
 		this();
 
-		LOGGER.debug("Loading tag from [{}]", aTrackPath);
+		LOGGER.debug("Loading tag from [{}]", aMp3Path);
 
-		this.fileName = NIOUtil.getBaseName(aTrackPath);
-		this.filePath = aTrackPath;
+		this.fileName = NIOUtil.getBaseName(aMp3Path);
+		this.filePath = aMp3Path;
 
-		MP3File mp3File = Mp3TagUtil.getMP3File(aTrackPath);
+		MP3File mp3File = Mp3TagUtil.getMP3File(aMp3Path);
 		Tag tag = mp3File.getTag();
 		AudioHeader audioHeader = mp3File.getAudioHeader();
 
-		this.header = new Header(audioHeader, aTrackPath.toFile().length());
+		this.header = new Header(audioHeader, aMp3Path.toFile().length());
 
 		this.id = tag.getFirst(FieldKey.KEY);
 		this.language = tag.getFirst(FieldKey.LANGUAGE);
@@ -211,7 +211,7 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 		}
 
 		if (StringUtils.isEmpty(this.id)) {
-			this.id = String.valueOf(aTrackPath.toString().hashCode());
+			this.id = String.valueOf(aMp3Path.toString().hashCode());
 		}
 
 		for (FieldKey key : standardFields) {
@@ -223,16 +223,16 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 	}
 
 	/**
-	 * @param aTrackPath
+	 * @param aMp3Path
 	 * @param aTokens
 	 */
-	public Mp3Tag(Path aTrackPath, List<String> aTokens) {
+	public Mp3Tag(Path aMp3Path, List<String> aTokens) {
 		this();
 
-		LOGGER.debug("Parsing tag from [{}]", aTrackPath);
+		LOGGER.debug("Parsing tag from [{}]", aMp3Path);
 
-		this.fileName = NIOUtil.getBaseName(aTrackPath);
-		this.filePath = aTrackPath;
+		this.fileName = NIOUtil.getBaseName(aMp3Path);
+		this.filePath = aMp3Path;
 
 		String parseString = this.fileName;
 		Queue<String> fieldQueue = new ArrayDeque<>(8);
@@ -482,18 +482,18 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 	 *            present</li>
 	 *            <li>6: Do not do anything. Test mode</li>
 	 *            </ul>
-	 * @param aTrackPath
-	 *            Path of the mp3 file to which the track has to be written to
+	 * @param aMp3Path
+	 *            Path of the mp3 file to which the tag has to be written to
 	 * @throws AccelerateException
 	 */
-	public void save(int aSaveFlag, Path aTrackPath) throws AccelerateException {
+	public void save(int aSaveFlag, Path aMp3Path) throws AccelerateException {
 		try {
 			if (aSaveFlag == 6) {
 				LOGGER.info("Test mode active. Logging tag [{}]", this);
 				return;
 			}
 
-			MP3File mp3File = Mp3TagUtil.getMP3File(aTrackPath);
+			MP3File mp3File = Mp3TagUtil.getMP3File(aMp3Path);
 			Tag tag = mp3File.getTag();
 
 			if (aSaveFlag == 5) {
@@ -674,7 +674,7 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 			}
 
 			/*
-			 * Removing unneccessary fields
+			 * Removing unnecessary fields
 			 */
 			for (String frameId : extraFrames) {
 				LOGGER.debug("Removing invalid frame [{}] with value [{}]", frameId, tag.getFields(frameId));
@@ -944,7 +944,7 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 		private long size;
 
 		/**
-		 * Length of the trackNbr
+		 * Length of the song
 		 */
 		private int length;
 
@@ -1049,8 +1049,8 @@ public class Mp3Tag extends DataBean implements Comparable<Mp3Tag> {
 		standardFields.add(FieldKey.ALBUM_ARTIST);
 		standardFields.add(FieldKey.COMPOSER);
 		standardFields.add(FieldKey.ARTIST);
-		standardFields.add(FieldKey.TITLE);
 		standardFields.add(FieldKey.TRACK);
+		standardFields.add(FieldKey.TITLE);
 		// standardFields.add(FieldKey.LYRICS);
 		// standardFields.add(FieldKey.TAGS);
 		standardFields.add(FieldKey.COVER_ART);
