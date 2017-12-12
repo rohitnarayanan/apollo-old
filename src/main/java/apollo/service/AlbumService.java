@@ -54,23 +54,24 @@ public class AlbumService {
 		_LOGGER.debug("Reading tags for all tracks with extn [{}] under [{}]", fileExtn, aAlbumPath);
 
 		Mp3Tag albumTag = new Mp3Tag();
-		List<Mp3Tag> songTags = NIOUtil.searchByExtn(aAlbumPath, fileExtn).values().parallelStream().map(aPath -> {
-			Mp3Tag mp3Tag = new Mp3Tag(aPath);
-			albumTag.extractCommonTag(mp3Tag);
+		List<Mp3Tag> trackTags = NIOUtil.searchByExtn(aAlbumPath, fileExtn).values().parallelStream()
+				.map(aTrackPath -> {
+					Mp3Tag trackTag = new Mp3Tag(aTrackPath);
+					albumTag.extractCommonTag(trackTag);
 
-			/*
-			 * Removing tag values set at album level to reduce data transmission
-			 */
-			mp3Tag.setField("language", null);
-			mp3Tag.setField("genre", null);
-			mp3Tag.setField("mood", null);
-			mp3Tag.setField("album", null);
-			mp3Tag.setField("year", null);
-			mp3Tag.setField("albumArtist", null);
-			mp3Tag.setField("artwork", null);
+					/*
+					 * Removing tag values set at album level to reduce data transmission
+					 */
+					trackTag.setField("language", null);
+					trackTag.setField("genre", null);
+					trackTag.setField("mood", null);
+					trackTag.setField("album", null);
+					trackTag.setField("year", null);
+					trackTag.setField("albumArtist", null);
+					trackTag.setField("artwork", null);
 
-			return mp3Tag;
-		}).collect(Collectors.toList());
+					return trackTag;
+				}).collect(Collectors.toList());
 
 		albumTag.setFilePath(aAlbumPath);
 		albumTag.clear();
@@ -81,7 +82,7 @@ public class AlbumService {
 
 		DataMap dataMap = new DataMap();
 		dataMap.put("albumTag", albumTag);
-		dataMap.put("songTags", songTags);
+		dataMap.put("trackTags", trackTags);
 		dataMap.put("addedToLibrary", addedToLibrary);
 		return dataMap;
 	}
@@ -101,20 +102,21 @@ public class AlbumService {
 		List<String> parseTokens = Mp3TagUtil.parseTagExpression(aParseTagTokens);
 
 		Mp3Tag albumTag = new Mp3Tag();
-		List<Mp3Tag> songTags = NIOUtil.searchByExtn(aAlbumPath, fileExtn).values().parallelStream().map(aPath -> {
-			Mp3Tag mp3Tag = new Mp3Tag(aPath, parseTokens);
-			if (aWriteFlag) {
-				mp3Tag.save();
-			}
+		List<Mp3Tag> trackTags = NIOUtil.searchByExtn(aAlbumPath, fileExtn).values().parallelStream()
+				.map(aTrackPath -> {
+					Mp3Tag trackTag = new Mp3Tag(aTrackPath, parseTokens);
+					if (aWriteFlag) {
+						trackTag.save();
+					}
 
-			albumTag.extractCommonTag(mp3Tag);
-			return mp3Tag;
-		}).collect(Collectors.toList());
+					albumTag.extractCommonTag(trackTag);
+					return trackTag;
+				}).collect(Collectors.toList());
 		albumTag.clear();
 
 		DataMap dataMap = new DataMap();
 		dataMap.put("albumTag", albumTag);
-		dataMap.put("songTags", songTags);
+		dataMap.put("trackTags", trackTags);
 		return dataMap;
 	}
 
@@ -126,21 +128,21 @@ public class AlbumService {
 		final String fileExtn = this.apolloConfigProps.getFileExtn();
 		_LOGGER.debug("Saving common tag for all tracks with extn [{}] under [{}]", fileExtn, aAlbumTag.getFilePath());
 
-		NIOUtil.searchByExtn(aAlbumTag.getFilePath(), fileExtn).values().parallelStream().forEach(aSongPath -> {
-			aAlbumTag.save(0, aSongPath);
+		NIOUtil.searchByExtn(aAlbumTag.getFilePath(), fileExtn).values().parallelStream().forEach(aTrackPath -> {
+			aAlbumTag.save(0, aTrackPath);
 		});
 		aAlbumTag.clear();
 	}
 
 	/**
-	 * @param aMp3TagList
+	 * @param aTrackTagList
 	 */
 	@SuppressWarnings("static-method")
 	@Log
-	public void saveAlbumTags(List<Mp3Tag> aMp3TagList) {
-		aMp3TagList.stream().parallel().forEach(aMp3Tag -> {
-			_LOGGER.debug("Saving tag [{}]", aMp3Tag);
-			aMp3Tag.save();
+	public void saveAlbumTags(List<Mp3Tag> aTrackTagList) {
+		aTrackTagList.stream().parallel().forEach(aTrackTag -> {
+			_LOGGER.debug("Saving tag [{}]", aTrackTag);
+			aTrackTag.save();
 		});
 	}
 
@@ -149,7 +151,7 @@ public class AlbumService {
 	 * @return
 	 */
 	@Log
-	public DataMap renameAlbumSongs(Mp3Tag aAlbumTag) {
+	public DataMap renameAlbumTracks(Mp3Tag aAlbumTag) {
 		_LOGGER.debug("Correcting files names for album [{}] at path [{}]", aAlbumTag.getAlbum(),
 				aAlbumTag.getFilePath());
 
@@ -251,10 +253,10 @@ public class AlbumService {
 
 		Set<String> tagErrors = new HashSet<>();
 		Map<Path, Mp3Tag> tagMap = NIOUtil.searchByExtn(currentAlbumPath, fileExtn).values().parallelStream()
-				.map(aPath -> {
-					Mp3Tag mp3Tag = new Mp3Tag(aPath);
-					tagErrors.addAll(mp3Tag.getTagErrors());
-					return mp3Tag;
+				.map(aTrackPath -> {
+					Mp3Tag trackTag = new Mp3Tag(aTrackPath);
+					tagErrors.addAll(trackTag.getTagErrors());
+					return trackTag;
 				}).collect(Collectors.toMap(aTag -> aTag.getFilePath(), aTag -> aTag));
 
 		if (!tagErrors.isEmpty()) {

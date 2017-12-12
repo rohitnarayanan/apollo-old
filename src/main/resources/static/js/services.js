@@ -116,7 +116,7 @@ apollo.services.albumService = function($http, $q) {
 	function getTracks(aAlbumPath) {
 		var request = $http({
 			method : "get",
-			url : apollo.context.path + "/album/listTracks",
+			url : apollo.context.path + "/album/tracks",
 			params : {
 				"albumPath" : aAlbumPath
 			}
@@ -157,7 +157,7 @@ apollo.services.albumService = function($http, $q) {
 	function saveAlbumTag(aAlbumTag) {
 		var request = $http({
 			method : "post",
-			url : apollo.context.path + "/album/saveAlbumTag",
+			url : apollo.context.path + "/album/albumTag",
 			data : aAlbumTag,
 			datatype : "json"
 		});
@@ -169,7 +169,7 @@ apollo.services.albumService = function($http, $q) {
 	function saveTrackTag(aTrackTag) {
 		var request = $http({
 			method : "post",
-			url : apollo.context.path + "/album/saveTrackTag",
+			url : apollo.context.path + "/album/trackTag",
 			data : aTrackTag,
 			datatype : "json"
 		});
@@ -181,7 +181,7 @@ apollo.services.albumService = function($http, $q) {
 	function saveTrackTags(aTrackTagList) {
 		var request = $http({
 			method : "post",
-			url : apollo.context.path + "/album/saveTrackTags",
+			url : apollo.context.path + "/album/trackTags",
 			data : aTrackTagList,
 			datatype : "json"
 		});
@@ -230,7 +230,7 @@ apollo.services.songService = function($http, $q) {
 	function getTag(aSongPath) {
 		var request = $http({
 			method : "get",
-			url : apollo.context.path + "/song/getTag",
+			url : apollo.context.path + "/song/tag",
 			params : {
 				"songPath" : aSongPath
 			}
@@ -271,7 +271,7 @@ apollo.services.songService = function($http, $q) {
 	function saveTag(aTrackTag) {
 		var request = $http({
 			method : "post",
-			url : apollo.context.path + "/song/saveTag",
+			url : apollo.context.path + "/song/tag",
 			data : aTrackTag,
 			datatype : "json"
 		});

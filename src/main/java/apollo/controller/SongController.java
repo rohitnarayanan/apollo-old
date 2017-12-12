@@ -26,7 +26,7 @@ import apollo.util.HandleError;
  * @since December 11, 2017
  */
 @RestController
-@RequestMapping("/track")
+@RequestMapping("/song")
 public class SongController {
 	/**
 	 * {@link Logger} instance
@@ -41,67 +41,67 @@ public class SongController {
 	private SongService songService = null;
 
 	/**
-	 * @param aTrackPath
+	 * @param aSongPath
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, path = "/getTag")
+	@RequestMapping(method = RequestMethod.GET, path = "/tag")
 	@HandleError
-	public Response getTag(@RequestParam(name = "trackPath") String aTrackPath) {
+	public Response getTag(@RequestParam(name = "songPath") String aSongPath) {
 		Response model = new Response();
-		model.putAll(this.songService.getTag(Paths.get(aTrackPath)));
+		model.putAll(this.songService.getTag(Paths.get(aSongPath)));
 		return model;
 	}
 
 	/**
-	 * @param aTrackPath
+	 * @param aSongPath
 	 * @param aParseTagTokens
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, path = "/parseTags")
 	@HandleError
-	public Response parseTags(@RequestParam(name = "trackPath") String aTrackPath,
+	public Response parseTags(@RequestParam(name = "songPath") String aSongPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
 		Response model = new Response();
-		model.put("parsedTag", this.songService.parseTags(Paths.get(aTrackPath), aParseTagTokens, false));
+		model.put("parsedTag", this.songService.parseTags(Paths.get(aSongPath), aParseTagTokens, false));
 		return model;
 	}
 
 	/**
-	 * @param aTrackPath
+	 * @param aSongPath
 	 * @param aParseTagTokens
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/saveParsedTags")
 	@HandleError
-	public Response saveParsedTags(@RequestParam(name = "trackPath") String aTrackPath,
+	public Response saveParsedTags(@RequestParam(name = "songPath") String aSongPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
-		this.songService.parseTags(Paths.get(aTrackPath), aParseTagTokens, true);
-		return getTag(aTrackPath);
+		this.songService.parseTags(Paths.get(aSongPath), aParseTagTokens, true);
+		return getTag(aSongPath);
 	}
 
 	/**
-	 * @param aTrackTag
+	 * @param aSongTag
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.POST, path = "/saveTag")
+	@RequestMapping(method = RequestMethod.POST, path = "/tag")
 	@HandleError
-	public Response saveTag(@RequestBody Mp3Tag aTrackTag) {
-		this.songService.saveTag(aTrackTag);
+	public Response saveTag(@RequestBody Mp3Tag aSongTag) {
+		this.songService.saveTag(aSongTag);
 		Response model = new Response();
 		model.put("saveFlag", true);
 		return model;
 	}
 
 	/**
-	 * @param aTrackPath
+	 * @param aSongPath
 	 * @return
 	 * @throws IOException
 	 */
 	@RequestMapping(method = RequestMethod.POST, path = "/addToLibrary")
 	@HandleError
-	public Response addToLibrary(@RequestParam(name = "trackPath") String aTrackPath) throws IOException {
-		DataMap attributes = this.songService.addToLibrary(Paths.get(aTrackPath));
-		Response model = getTag(attributes.getString("trackPath"));
+	public Response addToLibrary(@RequestParam(name = "songPath") String aSongPath) throws IOException {
+		DataMap attributes = this.songService.addToLibrary(Paths.get(aSongPath));
+		Response model = getTag(attributes.getString("songPath"));
 		model.putAll(attributes);
 		return model;
 	}

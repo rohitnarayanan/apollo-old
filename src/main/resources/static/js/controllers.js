@@ -58,9 +58,9 @@ apollo.controllers.mainController = function($rootScope, $scope, $http,
 	// add a standard token on click
 	$("#_standardTokens a").click(function(aEvent) {
 		var token = $(this).data("token");
-//		if ($("#_token-" + token).is(":hidden")) {
-//			return;
-//		}
+		// if ($("#_token-" + token).is(":hidden")) {
+		// return;
+		// }
 
 		apollo.plugins.ParseTagsUtil.addToken(token);
 		$("#_token-" + token).hide();

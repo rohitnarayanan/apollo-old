@@ -44,9 +44,9 @@ public class AlbumController {
 	 * @param aAlbumPath
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, path = "/songs")
+	@RequestMapping(method = RequestMethod.GET, path = "/tracks")
 	@HandleError
-	public Response albumSongs(@RequestParam(name = "albumPath") String aAlbumPath) {
+	public Response albumTracks(@RequestParam(name = "albumPath") String aAlbumPath) {
 		Response model = new Response();
 		model.putAll(this.albumService.getAlbumTags(Paths.get(aAlbumPath)));
 		return model;
@@ -76,14 +76,14 @@ public class AlbumController {
 	public Response saveParsedTags(@RequestParam(name = "albumPath") String aAlbumPath,
 			@RequestParam(name = "parseTagTokens") String aParseTagTokens) {
 		this.albumService.parseAlbumTags(Paths.get(aAlbumPath), aParseTagTokens, true);
-		return albumSongs(aAlbumPath);
+		return albumTracks(aAlbumPath);
 	}
 
 	/**
 	 * @param aAlbumTag
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.POST, path = "/saveAlbumTag")
+	@RequestMapping(method = RequestMethod.POST, path = "/albumTag")
 	@HandleError
 	public Response saveAlbumTag(@RequestBody Mp3Tag aAlbumTag) {
 		this.albumService.saveAlbumTag(aAlbumTag);
@@ -93,13 +93,13 @@ public class AlbumController {
 	}
 
 	/**
-	 * @param aSongTags
+	 * @param aTrackTags
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.POST, path = "/saveSongTags")
+	@RequestMapping(method = RequestMethod.POST, path = "/trackTags")
 	@HandleError
-	public Response saveTrackTags(@RequestBody List<Mp3Tag> aSongTags) {
-		this.albumService.saveAlbumTags(aSongTags);
+	public Response saveTrackTags(@RequestBody List<Mp3Tag> aTrackTags) {
+		this.albumService.saveAlbumTags(aTrackTags);
 		Response model = new Response();
 		model.put("saveFlag", true);
 		return model;
@@ -112,8 +112,8 @@ public class AlbumController {
 	@RequestMapping(method = RequestMethod.POST, path = "/renameTracks")
 	@HandleError
 	public Response renameTracks(@RequestBody Mp3Tag aAlbumTag) {
-		DataMap attributes = this.albumService.renameAlbumSongs(aAlbumTag);
-		Response model = albumSongs(attributes.get("albumPath").toString());
+		DataMap attributes = this.albumService.renameAlbumTracks(aAlbumTag);
+		Response model = albumTracks(attributes.get("albumPath").toString());
 		model.putAll(attributes);
 		return model;
 	}
@@ -126,7 +126,7 @@ public class AlbumController {
 	@HandleError
 	public Response addToLibrary(@RequestBody Mp3Tag aAlbumTag) {
 		DataMap attributes = this.albumService.addToLibrary(aAlbumTag);
-		Response model = albumSongs(attributes.get("albumPath").toString());
+		Response model = albumTracks(attributes.get("albumPath").toString());
 		model.putAll(attributes);
 		return model;
 	}
