@@ -1,0 +1,26 @@
+{
+	"session": {
+		"initTime": 1507926766931,
+		"sessionId": "38662B9A2C1FFC32623C985EE72CF4B8",
+		"username": "q",
+		"authorities": [
+			{
+				"role": "user"
+			}
+		],
+		"accountExpired": false,
+		"accountLocked": false,
+		"credentialsExpired": false,
+		"accountDisabled": false,
+		"user": {
+			"id": "1",
+			"username": "q",
+			"password": "q",
+			"roles": [
+				"user"
+			],
+			"name": "Rohit",
+			"email": "rohit.nn@gmail.com"
+		}
+	}
+}

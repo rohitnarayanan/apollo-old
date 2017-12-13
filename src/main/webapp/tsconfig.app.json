@@ -1,0 +1,12 @@
+{
+	"extends": "../../../tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": "./",
+		"outDir": "build/www",
+		"types": []
+	},
+	"exclude": [
+		"test.ts",
+		"**/*.spec.ts"
+	]
+}

@@ -1,0 +1,131 @@
+img.awf-brand {
+	height: 55px;
+}
+
+h1.navbar-title {
+	float: left;
+	margin-top: 8px;
+}
+
+h1.navbar-title.short {
+	display: none;
+}
+
+div.menu-div {
+	width: 100%;
+}
+
+/* resize div to allow more room for full menu*/
+@media ( min-width : 768px) and (max-width: 900px) {
+	div.menu-div {
+		width: 70%;
+	}
+}
+
+/* short title for screen smaller than 542px*/
+@media ( max-width : 542px) {
+	h1.navbar-title {
+		/*hide full tile*/
+		display: none;
+	}
+	/*show brand title*/
+	h1.navbar-title.short {
+		display: block;
+	}
+}
+
+/* short title for screen sizes between 768px and 900px, as not enough space for horizontal menu and full title*/
+@media ( min-width : 768px) and (max-width: 900px) {
+	h1.navbar-title {
+		/*hide full tile*/
+		display: none;
+	}
+	/*show brand title*/
+	h1.navbar-title.short {
+		display: block;
+	}
+}
+
+@media ( min-width : 768px) and (max-width: 900px) {
+	h1.navbar-title {
+		/*hide full tile*/
+		display: none;
+	}
+	/*show brand title*/
+	h1.navbar-title.short {
+		display: block;
+	}
+}
+
+button.navbar-toggler {
+	float: right;
+	margin-top: 9px;
+}
+
+nav.site-menu {
+	background: #fff;
+	border: none;
+	box-shadow: none;
+	border-radius: 0px;
+	border-bottom: 1px solid #ccc;
+	margin-bottom: 5px;
+	padding: 0px;
+}
+
+ul.site-menu li.site-menu-link div.site-submenu {
+	/*remove padding from sub menu container*/
+	padding: 0px 0px 0px 0px;
+}
+
+.dropdown-toggle::after {
+	/*hide drop down arrow on menu headers*/
+	display: none;
+}
+
+ul.site-menu li.site-menu-link div.site-submenu a.site-submenu-link {
+	/*set default styles for sub menu items*/
+	padding: 5px 10px 5px 5px;
+	border-left: 6px solid #fff;
+}
+
+ul.site-menu li.site-menu-link div.site-submenu a.site-submenu-link:hover
+	{
+	/*set styles for sub menu items on hover*/
+	border-left: 6px solid #96c346;
+	background-color: #f2f2f2;
+}
+
+ul.site-menu li.site-menu-link a.nav-link>i.fa {
+	/*set right margin for space after menu item icon*/
+	margin-right: 4px;
+}
+
+/*styles to apply for mobile devices*/
+@media ( max-width : 768px) {
+}
+
+/*styles to apply when full menu is visible*/
+@media ( min-width : 768px) {
+	ul.site-menu li.site-menu-link>a.nav-link {
+		/*set empty top border for menu headers by default*/
+		padding: 15px 15px 15px 15px;
+	}
+	ul.site-menu li.site-menu-link {
+		/*set empty top border for menu headers by default*/
+		border-top: solid 4px #fff;
+		border-bottom: none;
+	}
+	ul.site-menu li.site-menu-link:hover {
+		/*set styles for menu items on hover*/
+		border-top: solid 4px #96c346;
+	}
+	ul.site-menu li.site-menu-link>div.dropdown-menu {
+		/*Hide sub menu by default*/
+		display: none;
+		margin: 0px;
+	}
+	ul.site-menu li.site-menu-link:hover>.dropdown-menu {
+		/*Open sub menu on hover*/
+		display: block;
+	}
+}

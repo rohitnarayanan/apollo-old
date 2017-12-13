@@ -1,0 +1,16 @@
+nav.site-footer-nav {
+	min-height: 0px;
+	border-top: solid 1px #ccc;
+	border-radius: 0px;
+	padding: 10px 0px 0px 0px;
+	margin: 0px 15px 5px 15px;
+}
+
+nav.site-footer-nav a.awf-footer-link {
+	font-size: 12px;
+}
+
+nav.site-footer-nav a.awf-footer-link:focus {
+	text-decoration: none;
+	color: #337ab7;
+}

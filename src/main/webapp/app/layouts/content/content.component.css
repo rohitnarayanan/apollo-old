@@ -1,0 +1,8 @@
+h2.awf-page-header {
+	padding: 10px;
+	margin: 0px 0px 5px 0px;
+	border-radius: 4px;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, .2);
+	background-image: linear-gradient(to bottom, #96c346 0%, #96c146 100%);
+	color: #fff;
+}

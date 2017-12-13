@@ -1,0 +1,18 @@
+{
+	"extends": "../../../tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": "./",
+		"outDir": "build/wwwTest",
+		"types": [
+			"jasmine",
+			"node"
+		]
+	},
+	"files": [
+		"test.ts"
+	],
+	"include": [
+		"**/*.spec.ts",
+		"**/*.d.ts"
+	]
+}

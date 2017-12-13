@@ -1,0 +1,57 @@
+<header>
+	<nav id="siteMenu"
+		class="navbar navbar-expand-md navbar-light site-menu">
+		<div class="menu-div">
+			<a class="navbar-brand float-left" href="/"><img
+				class="img-responsive awf-brand"
+				style="float: left; margin-right: 5px;"
+				src="assets/images/apollo.png" /></a>
+			<h1 class="navbar-title">{{title}}</h1>
+			<h1 class="navbar-title short">{{shortTitle}}</h1>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarMenu" aria-controls="navbarMenu"
+				aria-expanded="false" aria-label="Toggle Menu">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+		</div>
+		<div id="navbarMenu" class="collapse navbar-collapse">
+			<ul class="navbar-nav ml-auto mt-2 mt-lg-0 site-menu">
+				<li class="nav-item site-menu-link"><a class="nav-link" href=""><i
+						class="fa fa-search" aria-hidden="true"></i>Search</a></li>
+				<li class="nav-item dropdown site-menu-link"><a href=""
+					id="subMenu1Link" class="nav-link dropdown-toggle"
+					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+						class="fa fa-cogs margin-right-5" aria-hidden="true"></i>Migrate</a>
+					<div class="dropdown-menu site-submenu"
+						aria-labelledby="subMenu1Link">
+						<a class="dropdown-item site-submenu-link" href="#!migrateWAS85">To
+							WAS 8.5</a> <a class="dropdown-item site-submenu-link" href="">To
+							JBoss</a> <a class="dropdown-item site-submenu-link" href="">To
+							Tomcat</a>
+					</div></li>
+				<li class="nav-item dropdown site-menu-link"><a href=""
+					id="subMenu2Link" class="nav-link dropdown-toggle"
+					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+						class="fa fa-user-secret" aria-hidden="true"></i>Admin</a>
+					<div class="dropdown-menu site-submenu"
+						aria-labelledby="subMenu2Link">
+						<a class="dropdown-item site-submenu-link" href="#!syncFolders">Sync
+							Folders</a>
+					</div></li>
+
+				<li class="nav-item dropdown site-menu-link site-menu-link-last"><a
+					href="" id="subMenu3Link" class="nav-link dropdown-toggle"
+					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
+						class="fa fa-user" aria-hidden="true"></i>{{context.session.user.name}}</a>
+					<div class="dropdown-menu site-submenu"
+						aria-labelledby="subMenu3Link">
+						<a class="dropdown-item site-submenu-link" href="">{{context.session.user.roles}}</a>
+						<a class="dropdown-item site-submenu-link" (click)="logout()"
+							href="">Logout</a>
+					</div></li>
+			</ul>
+		</div>
+	</nav>
+	<form id="_logoutForm" action="/logout" method="post"
+		style="display: none;"></form>
+</header>

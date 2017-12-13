@@ -1,0 +1,24 @@
+<section>
+	<h2 class="awf-page-header">
+		{{pageTitle}}
+		<button class="btn btn-danger float-right"
+			(click)="handlePageControl()" [hidden]="!showPageControl">{{pageControlName}}</button>
+	</h2>
+	<em>{{pageDescription}}</em>
+
+	<div id="_pageAlertDiv" style="display: none;">
+		<span id="_pageAlertIcon" class="glyphicon">&nbsp;</span> <span
+			id="_pageAlertMsg"></span>
+	</div>
+
+	<!-- content div to load routing views -->
+	<div style="margin-top: 10px;">
+		<router-outlet></router-outlet>
+	</div>
+
+	<!-- hidden link to switch views -->
+	<a id="routingLink" href="#!" class="hidden"></a>
+
+	<!-- router for pop-up models -->
+	<router-outlet name="popup"></router-outlet>
+</section>

@@ -1,0 +1,19 @@
+{
+	"name": "Apollo",
+	"short_name": "apollo",
+	"lang": "en-US",
+	"dir": "rtl",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#fff",
+	"theme_color": "#000000",
+	"start_url": "/index.html",
+	"scope": "/myapp/",
+	"icons": [
+		{
+			"src": "./assets/images/apollo.png",
+			"sizes": "84x84",
+			"type": "image/png"
+		}
+	]
+}
