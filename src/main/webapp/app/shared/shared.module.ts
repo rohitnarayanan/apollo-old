@@ -1,28 +1,62 @@
-import {NgModule} from '@angular/core';
-import {RouterModule} from '@angular/router';
+import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import {DatePipe} from '@angular/common';
+
+import {awfSharedLibsModule} from './shared-libs.module';
+import {awfSharedCommonModule} from './shared-common.module';
+import {awfSharedRoutingModule} from './shared-routing.module';
 
 import {
-  ErrorComponent,
+  AccountService,
+  AuthService,
+  CSRFService,
+  IsAllowedDirective,
+  Principal,
+  StateStorageService,
+  LoginService,
+  LoginModalService,
+  LoginComponent,
   ProfileInfoService,
+  SocialComponent,
+  SocialService,
   UserService
 } from './';
 
-import {
-  awfRoutingModule
-} from './routing.module';
 
 @NgModule({
   imports: [
-    awfRoutingModule
+    awfSharedLibsModule,
+    awfSharedCommonModule,
+    awfSharedRoutingModule
   ],
   declarations: [
+    IsAllowedDirective,
+    LoginComponent,
+    SocialComponent
   ],
   providers: [
+    AccountService,
+    AuthService,
+    CSRFService,
+    Principal,
+    StateStorageService,
+    LoginModalService,
+    LoginService,
     ProfileInfoService,
-    UserService
+    SocialService,
+    UserService,
+    DatePipe
   ],
+  entryComponents: [LoginComponent],
   exports: [
-    RouterModule
-  ]
+    awfSharedLibsModule,
+    awfSharedCommonModule,
+    awfSharedRoutingModule,
+    IsAllowedDirective,
+    LoginComponent,
+    SocialComponent,
+    DatePipe
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
+
 export class awfSharedModule {}

@@ -1,19 +1,11 @@
 import {NgModule} from '@angular/core';
 import {RouterModule} from '@angular/router';
 
-import {
-  ErrorComponent,
-  ProfileInfoService
-} from './';
+import {errorRoutes} from './';
 
-import {
-  homeRoute,
-  errorRoute
-} from './routes';
 
 const LAYOUT_ROUTES = [
-  ...homeRoute,
-  ...errorRoute
+  ...errorRoutes
 ];
 
 @NgModule({
@@ -24,7 +16,7 @@ const LAYOUT_ROUTES = [
     RouterModule
   ],
   declarations: [
-    ErrorComponent
   ]
 })
-export class awfRoutingModule {}
+
+export class awfSharedRoutingModule {}

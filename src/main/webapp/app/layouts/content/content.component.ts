@@ -9,10 +9,9 @@ import {Component, OnInit} from '@angular/core';
 export class ContentComponent implements OnInit {
   pageTitle = 'INDEX';
   pageDescription = 'INDEX PAGE';
-  pageControlName = '^BTN';
+  pageControlName = '';
   showPageControl = false;
-  handlePageControl = function() {
-    alert('handlePageControl-app');
+  handlePageControl = function() {	
   };
 
   constructor() {}

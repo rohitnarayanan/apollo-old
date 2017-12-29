@@ -2,12 +2,13 @@ import {Routes} from '@angular/router';
 
 import {ErrorComponent} from '../error/error.component';
 
-export const errorRoute: Routes = [
+export const errorRoutes: Routes = [
   {
     path: 'error',
     component: ErrorComponent,
     data: {
-      authorities: []
+      authorities: [],
+      statusCode: 500
     },
   },
   {
@@ -15,7 +16,7 @@ export const errorRoute: Routes = [
     component: ErrorComponent,
     data: {
       authorities: [],
-      error403: true
+      statusCode: 403
     },
   }
 ];

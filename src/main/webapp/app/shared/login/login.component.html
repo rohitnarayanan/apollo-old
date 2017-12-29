@@ -1,0 +1,126 @@
+<div id="_loginModal" class="modal fade" tabindex="-1"
+	aria-labelledby="_loginLabel" role="dialog" data-backdrop="static">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 id="_loginLabel" class="modal-title">
+					Sign In<span class="glyphicon glyphicon-remove"
+						style="float: right; cursor: pointer;" data-dismiss="modal"
+						aria-hidden="true"></span>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div class="container-fluid">
+					<div class="row justify-content-center">
+						<div class="col-12" [ngSwitch]="authStatus">
+							<div class="apollo-msg msg-success" *ngSwitchCase="'notLoggedIn'">
+								<span class="glyphicon glyphicon-ok">&nbsp;</span>Please login
+								to proceed
+							</div>
+
+							<div class="apollo-msg msg-success" *ngSwitchCase="'loggedOut'">
+								<span class="glyphicon glyphicon-ok">&nbsp;</span>You have been
+								logged out.
+							</div>
+
+							<div class="apollo-msg msg-warn" *ngSwitchCase="'sessionExpired'">
+								<span class="glyphicon glyphicon-alert">&nbsp;</span>Session
+								Expired. Please Login Again
+							</div>
+
+							<div class="apollo-msg msg-warn" *ngSwitchCase="'sessionInvalid'">
+								<span class="glyphicon glyphicon-alert">&nbsp;</span>Invalid
+								Session. Please Login Again
+							</div>
+
+							<div class="apollo-msg msg-error"
+								*ngSwitchCase="'invalidCredentials'">
+								<span class="glyphicon glyphicon-remove">&nbsp;</span> Invalid
+								username or password
+							</div>
+
+							<div class="apollo-msg msg-error"
+								*ngSwitchCase="'accountDisabled'">
+								<span class="glyphicon glyphicon-remove">&nbsp;</span> The user
+								account is disabled or inactive. Please contact the
+								Administrator
+							</div>
+
+							<div class="apollo-msg msg-error"
+								*ngSwitchCase="'passwordExpired'">
+								<span class="glyphicon glyphicon-remove">&nbsp;</span> The
+								password has expired. Please reset your password and try again
+							</div>
+
+							<div class="apollo-msg msg-error"
+								*ngSwitchCase="'accountExpired'">
+								<span class="glyphicon glyphicon-remove">&nbsp;</span> The user
+								account has expired. Please contact the Administrator
+							</div>
+
+							<div class="apollo-msg msg-error" *ngSwitchCase="'accountLocked'">
+								<span class="glyphicon glyphicon-remove">&nbsp;</span> The user
+								account is locked . Please contact the Administrator
+							</div>
+
+							<div class="apollo-msg msg-error" *ngSwitchCase="'error'">
+								<span class="glyphicon glyphicon-remove">&nbsp;</span> The was
+								an error during login. Please contact the Administrator
+							</div>
+						</div>
+
+
+						<div class="col-12">
+							<form class="form" role="form" (ngSubmit)="login()">
+								<div class="form-group">
+									<label for="username" class="sr-only">Login</label>
+									<div class="input-group">
+										<span class="input-group-addon"><i
+											class="fa fa-user fa-fw"></i></span> <input type="text"
+											id="_username" name="username" class="form-control"
+											placeholder="Username" required="required"
+											autofocus="autofocus" [(ngModel)]="username" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="password" class="sr-only">Password</label>
+									<div class="input-group">
+										<span class="input-group-addon"><i
+											class="fa fa-key fa-fw"></i></span> <input type="password"
+											id="_password" name="password" class="form-control"
+											placeholder="Password" required="required"
+											[(ngModel)]="password" />
+									</div>
+								</div>
+								<div class="form-check">
+									<label class="form-check-label" for="rememberMe"> <input
+										class="form-check-input" type="checkbox" name="rememberMe"
+										id="rememberMe" [(ngModel)]="rememberMe" checked> <span>Remember
+											Me</span>
+									</label>
+								</div>
+								<button type="submit" class="btn btn-primary">Sign in</button>
+							</form>
+							<p></p>
+							<div class="alert alert-warning">
+								<a class="alert-link" (click)="requestResetPassword()">Forgot
+									Password ?</a>
+							</div>
+							<div class="alert alert-warning">
+								<a class="alert-link" (click)="register()">Sign Up</a>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<br />
+							<awf-social provider="google"></awf-social>
+							<awf-social provider="facebook"></awf-social>
+							<awf-social provider="twitter"></awf-social>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer"></div>
+		</div>
+	</div>
+</div>

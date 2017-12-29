@@ -15,11 +15,12 @@
 			</button>
 		</div>
 		<div id="navbarMenu" class="collapse navbar-collapse">
-			<ul class="navbar-nav ml-auto mt-2 mt-lg-0 site-menu">
+			<ul class="navbar-nav ml-auto mt-2 mt-lg-0 site-menu"
+				[ngSwitch]="isAuthenticated()">
 				<li class="nav-item site-menu-link"><a class="nav-link" href=""><i
 						class="fa fa-search" aria-hidden="true"></i>Search</a></li>
-				<li class="nav-item dropdown site-menu-link"><a href=""
-					id="subMenu1Link" class="nav-link dropdown-toggle"
+				<li class="nav-item dropdown site-menu-link" *ngSwitchCase="true"><a
+					href="" id="subMenu1Link" class="nav-link dropdown-toggle"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
 						class="fa fa-cogs margin-right-5" aria-hidden="true"></i>Migrate</a>
 					<div class="dropdown-menu site-submenu"
@@ -29,8 +30,8 @@
 							JBoss</a> <a class="dropdown-item site-submenu-link" href="">To
 							Tomcat</a>
 					</div></li>
-				<li class="nav-item dropdown site-menu-link"><a href=""
-					id="subMenu2Link" class="nav-link dropdown-toggle"
+				<li class="nav-item dropdown site-menu-link" *ngSwitchCase="true"><a
+					href="" id="subMenu2Link" class="nav-link dropdown-toggle"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
 						class="fa fa-user-secret" aria-hidden="true"></i>Admin</a>
 					<div class="dropdown-menu site-submenu"
@@ -38,16 +39,22 @@
 						<a class="dropdown-item site-submenu-link" href="#!syncFolders">Sync
 							Folders</a>
 					</div></li>
-
 				<li class="nav-item dropdown site-menu-link site-menu-link-last"><a
 					href="" id="subMenu3Link" class="nav-link dropdown-toggle"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i
 						class="fa fa-user" aria-hidden="true"></i>{{context.session.user.name}}</a>
 					<div class="dropdown-menu site-submenu"
 						aria-labelledby="subMenu3Link">
-						<a class="dropdown-item site-submenu-link" href="">{{context.session.user.roles}}</a>
-						<a class="dropdown-item site-submenu-link" (click)="logout()"
-							href="">Logout</a>
+						<a class="dropdown-item site-submenu-link" *ngSwitchCase="true"
+							routerLink="account">Account</a> <a
+							class="dropdown-item site-submenu-link" *ngSwitchCase="true"
+							routerLink="settings" href="">Settings</a> <a
+							class="dropdown-item site-submenu-link" *ngSwitchCase="true"
+							(click)="logout()" href="">Logout</a> <a
+							class="dropdown-item site-submenu-link" *ngSwitchCase="false"
+							(click)="login()" href="">Sign In</a> <a
+							class="dropdown-item site-submenu-link" *ngSwitchCase="false"
+							routerLink="register" href="">Register</a>
 					</div></li>
 			</ul>
 		</div>

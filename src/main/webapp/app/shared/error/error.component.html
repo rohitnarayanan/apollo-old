@@ -1,13 +1,22 @@
 <div class="jumbotron alert-msg error">
-	<div [hidden]="statusCode == 403">
-		<h2>User Is Not Authorized</h2>
-		<p>You do not have access to this functionality. If this is
-			incorrect, please contact your Authenticator Account Administrator
-			for further help.</p>
-	</div>
-	<div [hidden]="statusCode != 403">
-		<h2>Error Occurred</h2>
-		<p>There was an error in processing your request. Please try again
-			in a little while or contact the Administrator for further help.</p>
+	<div [ngSwitch]="true">
+		<div [ngSwitchCase]="statusCode == 401 || statusCode == 403">
+			<h2>User Is Not Authorized</h2>
+			<p>You do not have access to this functionality. If this is
+				incorrect, please contact your Authenticator Account Administrator
+				for further help.</p>
+		</div>
+		<div [ngSwitchCase]="statusCode == 404">
+			<h2>Not Found</h2>
+			<p>The page you requested is not available. Please check the URL
+				and try again. If problem persists contact the Administrator for
+				further help.</p>
+		</div>
+		<div ngSwitchDefault>
+			<h2>Error Occurred</h2>
+			<p>There was an error in processing your request. Please try
+				again in a little while or contact the Administrator for further
+				help.</p>
+		</div>
 	</div>
 </div>
